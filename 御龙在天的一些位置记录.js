@@ -779,9 +779,9 @@ for (var i = 0; i < current_scene.vars_.factionFightRewardData[0][0][markId].len
 
 
 //每次进入帮派,判断是否有人申请进入帮派
-qyengine.callAfter(function(){
+qyengine.callAfter(function () {
 	applyPrompt();
-}.bind(this),current_scene,50);
+}.bind(this), current_scene, 50);
 function applyPrompt() {
 	if (Number(game.vars_.backFaction[1][0]) == 1 || Number(game.vars_.backFaction[1][0]) == 2) {   //族长、副族长
 		if (game.vars_.backFaction[0].reqjoinguildlist.length > 0) {
@@ -808,19 +808,19 @@ if (qyengine.getInstancesByType("grou_applyPrompt").length > 0) {
 //grou_applyPrompt  (145,600)  10
 
 //获取途径
- game.scripts["al_scr_" + "actionlist_getway"](null,null,90001,6);
+game.scripts["al_scr_" + "actionlist_getway"](null, null, 90001, 6);
 
 
 
- qyengine.guardId('txt_PorpUpWord').setText(getConfig("box",current_scene['nowSaleButton'].vars_.Id,"name"));
-qyengine.guardId("txt_saleGoodDec").setText(getConfig("box",current_scene['nowSaleButton'].vars_.Id,"dec"));
+qyengine.guardId('txt_PorpUpWord').setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "name"));
+qyengine.guardId("txt_saleGoodDec").setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "dec"));
 qyengine.guardId('txt_equipNeedLevel').hide();
 qyengine.guardId('txt_packagePopUpBoxWord').setText('请选择数量');
 qyengine.guardId('txt_saleRewardCoin').hide();
-qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects['obj_equipImage'].changeSprite("obj_"+game.configs.box[current_scene['nowSaleButton'].vars_.Id].icon+'_default');
+qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects['obj_equipImage'].changeSprite("obj_" + game.configs.box[current_scene['nowSaleButton'].vars_.Id].icon + '_default');
 //使用或者开启宝箱界面的元素的一些初始化
-var showLinShi= ['txt_openBoxCostWord','obj_openBoxCost','txt_openBoxCostName','txt_openBoxHaveGoodNum','txt_openBoxCostGoodNum'];
-for(var i=0;i< showLinShi.length;i++){
+var showLinShi = ['txt_openBoxCostWord', 'obj_openBoxCost', 'txt_openBoxCostName', 'txt_openBoxHaveGoodNum', 'txt_openBoxCostGoodNum'];
+for (var i = 0; i < showLinShi.length; i++) {
 	qyengine.guardId(showLinShi[i]).show();
 }
 //qyengine.guardId('txt_openBoxCostGoodNum').setText('1');
@@ -832,13 +832,13 @@ function openBoxOpera(markId) {
 				qyengine.guardId('obj_装备出售_使用按钮').changeSprite('obj_装备出售_使用按钮_A1');
 				var costGoodNum = Number(game.vars_.userInfo.packageInfo.packBox[i].cost.split(':')[1]);
 				var costGoodType = Number(game.vars_.userInfo.packageInfo.packBox[i].cost.split(':')[0]);
-                                qyengine.guardId('txt_openBoxCostGoodNum').setText(''+costGoodNum);
-				current_scene['nowSaleButton'].vars_.costId= costGoodType;
-				qyengine.guardId('obj_openBoxCost').changeSprite('obj_'+game.configs.item[costGoodType].icon+'_default');	 //消耗的物品的icon
-                                 qyengine.guardId('obj_openBoxCost').setScale(0.6,0.6);
+				qyengine.guardId('txt_openBoxCostGoodNum').setText('' + costGoodNum);
+				current_scene['nowSaleButton'].vars_.costId = costGoodType;
+				qyengine.guardId('obj_openBoxCost').changeSprite('obj_' + game.configs.item[costGoodType].icon + '_default');	 //消耗的物品的icon
+				qyengine.guardId('obj_openBoxCost').setScale(0.6, 0.6);
 				qyengine.guardId('txt_openBoxCostName').setText(game.configs.item[costGoodType].name);	 //消耗的物品的name
-				qyengine.guardId('txt_openBoxHaveGoodNum').setText(calNowHaveCostGood(costGoodType)+'/'); //拥有本物品的数量
-                                current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum= calNowHaveCostGood(costGoodType);   //记录拥有本物品的数量
+				qyengine.guardId('txt_openBoxHaveGoodNum').setText(calNowHaveCostGood(costGoodType) + '/'); //拥有本物品的数量
+				current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum = calNowHaveCostGood(costGoodType);   //记录拥有本物品的数量
 				qyengine.guardId('grou_packagePopUp_Box').dispatchMessage({
 					"type": 'message',
 					"message": "使用或开启",
@@ -846,10 +846,10 @@ function openBoxOpera(markId) {
 				});
 			} else {
 				qyengine.guardId('obj_装备出售_使用按钮').changeSprite('obj_装备出售_使用按钮_A0');
-                                var hideLinShi= ['txt_openBoxCostWord','obj_openBoxCost','txt_openBoxCostName','txt_openBoxHaveGoodNum','txt_openBoxCostGoodNum'];
-				for(var j=0;j<hideLinShi.length;j++){
+				var hideLinShi = ['txt_openBoxCostWord', 'obj_openBoxCost', 'txt_openBoxCostName', 'txt_openBoxHaveGoodNum', 'txt_openBoxCostGoodNum'];
+				for (var j = 0; j < hideLinShi.length; j++) {
 					qyengine.guardId(hideLinShi[j]).hide();
-				} 
+				}
 				qyengine.guardId('grou_packagePopUp_Box').dispatchMessage({
 					"type": 'message',
 					"message": "使用或开启",
@@ -867,12 +867,151 @@ function calNowHaveCostGood(costId) {
 			return Number(game.vars_.userInfo.packageInfo.packGood[i].num);
 		}
 	}
-return 0;
+	return 0;
 }
 
 
-current_game.scripts["al_scr_"+"createCommonFlutterTxt"].call(this,undefined,this,'45级开启!');
+current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, '45级开启!');
 //组别 剩余时间 剩余家族数量/家族总数量	
-if(qyengine.getInstancesByType("grou_factionDailyActivity").length&&grou_factionDailyActivity.vars_.upperLimitFaction){
-	game.vars_.backFaction[0].upperLimitFaction= grou_factionDailyActivity.vars_.upperLimitFaction;
+if (qyengine.getInstancesByType("grou_factionDailyActivity").length && grou_factionDailyActivity.vars_.upperLimitFaction) {
+	game.vars_.backFaction[0].upperLimitFaction = grou_factionDailyActivity.vars_.upperLimitFaction;
 }
+
+if (qyengine.getInstancesByType("grou_factionFightMainFighting").length == 0) {
+	var posX = Number(game.configs.UIConfig.grou_factionFightMainFighting.position.split(",")[0]);
+	var posY = Number(game.configs.UIConfig.grou_factionFightMainFighting.position.split(",")[1]);
+	var zIndex = Number(game.configs.UIConfig.grou_factionFightMainFighting.zIndex);
+	qyengine.instance_create(posX, posY, "grou_factionFightMainFighting", {
+		"type": "grou_factionFightMainFighting",
+		"id": "grou_factionFightMainFighting",
+		"zIndex": zIndex,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	var posX1 = Number(game.configs.UIConfig.grou_factionFightCommonBotton_1.position.split(",")[0]);
+	var posY1 = Number(game.configs.UIConfig.grou_factionFightCommonBotton_1.position.split(",")[1]);
+	var zIndex1 = Number(game.configs.UIConfig.grou_factionFightCommonBotton_1.zIndex);
+	qyengine.instance_create(posX1, posY1, "grou_factionFightCommonBotton", {
+		"type": "grou_factionFightMainFighting",
+		"id": "grou_factionFightCommonBotton_1",
+		"zIndex": zIndex,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	qyengine.guardId("grou_factionFightMainFighting").appendChild("grou_factionFightCommonBotton_1", posX1, posY1);
+	//绘制滚轴元素
+	scro_factionFightMainFighting.resetLimitPosition(true);
+	scro_factionFightMainFighting.vars_.itemSize = 0;
+	qyengine.guardId("scro_factionFightMainFighting").dispatchMessage({ "type": 'message', "message": 'create_object_item' });
+}
+grou_factionFightMainFighting.objects["txt_factionFightMian_fightMianScene2_1"] =
+	"活动倒计时: " + countDownCal(Number(game.vars_.startFightMainData[1])); 	//活动倒计时
+var markAllGroup = ["青铜组", "白银组", "黄金组"];
+var surplusFamilyAndLevel = markAllGroup[Number(game.vars_.startFightMainData[2][0])] + "剩余家族数量: " + game.vars_.startFightMainData[2][1] +
+	"/" + game.vars_.startFightMainData[2][2];
+grou_factionFightMainFighting.objects["txt_factionFightMian_fightMianScene2_1"] =
+	surplusFamilyAndLevel;  //xxxx组剩余家族数量
+var surplusTime = game.vars_.startFightMainData[3][0];
+surplusTime = "攻击冷却时间: " + countDownCal(Number(surplusTime)) + "后可攻击";
+grou_factionFightCommonBotton_1.objects["txt_fightSelect_6"].text = surplusTime;
+grou_factionFightCommonBotton_1.objects["txt_fightSelect_7"].text = "我的家族排名" + game.vars_.startFightMainData[3][1];
+grou_factionFightCommonBotton_1.objects["txt_fightSelect_11"].text = "未击破城门: " + game.vars_.startFightMainData[3][2] + "/" + game.vars_.startFightMainData[3][3];
+grou_factionFightCommonBotton_1.objects["txt_fightSelect_8"].text = "家族士气值: " + game.vars_.startFightMainData[3][4];
+grou_factionFightCommonBotton_1.objects["txt_fightSelect_9"].text = "我的个人排名: " + game.vars_.startFightMainData[3][5];
+grou_factionFightCommonBotton_1.objects["txt_fightSelect_10"].text = "个人士气值: " + game.vars_.startFightMainData[3][6];
+function countDownCal(markTime) {
+	var minute = 0;
+	var second = 0;
+	if (markTime < 60) {
+		return "00:" + markTime + "秒";
+	} else {
+		minute = Math.floor(markTime / 60);
+		second = (markTime - minute * 60) < 0 ? 0 : (markTime - minute * 60);
+		if (second < 10) {
+			return "" + minute + "0" + second;
+		} else {
+			return "" + minute + "" + second;
+		}
+	}
+}
+
+//scro_factionFightMainFighting中元素的初始化	grou_factionFightMainFightingItem_
+var markNameAndServer = "" + game.vars_.startFightMainData[0][0] + "<font  color='#ffe57a'>" + "LV." + game.vars_.startFightMainData[0][1] + "" +
+	game.vars_.startFightMainData[0][2] + "</font>";
+qyengine.guardId("grou_factionFightMainFightingItem_" + repeatTime).objects["txt_factionFightMian_fightMianScene2_item_0"].text = markNameAndServer;
+qyengine.guardId("grou_factionFightMainFightingItem_" + repeatTime).objects["txt_factionFightMian_fightMianScene2_item_1"].text = "当前排名:" + game.vars_.startFightMainData[0][7];
+var cityGate = "未击破城门: " + game.vars_.startFightMainData[0][3] + "/" + game.vars_.startFightMainData[0][4];
+qyengine.guardId("grou_factionFightMainFightingItem_" + repeatTime).objects["txt_factionFightMian_fightMianScene2_item_1"].text = cityGate;
+var moraleNum = "家族士气值: " + game.vars_.startFightMainData[0][5] + "" + game.vars_.startFightMainData[0][6];
+
+
+//97601   ip 112 
+//跨服家族战,到达战斗时间后的主界面
+/** 家族列表(包括: 家族名称 等级 所属的服务器名字和编号 未击破城门数量	城门总数量	家族当前士气值 士气值上限 家族当前的排名)
+ * 家族倒计时
+ * 当前组别的剩余数量、当前组别的总家族数量
+ * 攻击冷却时间 我的家族排名 未击破城门 家族士气值   我的个人排名 个人士气值
+ * 
+*/
+game.vars_.startFightMainData = [[], 600, [0, 28, 35], [600, 2, 2, 4, 72850, 5, 20000]];
+var factionDetailRanklist = [["徐超超二号", 1, "s1", 2, 4, 999, 10000, 28], ["徐超超二号", 1, "s1", 2, 4, 999, 10000, 28],
+["徐超超三号", 3, "s2", 1, 4, 999, 10000, 22], ["徐超超四号", 10, "s5", 3, 4, 1288, 10000, 15]];
+game.vars_.startFightMainData[0] = factionDetailRanklist;
+
+
+//创建战斗前的选择城门的界面
+if (qyengine.getInstancesByType("grou_fightSelectScene").length == 0) {
+	var posX = Number(game.configs.UIConfig.grou_fightSelectScene.position.split(",")[0]);
+	var posY = Number(game.configs.UIConfig.grou_fightSelectScene.position.split(",")[1]);
+	var zIndex = Number(game.configs.UIConfig.grou_fightSelectScene.zIndex);
+	qyengine.instance_create(posX, posY, "grou_fightSelectScene", {
+		"type": "grou_fightSelectScene",
+		"id": "grou_fightSelectScene",
+		"zIndex": zIndex,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	//本页面的一些从服务器获得的数据的赋值
+	grou_fightSelectScene.vars_.gateSelectSceneData = [[5000, 10003], [4000, 10004], [6000, 10001], [6000, 10001]];
+	var posX1 = Number(game.configs.UIConfig.grou_factionFightCommonBotton_0.position.split(",")[0]);
+	var posY1 = Number(game.configs.UIConfig.grou_factionFightCommonBotton_0.position.split(",")[1]);
+	var zIndex1 = Number(game.configs.UIConfig.grou_factionFightCommonBotton_0.zIndex);
+	qyengine.instance_create(posX1, posY1, "grou_factionFightCommonBotton", {
+		"type": "grou_factionFightCommonBotton",
+		"id": "grou_factionFightCommonBotton_0",
+		"zIndex": zIndex1,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	qyengine.guardId("grou_fightSelectScene").appendChild("grou_factionFightCommonBotton_0", posX1, posY1);
+	
+	for (var m = 2; m <= 5; m++) {
+		var nowCityGateHp= grou_fightSelectScene.vars_.gateSelectSceneData[m-2][0];
+		grou_fightSelectScene.objects["txt_fightSelect_"+m].text= "城门生命: "+nowCityGateHp+"/"+"10000";
+		grou_fightSelectScene.objects["obj_通用_圆形头像框底图_fightSelect_"+(m-2)].changeSprite("obj_photo_"+grou_fightSelectScene.vars_.gateSelectSceneData[m-2][1]+"_default");
+	}
+
+	grou_fightSelectScene.objects["txt_fightSelect_0"].text = grou_factionFightMainFighting.objects['txt_factionFightMian_fightMianScene2_1'].text;
+	grou_fightSelectScene.objects["txt_fightSelect_1"].text = grou_factionFightMainFighting.objects['txt_factionFightMian_fightMianScene2_0'].text;
+	for (var i = 6; i <= 11; i++) {
+		grou_factionFightCommonBotton_0.objects["txt_fightSelect_" + i].text = grou_factionFightCommonBotton_1.objects["txt_fightSelect_" + i].text;
+	}
+}
+
+
+
+qyengine.instance_create(1414, 1226, "txt_packFusionRewardStone", {
+	"type": "txt_packFusionRewardStone",
+	"id": 'txt_packFusionRewardStone_reward',
+	"zIndex": 20,
+	"scene": 'main_scene',
+	"layer": 'layer_headerfeet'
+});
+
+
+
+
+
+
+
+
