@@ -182,3 +182,8 @@ qyengine.callAfter(function () {
 //字体更新后刷新缓存的代码
 qyremote.remove("deployed", qyengine.userId + "/" + $.currentProj);
 qyremote.deployProj(qyengine.userId + "/" + $.currentProj);
+//刷新页面
+location.reload();
+//消除延迟
+qyengine.unscheduleTask(current_scene.vars_.markLoading0);
+

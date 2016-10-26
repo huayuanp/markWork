@@ -984,11 +984,11 @@ if (qyengine.getInstancesByType("grou_fightSelectScene").length == 0) {
 		"layer": 'layer_headerfeet'
 	});
 	qyengine.guardId("grou_fightSelectScene").appendChild("grou_factionFightCommonBotton_0", posX1, posY1);
-	
+
 	for (var m = 2; m <= 5; m++) {
-		var nowCityGateHp= grou_fightSelectScene.vars_.gateSelectSceneData[m-2][0];
-		grou_fightSelectScene.objects["txt_fightSelect_"+m].text= "城门生命: "+nowCityGateHp+"/"+"10000";
-		grou_fightSelectScene.objects["obj_通用_圆形头像框底图_fightSelect_"+(m-2)].changeSprite("obj_photo_"+grou_fightSelectScene.vars_.gateSelectSceneData[m-2][1]+"_default");
+		var nowCityGateHp = grou_fightSelectScene.vars_.gateSelectSceneData[m - 2][0];
+		grou_fightSelectScene.objects["txt_fightSelect_" + m].text = "城门生命: " + nowCityGateHp + "/" + "10000";
+		grou_fightSelectScene.objects["obj_通用_圆形头像框底图_fightSelect_" + (m - 2)].changeSprite("obj_photo_" + grou_fightSelectScene.vars_.gateSelectSceneData[m - 2][1] + "_default");
 	}
 
 	grou_fightSelectScene.objects["txt_fightSelect_0"].text = grou_factionFightMainFighting.objects['txt_factionFightMian_fightMianScene2_1'].text;
@@ -1000,18 +1000,142 @@ if (qyengine.getInstancesByType("grou_fightSelectScene").length == 0) {
 
 
 
-qyengine.instance_create(1414, 1226, "txt_packFusionRewardStone", {
-	"type": "txt_packFusionRewardStone",
-	"id": 'txt_packFusionRewardStone_reward',
-	"zIndex": 20,
-	"scene": 'main_scene',
-	"layer": 'layer_headerfeet'
-});
+//新的圈圈的延迟的方案
+if (current_scene.classId == "main_scene") {
+	//延迟执行
+	qyengine.callAfter(function () {
+		isDestroyLoad();
+	}
+		.bind(this), current_scene, 5000);
+} else {
+	qyengine.callAfter(function () {
+		isDestroyLoad();
+	}
+		.bind(this), current_scene, 8000);
+}
+function isDestroyLoad() {
+	if (qyengine.getInstancesByType("grou_loadingCircle").length > 0) {
+		current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	}
+}
 
 
 
+//背包中龙魂点击后的数据的处理
+current_scene['nowSaleNum'] = current_scene['nowSaleButton'].vars_.num;
+qyengine.guardId("txt_packagePopUpBoxSelectNum").setText(current_scene['nowSaleNum']);
+qyengine.guardId("txt_openBoxCostGoodNum").setText(current_scene['nowSaleNum']);
+qyengine.guardId("txt_saleRewardCoin").setText(current_scene['nowSaleNum'] * 1000);
+qyengine.guardId('txt_PorpUpWord').setText(getConfig("dragon_soul", current_scene['nowSaleButton'].vars_.Id, "name"));
+qyengine.guardId("txt_saleGoodDec").setText(getConfig("dragon_soul", current_scene['nowSaleButton'].vars_.Id, "dec"));
+//qyengine.guardId("txt_saleGoodDec").hide();
+qyengine.guardId("txt_saleRewardCoin").setText("获得:" + 1000);
+qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects['obj_equipImage'].changeSprite("obj_" + game.configs.dragon_soul[current_scene['nowSaleButton'].vars_.Id].icon + "_default");
+//var markGoodType = Number(game.configs.dragon_soul[current_scene['nowSaleButton'].vars_.Id].type);
+//qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].vars_.markGoodType = markGoodType;
+qyengine.guardId("obj_装备出售_使用按钮").changeSprite("obj_装备出售_使用按钮_A2");
+
+
+//请求授予军衔的列表
+KBEngine.app.player().baseCall('reqClickNobilityInfo');
+
+
+qyengine.guardId('grou_grantRankItem' + repeatTime).objects['txt_gantRank8'].setText('剩余数量:' + 0 + '/' + game.configs.guild_peerage[repeatTime + 1].num);
+for (var i = 0; i <= 20; i++) {
+	var markAllNum = qyengine.guardId('grou_grantRankItem' + i).objects['txt_gantRank8'].text.split("/")[1];
+	qyengine.guardId('grou_grantRankItem' + i).objects['txt_gantRank8'].text = "剩余数量:" + data[0][i] + "/" + markAllNum;
+}
+//授予军衔后的回调
+var markRewardText = ["授予军衔失败!", "超过限定人数,授予军衔失败!", "帮派等级未达到,授予军衔失败!", "会员等级未达到,授予军衔失败!"];
+current_game.scripts["al_scr_" + 'operationRemind'].call(this, undefined, this, markRewardText[Number(data)]);
+
+grou_grantRank.objects['obj_确认授权按钮'].vars_.isAwarded = true;
+
+if (grou_grantRank.objects['obj_确认授权按钮'] && grou_grantRank.objects['obj_确认授权按钮'].vars_.isAwarded) {
+	grou_grantRank.objects['obj_确认授权按钮'].vars_.isAwarded = false;
+	current_game.scripts['al_scr_' + 'destroyAllGroup'].call(this, undefined, this);
+	current_game.scripts["al_scr_" + 'operationRemind'].call(this, undefined, this, '授予军衔成功!');
+}
+
+
+if (qyengine.getInstancesByType("grou_loadingRefreshGame").length == 0) {
+	var posX = Number(game.configs.UIConfig.grou_loadingRefreshGame.position.split(",")[0]);
+	var posY = Number(game.configs.UIConfig.grou_loadingRefreshGame.position.split(",")[1]);
+	var zIndex = Number(game.configs.UIConfig.grou_loadingRefreshGame.zIndex);
+	qyengine.instance_create(posX, posY, "grou_loadingRefreshGame", {
+		"type": "grou_loadingRefreshGame",
+		"id": 'grou_loadingRefreshGame',
+		"zIndex": zIndex,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	if (current_scene.classId == "main_scene") {
+
+	} else {
+		grou_loadingRefreshGame.x += 100;
+	}
+}
+
+
+xxx
 
 
 
+qyengine.unscheduleTask(current_scene.vars_.markLoading0)
+if (current_scene.vars_.markLoading0) {
+	qyengine.unscheduleTask(current_scene.vars_.markLoading0);
+}
+if (current_scene.vars_.markLoading1) {
+	qyengine.unscheduleTask(current_scene.vars_.markLoading1);
+}
 
 
+qyengine.instance_create(-100, 0, "SystemTipUI", { "id": "SystemTipUI", "zIndex": 999, "layer": "layer_headerfeet" });
+
+"obj_提示_2", "obj_通用_按钮_08", "obj_通用_按钮_刷新链接", "obj_通用弹出框_01_loadReconnection", "obj_提示_1"
+if (game.vars_.mark_againLinkLogic) {
+	game.vars_.mark_againLinkLogic = false;
+	return;
+}
+
+//reqRolesListCallback loginSuccessCallback
+
+if (game.vars_.mark_againLinkLogic) {
+	game.vars_.mark_againLinkLogic = false;
+	qyengine.different_scene("main_scene");
+}
+
+//onLoginBaseappFailed 这个回调在什么情况下会被调用
+
+
+if (!game.vars_.disconnect) {   //一段时间后不能连上不再重连
+	//qyengine.unscheduleTask(game.vars_.markConnectCallAfter);
+	game.vars_.markConnectCallAfter = qyengine.callAfter(function () {
+		if (qyengine.getInstancesByType('grou_loadingRefreshGame').length > 0) {
+			grou_loadingRefreshGame.destroy();
+		}
+		current_game.scripts["al_scr_" + 'createSystemTipUI'].call(this, undefined, this, 1);
+		game.vars_.disconnect2 = true;
+	}.bind(this), current_scene, 6000);
+	game.vars_.disconnect = true;
+}
+
+if (game.vars_.disconnect2) {
+	return;
+}
+
+if (game.vars_.markConnectCallAfter) {
+	qyengine.unscheduleTask(game.vars_.markConnectCallAfter);
+}
+
+
+//自己的军衔的等级
+current_scene.onesInfo.currentRankLevel
+self.vars_.allProperty
+
+current_scene.markLastTouch
+
+if ((Number(current_scene.markLastTouch) + 1) == Number(current_scene.onesInfo.currentRankLevel)) {
+	current_game.scripts["al_scr_" + 'operationRemind'] && current_game.scripts["al_scr_" + 'operationRemind'].call(this, undefined, this, '军衔等级与即将被授予的军衔相同!');
+	return;
+}
