@@ -1139,3 +1139,91 @@ if ((Number(current_scene.markLastTouch) + 1) == Number(current_scene.onesInfo.c
 	current_game.scripts["al_scr_" + 'operationRemind'] && current_game.scripts["al_scr_" + 'operationRemind'].call(this, undefined, this, '军衔等级与即将被授予的军衔相同!');
 	return;
 }
+
+
+onRespResult_saleGood
+
+scro_god
+
+if (current_scene['packNowTab'] == 2) {
+	qyengine.guardId("txt_openBoxCostGoodNum").setText(current_scene['nowSaleNum']);
+	qyengine.guardId("txt_saleRewardCoin").setText("获得:" + current_scene['nowSaleNum'] * 1000);
+	(event.event || event.originalEvent || event).stopPropagation && (event.event || event.originalEvent || event).stopPropagation();
+	return;
+}
+
+
+
+current_scene['nowSaleNum']--;
+
+current_scene['nowSaleNum'] = 1;
+if (current_scene.vars_.packNowTab == 2) {
+	current_game.scripts["al_scr_" + "actionlist_createLoadingCircle"].call(this, undefined, this);
+	KBEngine.app.player().baseCall('reqSaleDragon', [[current_scene['nowSaleButton'].vars_.Id, current_scene['nowSaleNum']]]);
+	return;
+}
+
+grou_pkNearbyPlayerInfo.objects["heroObjShowpk"].x
+current_scene['nowSaleButton']
+current_scene['nowSaleButton'].vars_.allProperty.quality
+qyengine.guardId("grou_packagePopUp").objects['cont_packagePopUp'].objects["obj_packageSmallFrame"].changeSprite("obj_packageSmallFrame_A" + current_scene['nowSaleButton'].vars_.allProperty.quality);
+switch (current_scene["packNowTab"]) {
+	case 0:
+		qyengine.guardId("grou_packagePopUp").objects['cont_packagePopUp'].objects["obj_packageSmallFrame"].
+			changeSprite("obj_packageSmallFrame_A" + current_scene['nowSaleButton'].vars_.allProperty.quality);
+		break;
+	case 1:
+		qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects["obj_packageSmallFrame"].
+			changeSprite("obj_packageSmallFrame_A" + game.configs.item[current_scene['nowSaleButton'].vars_.Id].quality);
+		break;
+	case 2:
+		qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects["obj_packageSmallFrame"].
+			changeSprite("obj_packageSmallFrame_A" + game.configs.dragon_soul[current_scene['nowSaleButton'].vars_.Id].quality);
+		break;
+	case 3:
+		qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects["obj_packageSmallFrame"].
+			changeSprite("obj_packageSmallFrame_A" + game.configs.box[current_scene['nowSaleButton'].vars_.Id].quality);
+		break;
+
+}
+qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects["obj_packageSmallFrame"].
+	changeSprite("obj_packageSmallFrame_A" + game.configs.item[current_scene['nowSaleButton'].vars_.Id].quality);
+
+
+
+
+grou_packageBig.vars_.needRefreshGood = true;
+
+
+if (grou_packageBig.vars_.needRefreshGood) {
+	qyengine.callAfter(function () {
+		grou_packageBig.vars_.needRefreshGood = false;
+		current_game.scripts["al_scr_" + "actionlist_initPackage"].call(this, undefined, this, 1);
+	}.bind(this), current_scene, 150);
+}
+
+game.configs.dragon_soul[game.vars_.userInfo.packageInfo.packGod[repeatTime].id].quality
+
+
+//请求敌人的角色信息,创建服装等 	      onRespPvpFightingEnemys    返回了红名点    game.vars_.respPvpFightingEnemys[6]
+//初始化pk界面的列表              onRespPvpFieldPkPlayersResult  
+/**	名称:dbId	类型:UNICODE	描述:数据库ID
+	名称:uid	类型:UNICODE	描述:UID
+	名称:nick	类型:UNICODE	描述:昵称
+	名称:level	类型:UINT32	描述:等级
+	名称:vip	类型:UINT32	描述:VIP
+	名称:server	类型:UNICODE	描述:所在服务器
+	名称:profession	类型:UINT32	描述:职业
+	名称:spy	类型:UINT32	描述:密探次数 每天清零
+	名称:data	类型:UINT32	描述:挑战后的倒计时或是否机器人 */
+
+
+
+grou_treasuryMainUI.vars_.treasuryDataList[0][1]
+
+
+
+configDataLength("exchequer") 
+
+
+
