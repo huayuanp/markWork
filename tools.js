@@ -1,7 +1,7 @@
 //王号的账号
-hwangrd 18655950910 wh
+//hwangrd 18655950910 wh
 //nginx
-http: //localhost/ylzt_0823/
+//http: //localhost/ylzt_0823/
 	operationRemind //通用的提示接口
 actionlist_createLoadingCircle //通用的创建加载圈圈
 actionlist_destroyLoadingCircle //通用的销毁圈圈
@@ -30,7 +30,7 @@ current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scrip
 
 
 KBEngine.app.player().baseCall('reqTestAddGoods', 40001, 10);
-20001 20002 20004 20005 20008 20009 200211 20116 20207
+//20001 20002 20004 20005 20008 20009 200211 20116 20207
 
 KBEngine.app.player().baseCall('reqTestAddLevelAndVipAndGoldAndSilver', 1, 20, 10000, 1000)
 	//停止唯一标识符的时间轴
