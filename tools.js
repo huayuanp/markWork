@@ -187,3 +187,4 @@ location.reload();
 //消除延迟
 qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 
+/**git remote add origin git@github.com:huayuanp/markWork.git */

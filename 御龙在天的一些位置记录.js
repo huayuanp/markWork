@@ -1223,7 +1223,52 @@ grou_treasuryMainUI.vars_.treasuryDataList[0][1]
 
 
 
-configDataLength("exchequer") 
+configDataLength("exchequer")
 
 
 
+if (game.vars_.expansion <= game.vars_.userInfo.packageInfo.packEquip.length) {
+	return true;
+}
+
+
+//各种颜色值
+/**
+ * 白色: #ffffff 绿色:73ffc9 蓝色 d5d5d5 紫色: 73ffc9 黄色:fff8af
+ * 
+ */
+
+current_game.scripts["al_scr_" + "setColorAccordingQuality"].call(this, undefined, this, "txt_PorpUpWord",
+	game.configs.box[current_scene['nowSaleButton'].vars_.Id].quality);
+var markQuality = game.configs.item[current_scene['nowSaleButton'].vars_.Id].quality;
+var markId = "txt_PorpUpWord";
+var markColorValue = ["#ffffff", "#73ffc9", "#77b1ff", "#ffa3fe", "#fff8af"];
+qyengine.guardId(markId).setFontColor(markColorValue[Number(markQuality)]);
+
+qyengine.guardId('grou_fusionSelectItem' + local.markFusionIndex).objects["txt_packFusionSelectItemName"].id
+
+
+game.vars_.userInfo.packageInfo.packEquip[repeatTime].quality
+current_game.scripts["al_scr_" + "setColorAccordingQuality"].call(this, undefined, this, qyengine.guardId('grou_fusionSelectItem' + local.markFusionIndex).objects["txt_packFusionSelectItemName"].id,
+	game.vars_.userInfo.packageInfo.packEquip[repeatTime].quality);
+
+
+
+
+
+if(qyengine.getInstancesByType("grou_account").length>0){
+	return;
+}
+pos = getConfig('UIConfig', 'grou_account', 'position').split(',');
+zIndex = getConfig('UIConfig', 'grou_account', 'zIndex');
+layer = getConfig('UIConfig', 'grou_account', 'layer');
+
+qyengine.instance_create(Number(pos[0]), Number(pos[1]), 'grou_account', {
+	"id": 'grou_account',
+	"zIndex": zIndex,
+	"layer": layer
+});
+
+
+createUserAccountBtn
+current_game.scripts["al_scr_"+"createUserAccountBtn"].call(this,undefined,this);
