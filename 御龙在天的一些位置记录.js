@@ -1256,7 +1256,7 @@ current_game.scripts["al_scr_" + "setColorAccordingQuality"].call(this, undefine
 
 
 
-if(qyengine.getInstancesByType("grou_account").length>0){
+if (qyengine.getInstancesByType("grou_account").length > 0) {
 	return;
 }
 pos = getConfig('UIConfig', 'grou_account', 'position').split(',');
@@ -1270,5 +1270,63 @@ qyengine.instance_create(Number(pos[0]), Number(pos[1]), 'grou_account', {
 });
 
 
-createUserAccountBtn
-current_game.scripts["al_scr_"+"createUserAccountBtn"].call(this,undefined,this);
+
+
+//国库领取奖励成功
+if (Number(data)) {
+	current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "领取成功!");
+	//current_game.scripts["al_scr_"+"actionlist_createLoadingCircle"]&&current_game.scripts["al_scr_"+"actionlist_createLoadingCircle"].call(this,undefined,this);
+	//KBEngine.app.player().baseCall('reqClickMateriel');
+	grou_militaryMain.objects["obj_国库_我要押镖"].changeSprite("obj_国库_我要押镖_A0");
+	grou_militaryMain.objects["txt_militaryMain_5"].setText("金子: 50");
+	grou_militaryMain.objects["txt_militaryMain_2"] && grou_militaryMain.objects["txt_militaryMain_2"].setText("当前进度: " + "0/10");
+} else {
+	current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "领取失败!");
+}
+
+
+
+grou_militaryMain.objects["txt_militaryMain_3"].vars_.remianTimes
+if (grou_militaryMain.objects["txt_militaryMain_3"].vars_.remianTimes > 0) {
+	//成功领取后更改进度和剩余押镖的次数
+	grou_militaryMain.objects["txt_militaryMain_3"].vars_.remianTimes--;
+	grou_militaryMain.objects['txt_militaryMain_3'].text = "今日剩余押镖次数: " + grou_militaryMain.objects["txt_militaryMain_3"].vars_.remianTimes + "次";
+	grou_militaryMain.objects['txt_militaryMain_2'].text = "当前进度: " + (3 - grou_militaryMain.objects["txt_militaryMain_3"].vars_.remianTimes) + "/10";
+}
+
+
+
+
+
+qyengine.guardId("grou_pkNearbyPlayerInfo").objects['txt_pkNearbyInfoRewardCoin'].setText(current_scene['storagePkNearbyPlayerInfoProperty'][0]);
+qyengine.guardId("grou_pkNearbyPlayerInfo").objects['txt_pkNearbyInfoRewardExp'].setText(current_scene['storagePkNearbyPlayerInfoProperty'][1]);
+qyengine.guardId("grou_pkNearbyPlayerInfo").objects['obj_pkAttackButton'].setVar('enemyProperty', current_scene['storagePkNearbyPlayerInfoProperty'][2]);
+var markCountry = ["魏", "蜀", "吴"];
+var nowCountry = markCountry[Number(current_scene['storagePkNearbyPlayerInfoProperty'][2].country)];
+qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setText(current_scene.vars_.outPlayerMarkServer + "." + nowCountry + "." + current_scene['storagePkNearbyPlayerInfoProperty'][3]);
+
+var markInfo = [];
+markInfo[0] = game.vars_.respPvpFightingEnemys[3] == "" ? "无家族" : ("" + game.vars_.respPvpFightingEnemys[3]);
+markInfo[1] = "VIP " + current_scene.vars_.outPlayerMarkVip;
+markInfo[2] = "lv." + game.vars_.respPvpFightingEnemys[4];
+for (var j = 0; j < 3; j++) {
+	qyengine.guardId("txt_grou_pkNearbyPlayerInfoData_" + j).setText(markInfo[j]);
+}
+
+
+if(qyengine.getInstancesByType("grou_pkNearbyPlayerInfo").length>0){
+	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor("#f3d51d");
+}
+
+calRedPointColor
+current_game.scripts['al_scr_'+"calRedPointColor"].call(this,undefined,this,1);
+
+
+
+if (Number(game.vars_.respPvpFightingEnemys[6]) >= 60 && Number(game.vars_.respPvpFightingEnemys[6]) < 100) {
+	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor('#f3d51d');
+} else if (Number(game.vars_.respPvpFightingEnemys[6]) >= 100) {
+	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor('#fd4242');
+} else {
+	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor('#ffffff');
+}

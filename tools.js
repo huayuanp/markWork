@@ -89,9 +89,9 @@ if (aa == true) {
 	location.reload()
 } else {}
 //创建实例
-qyengine.instance_create(1414, 1226, "txt_packFusionRewardStone", {
-	"type": "txt_packFusionRewardStone",
-	"id": 'txt_packFusionRewardStone_reward',
+qyengine.instance_create(1414, 1226, "txt_rankListNumber", {
+	"type": "txt_rankListNumber",
+	"id": 'txt_rankListNumber',
 	"zIndex": 20,
 	"scene": 'main_scene',
 	"layer": 'layer_headerfeet'
@@ -187,4 +187,6 @@ location.reload();
 //消除延迟
 qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 
-/**git remote add origin git@github.com:huayuanp/markWork.git */
+/**git remote add origin git@github.com:huayuanp/markWork.git
+ * $ git push origin master
+ */
