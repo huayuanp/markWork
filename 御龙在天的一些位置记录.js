@@ -1314,19 +1314,69 @@ for (var j = 0; j < 3; j++) {
 }
 
 
-if(qyengine.getInstancesByType("grou_pkNearbyPlayerInfo").length>0){
+if (qyengine.getInstancesByType("grou_pkNearbyPlayerInfo").length > 0) {
 	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor("#f3d51d");
 }
 
 calRedPointColor
-current_game.scripts['al_scr_'+"calRedPointColor"].call(this,undefined,this,1);
+current_game.scripts['al_scr_' + "calRedPointColor"].call(this, undefined, this, 1);
 
 
 
-if (Number(game.vars_.respPvpFightingEnemys[6]) >= 60 && Number(game.vars_.respPvpFightingEnemys[6]) < 100) {
-	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor('#f3d51d');
-} else if (Number(game.vars_.respPvpFightingEnemys[6]) >= 100) {
-	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor('#fd4242');
-} else {
-	qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setFontColor('#ffffff');
+
+
+
+var marktime0 = 0;
+var marktime1 = 0;
+var marktime2 = 0;
+if (game.vars_.offLineRewardNew[0][0] > 3600) {
+	marktime0 = Math.floor(game.vars_.offLineRewardNew[0][0] / 3600);
+	marktime1 = Math.floor((game.vars_.offLineRewardNew[0][0] - marktime0 * 3600) / 60);
+	marktime2 = (game.vars_.offLineRewardNew[0][0] - marktime0 * 3600 - marktime1 * 60) % 60;
+} else if (game.vars_.offLineRewardNew[0][0] > 60) {
+	marktime0 = '0';
+	marktime1 = Math.floor(game.vars_.offLineRewardNew[0][0] / 60);
+	marktime2 = game.vars_.offLineRewardNew[0][0] % 60;
+} else if (game.vars_.offLineRewardNew[0][0] <= 60) {
+	marktime0 = '0';
+	marktime1 = '0';
+	marktime2 = game.vars_.offLineRewardNew[0][0];
 }
+grou_offLineReward.objects['txt_offLineTime'].setText(marktime0 + '时' + marktime1 + '分' + marktime2 + '秒');
+grou_offLineReward.objects['txt_offLineExp'].setText('经验:' + game.vars_.offLineRewardNew[0][1]);
+grou_offLineReward.objects['txt_offLineGold'].setText('银子:' + game.vars_.offLineRewardNew[0][2]);
+txt_offLineCopperKey.hide();
+txt_offLineSilverKey.hide()
+local.offLineTxt="";
+if (game.vars_.offLineRewardNew[1].length != 0) {
+	for (var i = 0; i < game.vars_.offLineRewardNew[1].length; i++) {
+		if(game.configs.item[game.vars_.offLineRewardNew[1][i][0]]){
+			local.offLineTxt=local.offLineTxt+ game.configs.item[game.vars_.offLineRewardNew[1][i][0]].name+":"+game.vars_.offLineRewardNew[1][i][1]+"\n";
+			continue;
+		}
+		if(game.configs.box[game.vars_.offLineRewardNew[1][i][0]]){
+			local.offLineTxt=local.offLineTxt+game.configs.box[game.vars_.offLineRewardNew[1][i][0]].name+":"+game.vars_.offLineRewardNew[1][i][1]+"\n";
+			continue;
+		}
+	}
+}
+qyengine.guardId("grou_offLineReward").objects["txt_offLineGoldBox"].setText(local.offLineTxt);
+if (Number(game.vars_.offLineRewardNew[0][3]) === 0) {
+	txt_offLineTimeDec.hide();
+} else {
+	txt_offLineTimeDec.setText("因背包已满,自动出售" + game.vars_.offLineRewardNew[0][3] + "件装备");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
