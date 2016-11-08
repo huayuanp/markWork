@@ -1325,46 +1325,134 @@ current_game.scripts['al_scr_' + "calRedPointColor"].call(this, undefined, this,
 
 
 
+//设置翅膀
+if (game.vars_.userInfo.level >= getConfig('function', 3, 'level')) {
+	//判断当前的翅膀是否激活
+	//当前翅膀的等级
+	var wingLv = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].wing.level;
+	//当前翅膀的星级
+	var wingStar = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].wing.star;
 
-var marktime0 = 0;
-var marktime1 = 0;
-var marktime2 = 0;
-if (game.vars_.offLineRewardNew[0][0] > 3600) {
-	marktime0 = Math.floor(game.vars_.offLineRewardNew[0][0] / 3600);
-	marktime1 = Math.floor((game.vars_.offLineRewardNew[0][0] - marktime0 * 3600) / 60);
-	marktime2 = (game.vars_.offLineRewardNew[0][0] - marktime0 * 3600 - marktime1 * 60) % 60;
-} else if (game.vars_.offLineRewardNew[0][0] > 60) {
-	marktime0 = '0';
-	marktime1 = Math.floor(game.vars_.offLineRewardNew[0][0] / 60);
-	marktime2 = game.vars_.offLineRewardNew[0][0] % 60;
-} else if (game.vars_.offLineRewardNew[0][0] <= 60) {
-	marktime0 = '0';
-	marktime1 = '0';
-	marktime2 = game.vars_.offLineRewardNew[0][0];
+	//判断当前的翅膀是否已经激活
+	if (wingLv == 0) {
+		//没有激活
+
+		qyengine.instance_create(0, 0, 'wingActivatePanel', { "type": 'wingActivatePanel', "id": 'wingActivatePanel', "zIndex": 80, "layer": "layer_headerfeet", });
+
+	} else {
+		//先判断是否需要进阶
+		if (wingStar == 10) {
+			//进阶界面
+			qyengine.instance_create(0, 0, 'wingActivatePanel', { "type": 'wingActivatePanel', "id": 'wingActivatePanel', "zIndex": 80, "layer": "layer_headerfeet", });
+
+		} else {
+			//培养界面
+			qyengine.instance_create(0, 0, 'wingCultivatePanel', { "type": 'wingCultivatePanel', "id": 'wingCultivatePanel', "zIndex": 80, "layer": "layer_headerfeet", });
+			current_game.scripts["al_scr_" + "ifWingMaxLevel"].call(this, undefined, this, wingLv);
+		}
+
+	}
+	qyengine.guardId("role_panel_bg").setHidden(true);
+} else {
+
+	game.scripts["al_scr_" + 'createCommonFlutterTxt'] && current_game.scripts["al_scr_" + 'createCommonFlutterTxt'].call(this, undefined, this, "20级开启!");
+
 }
-grou_offLineReward.objects['txt_offLineTime'].setText(marktime0 + '时' + marktime1 + '分' + marktime2 + '秒');
-grou_offLineReward.objects['txt_offLineExp'].setText('经验:' + game.vars_.offLineRewardNew[0][1]);
-grou_offLineReward.objects['txt_offLineGold'].setText('银子:' + game.vars_.offLineRewardNew[0][2]);
-txt_offLineCopperKey.hide();
-txt_offLineSilverKey.hide()
-local.offLineTxt="";
-if (game.vars_.offLineRewardNew[1].length != 0) {
-	for (var i = 0; i < game.vars_.offLineRewardNew[1].length; i++) {
-		if(game.configs.item[game.vars_.offLineRewardNew[1][i][0]]){
-			local.offLineTxt=local.offLineTxt+ game.configs.item[game.vars_.offLineRewardNew[1][i][0]].name+":"+game.vars_.offLineRewardNew[1][i][1]+"\n";
-			continue;
-		}
-		if(game.configs.box[game.vars_.offLineRewardNew[1][i][0]]){
-			local.offLineTxt=local.offLineTxt+game.configs.box[game.vars_.offLineRewardNew[1][i][0]].name+":"+game.vars_.offLineRewardNew[1][i][1]+"\n";
-			continue;
-		}
+
+
+
+//战印的红点
+if (2 == data[0] && data[1] == 5) {
+	console.log("服务端推送战印的红点的数据------", data);
+	qyengine.guardId("obj_主城_龙印").vars_.storageFightMarking = true;
+	current_game.scripts["al_scr_" + "createAndDestroyFightRedPoint"].call(this, undefined, this, 1);
+}
+
+removeFightMarking
+
+
+console.log("服务端推送战印的红点的数据------", data);
+qyengine.guardId("obj_主城_龙印").vars_.storageFightMarking = true;
+current_game.scripts["al_scr_" + "createAndDestroyFightRedPoint"].call(this, undefined, this, 1);
+current_scene.vars_.storageFightMarking = true;
+
+
+
+
+var markRoleEquipRedPoint = ["redPointHint_equipment0",]
+var markShowAutoEquipEffect = false;
+for (var i = 0; i < 8; i++) {
+	if (qyengine.guardId("redPointHint_equipment" + i).isVisible) {
+		markShowAutoEquipEffect = true;
 	}
 }
-qyengine.guardId("grou_offLineReward").objects["txt_offLineGoldBox"].setText(local.offLineTxt);
-if (Number(game.vars_.offLineRewardNew[0][3]) === 0) {
-	txt_offLineTimeDec.hide();
+if (markShowAutoEquipEffect) {
+	qyengine.guardId("obj_一键换装按钮特效").show();
 } else {
-	txt_offLineTimeDec.setText("因背包已满,自动出售" + game.vars_.offLineRewardNew[0][3] + "件装备");
+	qyengine.guardId("obj_一键换装按钮特效").hide();
+}
+
+
+
+judgeAutoEquipButtonEffect
+
+//一键换装按钮的特效是否显示
+current_game.scripts["al_scr_" + "judgeAutoEquipButtonEffect"].call(this, undefined, this);
+
+grou_treasuryMainUI.vars_.treasuryDataList   //存储国库信息的变量~~~~~
+
+showTreasuryUI
+
+updateBuildUIShow
+
+
+
+current_scene.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+current_scene.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+
+
+grou_treasuryMainUI.vars_.treasuryDataList[0][0] = Number(data[0]);
+grou_treasuryMainUI.vars_.treasuryDataList[0][1] = Number(data[1]);
+/*
+	程序员:王号
+	功能: 建设回调
+*/
+
+
+grou_treasuryMainUI.vars_.treasuryDataList[0][1] += Number(data[0]); //更新建设值
+grou_treasuryMainUI.vars_.treasuryDataList[1][1] += Number(data[1]); //更新建设次数
+
+//VIP今日剩余次数
+txt_VIPDayRemainTimes_treasury.setText('VIP今日剩余次数：' + grou_treasuryMainUI.vars_.treasuryDataList[1][1] + ' / ' + game.configs.vip[game.vars_.userInfo.vip + 1].exchequer);
+if (grou_treasuryMainUI.vars_.treasuryDataList[1][1] - 1 >= game.configs.vip[game.vars_.userInfo.vip + 1].exchequer) {
+
+	//隐藏建设按钮
+	obj_通用_绿色按钮_01_treasury_block.hide();
+	obj_建设_舔砖按钮_1.hide();
+	txt_buildDesc_treasury_wh.hide();
+	txt_treasury_tip_wh.show();
+	txt_VIPDayRemainTimes_treasury.hide();
+}
+
+
+//判断是否升级
+var nextLevelExp = game.configs.exchequer[grou_treasuryMainUI.vars_.treasuryDataList[0][0]].exp;
+
+if (grou_treasuryMainUI.vars_.treasuryDataList[0][1] >= nextLevelExp) {
+	grou_treasuryMainUI.vars_.treasuryDataList[0][0] += 1;
+	nextLevelExp = game.configs.exchequer[grou_treasuryMainUI.vars_.treasuryDataList[0][0] + 1].exp;
+
+	//更新界面显示
+	current_game.scripts["al_scr_" + 'updateBuildUIShow'] && current_game.scripts["al_scr_" + 'updateBuildUIShow'].call(this, undefined, this);
+} else {
+	//更新建设值显示
+	txt_build_progress_wh.setText(grou_treasuryMainUI.vars_.treasuryDataList[0][1] + " / " + nextLevelExp);
+	obj_treansury_build_progress_wh.width = grou_treasuryMainUI.vars_.treasuryDataList[0][1] / nextLevelExp * obj_treansury_build_progress_wh.vars_.originWidth;
+	if (obj_treansury_build_progress_wh.width > 474) {
+		obj_treansury_build_progress_wh.width = 474;
+	}
+	//更新进度条显示
+	//obj_treansury_build_progress_wh.width = grou_treasuryMainUI.vars_.treasuryDataList[0][1] / nextLevelExp * obj_treansury_build_progress_wh.vars_.originWidth;
 }
 
 
@@ -1372,11 +1460,132 @@ if (Number(game.vars_.offLineRewardNew[0][3]) === 0) {
 
 
 
+var markLevel = Number(grou_treasuryMainUI.vars_.treasuryDataList[0][0]);
+//for (var i = 1; i < configDataLength("exchequer"); i++) {
+//if(game.configs.exchequer[i].exp>Number(grou_treasuryMainUI.vars_.treasuryDataList[0][1])){
+//markLevel= i;
+//console.log("----------",i);
+//break;
+//}
+//}
+/*
+	程序员:王号
+	功能: 更新建设UI显示
+*/
+
+//升级前属性值
+txt_treansury_curlevel_wh.setText(markLevel); //等级
+txt_treansury_Resourcereserve_value_wh.setText(game.configs.exchequer[markLevel].reserves); //国库储量
+txt_treansury_guardPlusHP_value_wh.setText(game.configs.exchequer[markLevel].hp + " %"); //守卫生命加成
+
+//升级后属性值
+txt_treansury_curlevel_wh_later.setText(markLevel + 1); //等级
+txt_treansury_Resourcereserve_value_wh_later.setText(game.configs.exchequer[markLevel + 1].reserves); //国库储量
+txt_treansury_guardPlusHP_value_wh_later.setText(game.configs.exchequer[markLevel + 1].hp + " %"); //守卫生命加成
+
+
+//建设值
+var nextBuild = game.configs.exchequer[markLevel + 1].exp - game.configs.exchequer[markLevel].exp;
+txt_build_progress_wh.setText(grou_treasuryMainUI.vars_.treasuryDataList[0][1] + " / " + nextBuild);
+obj_treansury_build_progress_wh.width = grou_treasuryMainUI.vars_.treasuryDataList[0][1] / nextBuild * obj_treansury_build_progress_wh.vars_.originWidth;
+if (obj_treansury_build_progress_wh.width > 474) {
+	obj_treansury_build_progress_wh.width = 474;
+}
+
+
+
+if (grou_treasuryMainUI.vars_.treasuryDataList[1][1] - 1 >= game.configs.vip[game.vars_.userInfo.vip + 1].exchequer) {
+
+	//隐藏建设按钮
+	obj_通用_绿色按钮_01_treasury_block.hide();
+	obj_建设_舔砖按钮_1.hide();
+	txt_buildDesc_treasury_wh.hide();
+	txt_VIPDayRemainTimes_treasury.hide();
+	txt_treasury_tip_wh.show();
+} else {
+
+	txt_VIPDayRemainTimes_treasury.show();
+	//VIP今日剩余次数
+	txt_VIPDayRemainTimes_treasury.setText('VIP今日剩余次数：' + grou_treasuryMainUI.vars_.treasuryDataList[1][1] + ' / ' + game.configs.vip[game.vars_.userInfo.vip + 1].exchequer);
+}
+
+
+if (grou_treasuryMainUI.vars_.treasuryDataList[1][1] < Number(game.configs.vip[game.vars_.userInfo.vip + 1].exchequer)) {
+	grou_treasuryMainUI.vars_.treasuryDataList[1][1]++;
+}
 
 
 
 
 
+替换equipmentInfoPanel_show组合UI中的grou_dazao.vars_.selectedRoleId替换为game.vars_.observedInfo.curryRoleIndex
+
+
+//商城打折的一些图标的修改
+grou_shop_element.objects['obj_商城_8折框'].changeSprite("obj_商城_5折框_default");
 
 
 
+
+
+grou_packageBig.vars_.nowPackWhichTab = 0;
+
+
+current_game.scripts["al_scr_" + "actionlist_initPackage"].call(this, undefined, this, grou_packageBig.vars_.nowPackWhichTab);
+current_game.scripts["al_scr_" + "actionlist_initPackage"].call(this, undefined, this, destroyPackageScro);
+
+destroyPackageScro
+switch (Number(data)) {
+	case 0:
+		scro_equip.resetLimitPosition(true);
+		scro_equip.vars_.itemSize = 0;
+		break;
+	case 1:
+		scro_goods.resetLimitPosition(true);
+		scro_goods.vars_.itemSize = 0;
+		break;
+	case 2:
+		scro_god.resetLimitPosition(true);
+		scro_god.vars_.itemSize = 0;
+		break;
+	case 3:
+		scro_box.resetLimitPosition(true);
+		scro_box.vars_.itemSize = 0;
+		break;
+}
+
+
+
+//修正了打造界面月亮出现的时机
+修正了打造界面的月亮, 使其相对于每个角色独立;
+背包界面的优化, 打开速度大幅降低;
+商城中的宝石和道具打折的修复;
+配合服务端进行了邮箱的优化;
+
+
+for (var i = 97001; i < 97090; i++) {
+	KBEngine.app.player().baseCall('reqTestAddGoods', i, 1);
+}
+
+
+
+
+if (qyengine.getInstancesByType("obj_一键换装按钮特效").length == 0) {
+	qyengine.instance_create(358, 788, "obj_一键换装按钮特效", {
+		"type": "obj_一键换装按钮特效",
+		"id": "obj_一键换装按钮特效1",
+		"zIndex": 2,
+		"scene": "main_scene",
+		"layer": "layer_headerfeet"
+	});
+}
+
+
+if(qyengine.getInstancesByType("obj_一键换装按钮特效").length>0){
+	qyengine.guardId("obj_一键换装按钮特效").destroy();
+}
+
+
+current_game.scripts["al_scr_"+"OpenLongPanel"].call(this,undefined,this);
+
+1613488669
