@@ -1581,11 +1581,129 @@ if (qyengine.getInstancesByType("obj_一键换装按钮特效").length == 0) {
 }
 
 
-if(qyengine.getInstancesByType("obj_一键换装按钮特效").length>0){
+if (qyengine.getInstancesByType("obj_一键换装按钮特效").length > 0) {
 	qyengine.guardId("obj_一键换装按钮特效").destroy();
 }
 
 
-current_game.scripts["al_scr_"+"OpenLongPanel"].call(this,undefined,this);
+current_game.scripts["al_scr_" + "OpenLongPanel"].call(this, undefined, this);
 
 1613488669
+
+scro_equip
+scro_goods
+scro_god
+scro_box
+
+self.vars_.alreadyCreated = true;
+
+current_game.scripts["al_scr_" + "onDisableConnect"].call(this, undefined, this, 1);
+
+
+
+var markShowAutoEquipEffect = false;
+for (var i = 0; i < 8; i++) {
+	if (qyengine.guardId("redPointHint_equipment" + i).isVisible) {
+		markShowAutoEquipEffect = true;
+	}
+}
+if (markShowAutoEquipEffect) {
+	//qyengine.guardId("obj_一键换装按钮特效").show();
+	if (qyengine.getInstancesByType("obj_一键换装按钮特效").length == 0) {
+		qyengine.instance_create(358, 788, "obj_一键换装按钮特效", {
+			"type": "obj_一键换装按钮特效",
+			"id": "obj_一键换装按钮特效",
+			"zIndex": 2,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+	}
+} else {
+	//qyengine.guardId("obj_一键换装按钮特效").hide();
+	if (qyengine.getInstancesByType("obj_一键换装按钮特效").length > 0) {
+		qyengine.guardId("obj_一键换装按钮特效").destroy();
+	}
+}
+
+
+
+
+
+
+var markShowAutoEquipEffect = false;
+for (var i = 0; i < 8; i++) {
+	if (qyengine.guardId("redPointHint_equipment" + i).isVisible) {
+		markShowAutoEquipEffect = true;
+	}
+}
+if (markShowAutoEquipEffect) {
+	//qyengine.guardId("obj_一键换装按钮特效").show();
+	if (qyengine.getInstancesByType("obj_一键换装按钮特效").length == 0) {
+		qyengine.instance_create(358, 788, "obj_一键换装按钮特效", {
+			"type": "obj_一键换装按钮特效",
+			"id": "obj_一键换装按钮特效",
+			"zIndex": 2,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+	} else {
+		console.log("嗯哼~~~~~~~", markShowAutoEquipEffect);
+		qyengine.guardId("obj_一键换装按钮特效").show();
+	}
+} else {
+	//qyengine.guardId("obj_一键换装按钮特效").hide();
+	if (qyengine.getInstancesByType("obj_一键换装按钮特效").length > 0) {
+		//qyengine.guardId("obj_一键换装按钮特效").destroy();
+		qyengine.guardId("obj_一键换装按钮特效").hide();
+	}
+}
+
+
+qyengine.guardId("grou_loadingCircle").destroy();
+if (current_scene.vars_.markLoading0) {
+	qyengine.unscheduleTask(current_scene.vars_.markLoading0);
+}
+if (current_scene.vars_.markLoading1) {
+	qyengine.unscheduleTask(current_scene.vars_.markLoading1);
+}
+current_game.scripts["al_scr_" + "actionlist_createLoadingCircle"].call(this, undefined, this)
+
+qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOneCell(2 - 1, 3 - 1);
+onRespResult_saleEquip
+
+
+this.vars_.markHangLieAndObj = [];
+var markLinShi = ["grou_packageEquipItem_" + repeatTime, Math.floor(repeatTime / 4), (repeatTime % 4)];
+this.vars_.markHangLieAndObj.push(markLinShi);
+qyengine.guardId("grou_packageEquipItem_" + repeatTime).vars_.markHangLieAndObj = [Math.floor(repeatTime / 4), (repeatTime % 4)];
+
+//点击售卖过后的处理
+scro_equip.vars_.nowClickItemPos = self.vars_.markHangLieAndObj;
+scro_equip.vars_.nowClickItemId= self.vars_.connectProperty;
+
+
+for (var i = scro_equip.vars_.markHangLieAndObj.length - 1; i >= 0; i--) {
+	if (scro_equip.vars_.markHangLieAndObj[i][0].split("_")[2] > scro_equip.vars_.nowClickItemId.split("_")[2]) {
+		if (scro_equip.vars_.markHangLieAndObj[i][2] == 0) {
+			scro_equip.vars_.markHangLieAndObj[i][1]--;
+			scro_equip.vars_.markHangLieAndObj[i][2]==3;
+			//console.log("~scro_equip.vars_.markHangLieAndObj[i][0]",scro_equip.vars_.markHangLieAndObj[i][0]);
+			qyengine.guardId(scro_equip.vars_.markHangLieAndObj[i][0]).vars_.markHangLieAndObj[0]--;
+			qyengine.guardId(scro_equip.vars_.markHangLieAndObj[i][0]).vars_.markHangLieAndObj[1]==3;
+		} else {
+			scro_equip.vars_.markHangLieAndObj[i][2]--;
+			qyengine.guardId(scro_equip.vars_.markHangLieAndObj[i][0]).vars_.markHangLieAndObj[1]--;
+		}
+	} else if (scro_equip.vars_.markHangLieAndObj[i][0].split("_")[2] == scro_equip.vars_.nowClickItemId.split("_")[2]) {
+		qyengine.guardId('scro_equip').removeOneCell && qyengine.guardId('scro_equip').removeOneCell(scro_equip.vars_.markHangLieAndObj[i][1], 
+		scro_equip.vars_.markHangLieAndObj[i][2]);
+		console.log("每次删除的实例~~~~",scro_equip.vars_.markHangLieAndObj[i][0]);
+		scro_equip.vars_.markHangLieAndObj.splice(i,1);
+		break;
+	}
+}
+
+
+
+
+

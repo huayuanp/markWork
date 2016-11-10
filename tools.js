@@ -186,6 +186,8 @@ qyremote.deployProj(qyengine.userId + "/" + $.currentProj);
 location.reload();
 //消除延迟
 qyengine.unscheduleTask(current_scene.vars_.markLoading0);
+//删除滚轴容器的单元格
+qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOneCell(2 - 1, 3 - 1);
 
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
