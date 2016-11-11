@@ -188,6 +188,9 @@ location.reload();
 qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 //删除滚轴容器的单元格
 qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOneCell(2 - 1, 3 - 1);
+//js原声的计时器
+
+
 
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master

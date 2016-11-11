@@ -1679,26 +1679,26 @@ qyengine.guardId("grou_packageEquipItem_" + repeatTime).vars_.markHangLieAndObj 
 
 //点击售卖过后的处理
 scro_equip.vars_.nowClickItemPos = self.vars_.markHangLieAndObj;
-scro_equip.vars_.nowClickItemId= self.vars_.connectProperty;
+scro_equip.vars_.nowClickItemId = self.vars_.connectProperty;
 
 
 for (var i = scro_equip.vars_.markHangLieAndObj.length - 1; i >= 0; i--) {
 	if (scro_equip.vars_.markHangLieAndObj[i][0].split("_")[2] > scro_equip.vars_.nowClickItemId.split("_")[2]) {
 		if (scro_equip.vars_.markHangLieAndObj[i][2] == 0) {
 			scro_equip.vars_.markHangLieAndObj[i][1]--;
-			scro_equip.vars_.markHangLieAndObj[i][2]==3;
+			scro_equip.vars_.markHangLieAndObj[i][2] == 3;
 			//console.log("~scro_equip.vars_.markHangLieAndObj[i][0]",scro_equip.vars_.markHangLieAndObj[i][0]);
 			qyengine.guardId(scro_equip.vars_.markHangLieAndObj[i][0]).vars_.markHangLieAndObj[0]--;
-			qyengine.guardId(scro_equip.vars_.markHangLieAndObj[i][0]).vars_.markHangLieAndObj[1]==3;
+			qyengine.guardId(scro_equip.vars_.markHangLieAndObj[i][0]).vars_.markHangLieAndObj[1] == 3;
 		} else {
 			scro_equip.vars_.markHangLieAndObj[i][2]--;
 			qyengine.guardId(scro_equip.vars_.markHangLieAndObj[i][0]).vars_.markHangLieAndObj[1]--;
 		}
 	} else if (scro_equip.vars_.markHangLieAndObj[i][0].split("_")[2] == scro_equip.vars_.nowClickItemId.split("_")[2]) {
-		qyengine.guardId('scro_equip').removeOneCell && qyengine.guardId('scro_equip').removeOneCell(scro_equip.vars_.markHangLieAndObj[i][1], 
-		scro_equip.vars_.markHangLieAndObj[i][2]);
-		console.log("每次删除的实例~~~~",scro_equip.vars_.markHangLieAndObj[i][0]);
-		scro_equip.vars_.markHangLieAndObj.splice(i,1);
+		qyengine.guardId('scro_equip').removeOneCell && qyengine.guardId('scro_equip').removeOneCell(scro_equip.vars_.markHangLieAndObj[i][1],
+			scro_equip.vars_.markHangLieAndObj[i][2]);
+		console.log("每次删除的实例~~~~", scro_equip.vars_.markHangLieAndObj[i][0]);
+		scro_equip.vars_.markHangLieAndObj.splice(i, 1);
 		break;
 	}
 }
@@ -1706,4 +1706,82 @@ for (var i = scro_equip.vars_.markHangLieAndObj.length - 1; i >= 0; i--) {
 
 
 
+oneKeyCross(356, 786)
+
+//obj_通用_按钮_一键换装_1        obj_通用_按钮_一键换装_1_1(356, 786)
+
+
+//dynamicCreateRoleSomeObj   dynamicDestroyRoleSomeObj
+
+if (qyengine.getInstancesByType(markId).length == 0) {
+	qyengine.instance_create(posX, posY, markId, {
+		"type": markId,
+		"id": markId,
+		"zIndex": index,
+		"layer": "layer_headerfeet"
+	});
+}
+if (qyengine.getInstancesByType(markId).length > 0) {
+	for (var i = 0; i < qyengine.getInstancesByType(markId).length; i++) {
+		qyengine.getInstancesByType(markId)[i].destroy();
+	}
+}
+
+current_game.scripts["al_scr_" + "dynamicCreateRoleSomeObj"].call(this, undefined, this, 356, 768, "oneKeyCross", 2);
+current_game.scripts["al_scr_" + "dynamicCreateRoleSomeObj"].call(this, undefined, this, 356, 768, "obj_通用_按钮_一键换装_1", 2);
+
+current_game.scripts["al_scr_" + "dynamicDestroyRoleSomeObj"].call(this, undefined, this, "oneKeyCross");
+current_game.scripts["al_scr_" + "dynamicDestroyRoleSomeObj"].call(this, undefined, this, "obj_通用_按钮_一键换装_1");
+
+
+
+
+var needHideInstance = ["oneKeyCross", "obj_通用_按钮_一键换装_1", "heroObjShow"];
+for (var i = 0; i < needHideInstance.length; i++) {
+	if (qyengine.getInstancesByType(needHideInstance[i]).length > 0) {
+		qyengine.guardId(needHideInstance[i]).show();
+	}
+}
+current_game.scripts["al_scr_" + "judgeAutoEquipButtonEffect"].call(this, undefined, this);
+
+roleSkillPanel
+
+出售成功
+//
+
+
+grou_pkFailAndSuccess.vars_.markCalTime = setInterval(function () {
+				self.vars_.markTime--;
+				self.text = "(" + self.vars_.markTime + ")";
+				if (self.vars_.markTime <= 0) {
+		clearInterval(grou_pkFailAndSuccess.vars_.markCalTime);
+		grou_pkFailAndSuccess.destroy();
+		//qyengine.different_scene("main_scene");
+		current_game.scripts["al_scr_" + "main_sceneBattleInfoInit"] && current_game.scripts["al_scr_" + "main_sceneBattleInfoInit"].call(this, undefined, this);
+		current_game.scripts["al_scr_" + "mainSceneRequestPkPlayer"] && current_game.scripts["al_scr_" + "mainSceneRequestPkPlayer"].call(this, undefined, this);
+		current_game.scripts["al_scr_" + "calRedPointColor"] && current_game.scripts["al_scr_" + "calRedPointColor"].call(this, undefined, this, 1);
+		current_game.scripts["al_scr_" + "gengsGuide"] && current_game.scripts["al_scr_" + "gengsGuide"].call(this, undefined, this, 0);
+				}
+}, 1000);
+
+
+if(qyengine.guardId('obj_通用_注册登录_新_mailBox_wh' + mailID)&&!qyengine.guardId('obj_通用_注册登录_新_mailBox_wh' + mailID).destroyed_){
+	qyengine.guardId('obj_通用_注册登录_新_mailBox_wh' + mailID).destroy();
+}
+
+
+
+
+
+if(qyengine.getInstancesByType("role_panel").length>0&&role_panel.vars_.heroObjShow){
+    role_panel.vars_.heroObjShow.destroy();
+}
+current_game.scripts["al_scr_"+"dynamicDestroyRoleSomeObj"].call(this,undefined,this,"oneKeyCross");
+current_game.scripts["al_scr_"+"dynamicDestroyRoleSomeObj"].call(this,undefined,this,"obj_通用_按钮_一键换装_1");
+
+
+
+if(qyengine.getInstancesByType("roleSkillPanel").length>0){
+	 roleSkillPanel.vars_.isTouch=true;
+}
 
