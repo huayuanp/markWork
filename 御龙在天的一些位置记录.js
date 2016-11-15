@@ -1415,40 +1415,38 @@ current_game.scripts["al_scr_" + "createFactionFight"].call(this, undefined, thi
 switch (self.vars_.tab) {
 	case 0:
 		KBEngine.app.player().baseCall("reqLastTimeCSGuildsFightingRank", 2, 0);
-		grou_factionFightMain.vars_.nowShowRank= 2;
+		grou_factionFightMain.vars_.nowShowRank = 2;
 		break;
 	case 1:
 		KBEngine.app.player().baseCall("reqLastTimeCSGuildsFightingRank", 1, 0);
-		grou_factionFightMain.vars_.nowShowRank= 1;
+		grou_factionFightMain.vars_.nowShowRank = 1;
 		break;
 	case 2:
 		KBEngine.app.player().baseCall("reqLastTimeCSGuildsFightingRank", 0, 0);
-		grou_factionFightMain.vars_.nowShowRank= 0;
+		grou_factionFightMain.vars_.nowShowRank = 0;
 		break;
 }
 
 
 //存储排行榜的数据
-grou_factionFightMain.vars_.getRanklistData[grou_factionFightMain.vars_.nowShowRank][grou_factionFightMain.vars_.markNowTab]= data;
 
 
-grou_factionFightMain.vars_.getRanklistData={};
-if(!grou_factionFightMain.vars_.getRanklistData[grou_factionFightMain.vars_.nowShowRank]){
-	grou_factionFightMain.vars_.getRanklistData[grou_factionFightMain.vars_.nowShowRank]= data[0];
+grou_factionFightMain.vars_.getRanklistData = [];
+if (!grou_factionFightMain.vars_.getRanklistData[grou_factionFightMain.vars_.markNowTab]) {
+	grou_factionFightMain.vars_.getRanklistData[grou_factionFightMain.vars_.markNowTab] = data[0];
 }
 
 
+//current_scene.vars_.getRanklistData     self.vars_.eventArgs
+
+current_scene.vars_.getRanklistData = [[[1, "徐超超", 1000000, [[97001, 1], [97002, 5]]], [2, "xuguangyuan", 2000000, [[97010, 1], [96001, 5]]]],
+[20, 500, [[97004, 2], [97005, 4], [97003, 4]]]];
 
 
-current_scene.vars_.getRanklistData= [[[1,"徐超超",1000000,[[97001,1],[97002,5]]],[2,"xuguangyuan",2000000,[[97010,1],[96001,5]]]],
-[20,500,[[97004,2],[97005,4],[97003,4]]]];
-
-
-qyengine.guardId('grou_factionFightRankListItem'+repeatTime).setScale(1,1);
-qyengine.guardId('grou_factionFightRankListItem'+repeatTime).objects["txt_rankListNumber"].text= 
-current_scene.vars_.getRanklistData[0][repeatTime][0];  //名次
-qyengine.guardId('grou_factionFightRankListItem'+repeatTime).objects["txt_fationFightLastRankList_1"].text= current_scene.vars_.getRanklistData[0][repeatTime][1];  //家族名称
-qyengine.guardId('grou_factionFightRankListItem'+repeatTime).objects["txt_fationFightLastRankList_2"].text=  "士气值: "+current_scene.vars_.getRanklistData[0][repeatTime][2]; //家族总的士气值
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).setScale(1, 1);
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_rankListNumber"].text = grou_factionFightMain.vars_.getRanklistData[self.vars_.eventArgs][repeatTime][0];  //名次
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_1"].text = grou_factionFightMain.vars_.getRanklistData[self.vars_.eventArgs][repeatTime][1];  //家族名称
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_2"].text = "士气值: " + grou_factionFightMain.vars_.getRanklistData[self.vars_.eventArgs][repeatTime][2]; //家族总的士气值
 for (var i = 0; i < current_scene.vars_.getRanklistData[0][repeatTime][3].length; i++) {
 	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + i].show();
 	//qyengine.guardId('grou_factionFightRankListItem'+repeatTime).objects["obj_通用_金子_"+i].changeSprite("");
@@ -1466,34 +1464,34 @@ for (var i = 0; i < current_scene.vars_.getRanklistData[0][repeatTime][3].length
 		markIcon = "obj_" + game.configs.dragon_soul[markDataId].icon + "_default";
 	}
 	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + i].changeSprite(markIcon);
-	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + i].setScale(0.6,0.6);
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + i].setScale(0.6, 0.6);
 }
 var markCommonBottonText = ["我的家族排名", "家族族长排名",
 	"我的排名"
 ];
-grou_factionLastRanklist.objects["txt_fationFightLastRankList_7"].text = markCommonBottonText[Number(self.vars_.eventArgs)] + current_scene.vars_.getRanklistData[1][0];
-grou_factionLastRanklist.objects["txt_fationFightLastRankList_8"].text = "士气值" + current_scene.vars_.getRanklistData[1][1];
+grou_factionLastRanklist.objects["txt_fationFightLastRankList_7"].text = markCommonBottonText[Number(self.vars_.eventArgs)] + grou_factionFightMain.vars_.getRanklistDataSelf[0];
+grou_factionLastRanklist.objects["txt_fationFightLastRankList_8"].text = "士气值" + grou_factionFightMain.vars_.getRanklistDataSelf[1];
 for (var j = 0; j < current_scene.vars_.getRanklistData[1][2].length; j++) { //固定对应获得的奖励
-	grou_factionLastRanklist.objects["obj_通用_金子_"+(4+j)].show();
-        grou_factionLastRanklist.objects["txt_fationFightLastRankList_"+(9+j)].show();
-	var markRewardId= current_scene.vars_.getRanklistData[1][2][j][0];
-	var markRewardIcon= "obj_通用_金子_default";
-	if(game.configs.equipment[markRewardId]){
-		grou_factionLastRanklist.objects["obj_通用_金子_"+(4+j)].changeSprite("obj_"+game.configs.equipment[markRewardId].icon+"_default");
-	}else if(game.configs.item[markDataId]){
-		grou_factionLastRanklist.objects["obj_通用_金子_"+(4+j)].changeSprite("obj_"+game.configs.item[markRewardId].icon+"_default");
-	}else if(game.configs.box[markDataId]){
-		grou_factionLastRanklist.objects["obj_通用_金子_"+(4+j)].changeSprite("obj_"+game.configs.box[markRewardId].icon+"_default");
-	}else{
-		grou_factionLastRanklist.objects["obj_通用_金子_"+(4+j)].changeSprite("obj_"+game.configs.dragon_soul[markRewardId].icon+"_default");
+	grou_factionLastRanklist.objects["obj_通用_金子_" + (4 + j)].show();
+	grou_factionLastRanklist.objects["txt_fationFightLastRankList_" + (9 + j)].show();
+	var markRewardId = current_scene.vars_.getRanklistData[1][2][j][0];
+	var markRewardIcon = "obj_通用_金子_default";
+	if (game.configs.equipment[markRewardId]) {
+		grou_factionLastRanklist.objects["obj_通用_金子_" + (4 + j)].changeSprite("obj_" + game.configs.equipment[markRewardId].icon + "_default");
+	} else if (game.configs.item[markDataId]) {
+		grou_factionLastRanklist.objects["obj_通用_金子_" + (4 + j)].changeSprite("obj_" + game.configs.item[markRewardId].icon + "_default");
+	} else if (game.configs.box[markDataId]) {
+		grou_factionLastRanklist.objects["obj_通用_金子_" + (4 + j)].changeSprite("obj_" + game.configs.box[markRewardId].icon + "_default");
+	} else {
+		grou_factionLastRanklist.objects["obj_通用_金子_" + (4 + j)].changeSprite("obj_" + game.configs.dragon_soul[markRewardId].icon + "_default");
 	}
-	grou_factionLastRanklist.objects["obj_通用_金子_"+(4+j)].setScale(0.6,0.6);
-	grou_factionLastRanklist.objects["txt_fationFightLastRankList_"+(9+j)].text= ""+current_scene.vars_.getRanklistData[1][2][j][1];
+	grou_factionLastRanklist.objects["obj_通用_金子_" + (4 + j)].setScale(0.6, 0.6);
+	grou_factionLastRanklist.objects["txt_fationFightLastRankList_" + (9 + j)].text = "" + current_scene.vars_.getRanklistData[1][2][j][1];
 }
-if(Number(self.vars_.eventArgs)){
-	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_vip"].text="VIP 0";
-	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].changeSprite("obj_photopwang"+"_10001_default");
-        qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].setScale(0.8,0.8);
+if (Number(self.vars_.eventArgs)) {
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_vip"].text = "VIP 0";
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].changeSprite("obj_photopwang" + "_10001_default");
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].setScale(0.8, 0.8);
 }
 
 
@@ -1501,9 +1499,112 @@ if(Number(self.vars_.eventArgs)){
 
 
 
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).setScale(1, 1);
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_rankListNumber"].text = grou_factionFightMain.vars_.getRanklistData[self.vars_.eventArgs][repeatTime][0];  //名次
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_1"].text = grou_factionFightMain.vars_.getRanklistData[self.vars_.eventArgs][repeatTime][1];  //家族名称
+qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_2"].text = "士气值: " + grou_factionFightMain.vars_.getRanklistData[self.vars_.eventArgs][repeatTime][2]; //家族总的士气值
+var realDuanWei = [2, 1, 0];
+var markGetReward = [];
+if (repeatTime + 1 <= 10) {
+	if (grou_factionFightMain.vars_.markNowTab == 1) {
+		markGetReward = game.configs.guild_war_reward[repeatTime + 1].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	} else if (grou_factionFightMain.vars_.markNowTab == 2) {
+		markGetReward = game.configs.guild_war_reward[repeatTime + 1].self.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	} else {
+		markGetReward = game.configs.guild_war_reward[repeatTime + 1].guild.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	}
+} else {
+	if (grou_factionFightMain.vars_.markNowTab == 1) {
+		markGetReward = game.configs.guild_war_reward[repeatTime + 1].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	}
+}
+for (var i = 0; i < markGetReward.length; i++) {
+	var markRewardId = Number(markGetReward[0].split(":")[0]);
+	var markNum = Number(markGetReward[0].split(":")[1]);
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + i].show();
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_" + (3 + i)].show();
+	var markIcon = "obj_通用_金子_default";
+	if (game.configs.equipment[markDataId]) {
+		markIcon = "obj_" + game.configs.equipment[markDataId].icon + "_default";
+	} else if (game.configs.item[markDataId]) {
+		markIcon = "obj_" + game.configs.item[markDataId].icon + "_default";
+	} else if (game.configs.box[markDataId]) {
+		markIcon = "obj_" + game.configs.box[markDataId].icon + "_default";
+	} else if (game.configs.dragon_soul[markDataId]) {
+		markIcon = "obj_" + game.configs.dragon_soul[markDataId].icon + "_default";
+	} else if (game.configs.title[markDataId]) {
+		markIcon = "obj_" + game.configs.title[markDataId].icon + "_default";
+	}
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + i].changeSprite(markIcon);
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + i].setScale(0.6, 0.6);
+}
+if (repeatTime === 0) {
+	//下面自己家族、族长、个人的排名以及奖励等的赋值
+	var markCommonBottonText = ["我的家族排名", "家族族长排名",
+		"我的排名"
+	];
+	if (Number(grou_factionFightMain.vars_.getRanklistDataSelf[0])) {
+		grou_factionLastRanklist.objects["txt_fationFightLastRankList_7"].text = markCommonBottonText[Number(self.vars_.eventArgs)] + "十名之外";
+		grou_factionLastRanklist.objects["txt_fationFightLastRankList_8"].text = "士气值" + grou_factionFightMain.vars_.getRanklistDataSelf[1];
+	} else {
+		grou_factionLastRanklist.objects["txt_fationFightLastRankList_7"].text = markCommonBottonText[Number(self.vars_.eventArgs)] + grou_factionFightMain.vars_.getRanklistDataSelf[0];
+		grou_factionLastRanklist.objects["txt_fationFightLastRankList_8"].text = "士气值" + grou_factionFightMain.vars_.getRanklistDataSelf[1];
+	}
+
+realDuanWei = [2, 1, 0];
+markGetReward = [];
+if (Number(grou_factionFightMain.vars_.getRanklistDataSelf[0])!=0) {
+	if (grou_factionFightMain.vars_.markNowTab == 1) {
+		markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	} else if (grou_factionFightMain.vars_.markNowTab == 2) {
+		markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].self.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	} else {
+		markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].guild.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	}
+} else {
+	if (grou_factionFightMain.vars_.markNowTab == 1) {
+		markGetReward = game.configs.guild_war_reward[11].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	}
+}
+for (var j = 0; j < markGetReward.length; j++) {
+	var markRewardId = Number(markGetReward[0].split(":")[0]);
+	var markNum = Number(markGetReward[0].split(":")[1]);
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j+4)].show();
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_" + (j + 9)].show();
+	var markIcon = "obj_通用_金子_default";
+	if (game.configs.equipment[markDataId]) {
+		markIcon = "obj_" + game.configs.equipment[markDataId].icon + "_default";
+	} else if (game.configs.item[markDataId]) {
+		markIcon = "obj_" + game.configs.item[markDataId].icon + "_default";
+	} else if (game.configs.box[markDataId]) {
+		markIcon = "obj_" + game.configs.box[markDataId].icon + "_default";
+	} else if (game.configs.dragon_soul[markDataId]) {
+		markIcon = "obj_" + game.configs.dragon_soul[markDataId].icon + "_default";
+	} else if (game.configs.title[markDataId]) {
+		markIcon = "obj_" + game.configs.title[markDataId].icon + "_default";
+	}
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j+4)].changeSprite(markIcon);
+	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j+9)].setScale(0.6, 0.6);
+}
+
+//if (Number(self.vars_.eventArgs)) {
+	//qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_vip"].text = "VIP 0";
+	//qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].changeSprite("obj_photopwang" + "_10001_default");
+	//qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].setScale(0.8, 0.8);
+//}
 
 
 
+
+current_game.scripts['al_scr_'+"createFactionFightRankList"].call(this,undefined,this,self.vars_.tabId);
+
+
+
+//点击报名的回调用
+var markRewardText=["已经报名!","没到报名时间","报名成功"];
+if(Number(data[0])>=5&&Number(data[0])<=7){
+	current_game.scripts['al_scr_'+"createCommonFlutterTxt"].call(this,undefined,this,markRewardText[Number(data[0]-5)]);
+}
 
 
 
@@ -1537,6 +1638,5 @@ if(Number(self.vars_.eventArgs)){
 
 //查看其它玩家信息  yulongzaitian_observedRoleInfo    ---徐光源
  */
-
 
 
