@@ -1551,92 +1551,288 @@ if (repeatTime === 0) {
 		grou_factionLastRanklist.objects["txt_fationFightLastRankList_8"].text = "士气值" + grou_factionFightMain.vars_.getRanklistDataSelf[1];
 	}
 
-realDuanWei = [2, 1, 0];
-markGetReward = [];
-if (Number(grou_factionFightMain.vars_.getRanklistDataSelf[0])!=0) {
-	if (grou_factionFightMain.vars_.markNowTab == 1) {
-		markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
-	} else if (grou_factionFightMain.vars_.markNowTab == 2) {
-		markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].self.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	realDuanWei = [2, 1, 0];
+	markGetReward = [];
+	if (Number(grou_factionFightMain.vars_.getRanklistDataSelf[0]) != 0) {
+		if (grou_factionFightMain.vars_.markNowTab == 1) {
+			markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+		} else if (grou_factionFightMain.vars_.markNowTab == 2) {
+			markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].self.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+		} else {
+			markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].guild.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+		}
 	} else {
-		markGetReward = game.configs.guild_war_reward[grou_factionFightMain.vars_.getRanklistDataSelf[0]].guild.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+		if (grou_factionFightMain.vars_.markNowTab == 1) {
+			markGetReward = game.configs.guild_war_reward[11].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+		}
 	}
-} else {
-	if (grou_factionFightMain.vars_.markNowTab == 1) {
-		markGetReward = game.configs.guild_war_reward[11].chairman.split("|")[realDuanWei[grou_factionFightMain.vars_.nowShowRank]].split(";");
+	for (var j = 0; j < markGetReward.length; j++) {
+		var markRewardId = Number(markGetReward[0].split(":")[0]);
+		var markNum = Number(markGetReward[0].split(":")[1]);
+		qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j + 4)].show();
+		qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_" + (j + 9)].show();
+		var markIcon = "obj_通用_金子_default";
+		if (game.configs.equipment[markDataId]) {
+			markIcon = "obj_" + game.configs.equipment[markDataId].icon + "_default";
+		} else if (game.configs.item[markDataId]) {
+			markIcon = "obj_" + game.configs.item[markDataId].icon + "_default";
+		} else if (game.configs.box[markDataId]) {
+			markIcon = "obj_" + game.configs.box[markDataId].icon + "_default";
+		} else if (game.configs.dragon_soul[markDataId]) {
+			markIcon = "obj_" + game.configs.dragon_soul[markDataId].icon + "_default";
+		} else if (game.configs.title[markDataId]) {
+			markIcon = "obj_" + game.configs.title[markDataId].icon + "_default";
+		}
+		qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j + 4)].changeSprite(markIcon);
+		qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j + 9)].setScale(0.6, 0.6);
 	}
-}
-for (var j = 0; j < markGetReward.length; j++) {
-	var markRewardId = Number(markGetReward[0].split(":")[0]);
-	var markNum = Number(markGetReward[0].split(":")[1]);
-	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j+4)].show();
-	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_" + (j + 9)].show();
-	var markIcon = "obj_通用_金子_default";
-	if (game.configs.equipment[markDataId]) {
-		markIcon = "obj_" + game.configs.equipment[markDataId].icon + "_default";
-	} else if (game.configs.item[markDataId]) {
-		markIcon = "obj_" + game.configs.item[markDataId].icon + "_default";
-	} else if (game.configs.box[markDataId]) {
-		markIcon = "obj_" + game.configs.box[markDataId].icon + "_default";
-	} else if (game.configs.dragon_soul[markDataId]) {
-		markIcon = "obj_" + game.configs.dragon_soul[markDataId].icon + "_default";
-	} else if (game.configs.title[markDataId]) {
-		markIcon = "obj_" + game.configs.title[markDataId].icon + "_default";
-	}
-	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j+4)].changeSprite(markIcon);
-	qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_金子_" + (j+9)].setScale(0.6, 0.6);
-}
 
-//if (Number(self.vars_.eventArgs)) {
+	//if (Number(self.vars_.eventArgs)) {
 	//qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["txt_fationFightLastRankList_vip"].text = "VIP 0";
 	//qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].changeSprite("obj_photopwang" + "_10001_default");
 	//qyengine.guardId('grou_factionFightRankListItem' + repeatTime).objects["obj_通用_方形头像框"].setScale(0.8, 0.8);
-//}
+	//}
 
 
 
 
-current_game.scripts['al_scr_'+"createFactionFightRankList"].call(this,undefined,this,self.vars_.tabId);
+	current_game.scripts['al_scr_' + "createFactionFightRankList"].call(this, undefined, this, self.vars_.tabId);
 
 
 
-//点击报名的回调用
-var markRewardText=["已经报名!","没到报名时间","报名成功"];
-if(Number(data[0])>=5&&Number(data[0])<=7){
-	current_game.scripts['al_scr_'+"createCommonFlutterTxt"].call(this,undefined,this,markRewardText[Number(data[0]-5)]);
-}
+	//点击报名的回调用
+	var markRewardText = ["已经报名!", "没到报名时间", "报名成功"];
+	if (Number(data[0]) >= 5 && Number(data[0]) <= 7) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, markRewardText[Number(data[0] - 5)]);
+	}
 
 
 
-/**
- * yulongzaitian_wuhan      ---汪鹏
-//公告
+	/**
+	 * yulongzaitian_wuhan      ---汪鹏
+	//公告
+	
+	//yulongzaitian_role_wuhan     ---耿树群
+	  角色       role
+	  查看属性    role/roleInfoPanel
+	  星级属性    role/starShowPanel
+	  翅膀        role/wingPanel
+	  技能        role/skillPanel
+	  龙魂        role/loongPanel
+	  创建角色(伙伴)    role/creatNewRole
+	  龙魂值      role/loongPanel/loongNumPanel
+	  特殊戒指    role/specialRing
+	 家族boss
+	 世界boss
+	  王成霸主     kindomOverlord
+	  擂台         arena
+	  护国寺(二期) huguoTemple
+	
+	
+	//打造          ylzt_dazao    ---徐光源
+	
+	//邮箱         yulongzaitianH5_MailBox    ---汪鹏
+	
+	
+	//商城         yulongzaitianH5_商城       ---汪鹏
+	
+	
+	//查看其它玩家信息  yulongzaitian_observedRoleInfo    ---徐光源
+	 */
 
-//yulongzaitian_role_wuhan     ---耿树群
-  角色       role
-  查看属性    role/roleInfoPanel
-  星级属性    role/starShowPanel
-  翅膀        role/wingPanel
-  技能        role/skillPanel
-  龙魂        role/loongPanel
-  创建角色(伙伴)    role/creatNewRole
-  龙魂值      role/loongPanel/loongNumPanel
-  特殊戒指    role/specialRing
-
-  王成霸主     kindomOverlord
-  擂台         arena
-  护国寺(二期) huguoTemple
+	//696   220     (-3,-272)
+	//  grou_activityMainItem (346,48);
 
 
-//打造          ylzt_dazao    ---徐光源
+	if (qyengine.getInstancesByType("grou_activityMain").length == 0) {
+		qyengine.instance_create(359, 640, "grou_activityMain", {
+			"type": "grou_activityMain",
+			"id": "grou_activityMain",
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+	}
+	var markNeedChangeSprite0 = ["obj_活动_专属高级礼包_default", "obj_活动_累计消耗_default", "obj_活动_等级礼包", "obj_活动_王者争霸"];
+	//记录活动持续的时间的文本
+	var markNeedChangeSprite1 = [];
+	for (var i = 0; i < 4; i++) {
+		qyengine.instance_create(346, 48, "grou_activityMainItem", {
+			"type": "grou_activityMainItem",
+			"id": "grou_activityMainItem_" + i,
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+		qyengine.guardId("scro_activityMain").appendChild("grou_activityMainItem_" + i, 356, 48, i, 0, false, true);
+		qyengine.guardId("grou_activityMainItem_" + i).objects['obj_活动_精彩活动框'].vars_.touchId = i;
+		//改变内部的一些文字的显示
+		qyengine.guardId("grou_activityMainItem_" + i).objects['obj_活动_专属高级标题'].changeSprite(markNeedChangeSprite0[i]);
+		qyengine.guardId("grou_activityMainItem_" + i).objects['obj_主城_红点_obj_主城_红点_activity'].show();
+		//qyengine.guardId("grou_activityMainItem_"+i).objects['obj_活动_12点'].changeSprite();
+	}
 
-//邮箱         yulongzaitianH5_MailBox    ---汪鹏
 
 
-//商城         yulongzaitianH5_商城       ---汪鹏
+	current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	//专属高级礼包界面的创建
+	if (qyengine.getInstancesByType("grou_activityMain_advanced").length == 0) {
+		qyengine.instance_create(359, 640, "grou_activityMain_advanced", {
+			"type": "grou_activityMain_advanced",
+			"id": "grou_activityMain_advanced",
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+	}
+	if (!Number(data[0])) { //可领取
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].changeSprite("obj_通用_按钮_02_advanced_A0");
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.canReceive = true;
+		grou_activityMain_advanced.objects['obj_活动_已领取_advanced_0'].changeSprite("obj_活动_领取奖励_default");
+	}
+	if (!Number(data[1])) { //可领取
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].changeSprite("obj_通用_按钮_02_advanced_A0");
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.canReceive = true;
+		grou_activityMain_advanced.objects['obj_活动_已领取_advanced_1'].changeSprite("obj_活动_领取奖励_default");
+	}
+
+	//点击领取按钮的逻辑
+	if (self.vars_.canReceive) {
+		current_game.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+		KBEngine.app.player().baseCall('reqGetActivityOneReward', Number(self.vars_.touchId));
+	} else {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "已经领取过奖励!");
+	}
+	//点击领取按钮后的回调
+	current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	var markShowText = ["领取失败", "领取成功", "领取成功", "不在领取时间内"];
+	current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, markShowText[Number(data)]);
+	if (Number(data) == 1) {
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.canReceive = false;
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].changeSprite("obj_活动_已领取按钮_default");
+		grou_activityMain_advanced.objects['obj_活动_已领取_advanced_0'].changeSprite("obj_活动_已领取_default");
+	} else if (Number(data) == 2) {
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.canReceive = false;
+		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].changeSprite("obj_活动_已领取按钮_default");
+		grou_activityMain_advanced.objects['obj_活动_已领取_advanced_1'].changeSprite("obj_活动_已领取_default");
+	}
+	/**
+	 * 	0//失败
+	1//领取成功
+	2//第二个领取成功
+	3//不在领取时间内
+	 */
 
 
-//查看其它玩家信息  yulongzaitian_observedRoleInfo    ---徐光源
- */
+	//点击活动按钮的逻辑
+	current_game.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+	KBEngine.app.player().baseCall('reqClickActivity');
 
+	/**
+	 * 点击活动按钮的回调逻辑
+	 */
+	current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	for (var i = 0; i < data[0].length; i++) {
+		if (Number(data[0][i])) {
+			qyengine.guardId("grou_activityMainItem_" + i).objects['obj_主城_红点_obj_主城_红点_activity'].show();
+		} else {
+			qyengine.guardId("grou_activityMainItem_" + i).objects['obj_主城_红点_obj_主城_红点_activity'].hide();
+		}
+	}
+	grou_activityMain.vars_.markContinueData = Number(data[1]);
+
+
+	//累计消耗界面的绘制
+	grou_activityMain_totalConsume_item(218, 37)
+
+
+	if (qyengine.getInstancesByType("grou_activityMain_totalConsume").length == 0) {
+		qyengine.instance_create(359, 640, "grou_activityMain_totalConsume", {
+			"type": "grou_activityMain_totalConsume",
+			"id": "grou_activityMain_totalConsume",
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+	}
+	for (var i = 0; i < configDataLength("activity_consume"); i++) {
+		qyengine.instance_create(346, 48, "grou_activityMain_totalConsume_item", {
+			"type": "grou_activityMain_totalConsume_item",
+			"id": "grou_activityMain_totalConsume_item_" + i,
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+		//添加到滚轴容器
+		qyengine.guardId("scro_activityMain_totalConsume").appendChild("grou_activityMain_totalConsume_item_" + i, 218, 37, i, 0, false, true);
+		if (!data[i]) {
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].changeSprite("obj_通用_按钮_02_advanced_A0");
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取_advanced_0"].changeSprite("obj_活动_领取奖励_default");
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].vars_.canReceive = true;
+		}
+		qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].vars_.touchId = i + 1;
+		qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects['txt_consumeGoldShow'].text =
+			"累计消耗" + game.configs.activity_consume[i + 1].cost + "金子";
+		var getItemAndBox = [];
+		getItemAndBox = getItemAndBoxObj(i + 1);
+		for (var k = 0; k < getItemAndBox.length; k++) {
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["grou_activityEquipItem_" + k].show();
+			var markIcon = 0;
+			var markName = 0;
+			if (game.configs.item[getItemAndBox[k][0]]) {
+				markIcon = game.configs.item[getItemAndBox[k][0]].icon;
+				markName = game.configs.item[getItemAndBox[k][0]].name;
+			} else {
+				markIcon = game.configs.box[getItemAndBox[k][0]].icon;
+				markName = game.configs.box[getItemAndBox[k][0]].name;
+			}
+			var markNum = getItemAndBox[k][1];
+
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["grou_activityEquipItem_" + k].objects["obj_活动_VIP_" + (k + 1)].
+				changeSprite("obj_" + markIcon + "_default");
+			var markNumTextObj = ["txt_activity_advanced_2", "txt_activity_advanced_1", "txt_activity_advanced_3", "txt_activity_advanced_4"];
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["grou_activityEquipItem_" + k].objects[markNumTextObj[k]].text = markNum;
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["grou_activityEquipItem_" + k].objects["txt_activityEquipItem_name_" + k].text = markName;
+		}
+		//qyengine.guardId("grou_activityMain_totalConsume_item_" + i)
+		//qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].changeSprite();
+		//qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取_advanced_0"].changeSprite();
+	}
+
+
+	//function 返回获得的物品和宝箱的奖励
+	function getItemAndBoxObj(index) {
+		var backObj = [];
+		var itemArr = game.configs.activity_consume[index].item.split(";");
+		for (var j = 0; j < itemArr.length; j++) {
+			var linShiArr = [];
+			linShiArr[0] = Number(itemArr[j].split("|")[0]);
+			linShiArr[1] = Number(itemArr[j].split("|")[1]);
+			backObj.push(linShiArr);
+		}
+		if (game.configs.activity_consume[index].box != -1) {
+			var linShiArr1 = [];
+			linShiArr1[0] = Number(game.configs.activity_consume[index].box.split("|")[0]);
+			linShiArr1[1] = Number(game.configs.activity_consume[index].box.split("|")[1]);
+			backObj.push(linShiArr1);
+		}
+		return backObj;
+	}
+
+
+
+
+	//累计消耗的界面上的领取后的反馈
+	if (Number(data)) {//领取成功
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "领取成功!");
+		//变量重新赋值
+		current_scene.vars_.nowTouchObj.vars_.canReceive = false;
+		var markScroPos= current_scene.vars_.nowTouchObj.vars_.touchId-1;
+		qyengine.guardId("grou_activityMain_totalConsume_item_" + markScroPos).objects["obj_活动_已领取按钮_totalConsume"].
+		changeSprite("obj_活动_已领取按钮_totalConsume_default");
+		qyengine.guardId("grou_activityMain_totalConsume_item_" + markScroPos).objects["obj_活动_已领取_advanced_0"].
+		changeSprite("obj_活动_已领取_default");
+	} else {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "领取失败!");
+	}
 
