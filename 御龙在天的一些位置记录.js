@@ -1668,6 +1668,7 @@ if (repeatTime === 0) {
 		qyengine.guardId("grou_activityMainItem_" + i).objects['obj_活动_精彩活动框'].vars_.touchId = i;
 		//改变内部的一些文字的显示
 		qyengine.guardId("grou_activityMainItem_" + i).objects['obj_活动_专属高级标题'].changeSprite(markNeedChangeSprite0[i]);
+		qyengine.guardId("grou_activityEquipItem_" + i).objects['obj_活动_精彩活动底1_activity'].changeSprite("obj_活动_精彩活动底1_activity_A" + i);
 		qyengine.guardId("grou_activityMainItem_" + i).objects['obj_主城_红点_obj_主城_红点_activity'].show();
 		//qyengine.guardId("grou_activityMainItem_"+i).objects['obj_活动_12点'].changeSprite();
 	}
@@ -1685,15 +1686,47 @@ if (repeatTime === 0) {
 			"layer": "layer_headerfeet"
 		});
 	}
-	if (!Number(data[0])) { //可领取
-		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].changeSprite("obj_通用_按钮_02_advanced_A0");
-		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.canReceive = true;
-		grou_activityMain_advanced.objects['obj_活动_已领取_advanced_0'].changeSprite("obj_活动_领取奖励_default");
-	}
-	if (!Number(data[1])) { //可领取
-		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].changeSprite("obj_通用_按钮_02_advanced_A0");
-		grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.canReceive = true;
-		grou_activityMain_advanced.objects['obj_活动_已领取_advanced_1'].changeSprite("obj_活动_领取奖励_default");
+	if (data[2] == 1) {
+		if (!data[0]) {
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].changeSprite("obj_通用_按钮_02_advanced_A0");
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.canReceive = true;
+			grou_activityMain_advanced.objects['obj_活动_已领取_advanced_0'].changeSprite("obj_活动_领取奖励_default");
+		} else {
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.alreadyReceive = true;
+		}
+		if (!data[1]) {
+			grou_activityMain_advanced.objects["obj_活动_已领取_advanced_1"].changeSprite("obj_活动_领取奖励_default");
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.canReceive = false;
+		} else {
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.alreadyReceive = true;
+		}
+	} else if (data[2] == 2) {
+		if (!data[0]) {
+			grou_activityMain_advanced.objects["obj_活动_已领取_advanced_0"].changeSprite("obj_活动_领取奖励_default");
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.canReceive = false;
+		} else {
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.alreadyReceive = true;
+		}
+		if (!data[1]) {
+			grou_activityMain_advanced.objects["obj_活动_已领取按钮_advanced_1"].changeSprite("obj_通用_按钮_02_advanced_A0");
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.canReceive = true;
+			grou_activityMain_advanced.objects["obj_活动_已领取_advanced_1"].changeSprite("obj_活动_领取奖励_default");
+		} else {
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.alreadyReceive = true;
+		}
+	} else {
+		if (!data[0]) {
+			grou_activityMain_advanced.objects["obj_活动_已领取_advanced_0"].changeSprite("obj_活动_领取奖励_default");
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.canReceive = false;
+		} else {
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_0'].vars_.alreadyReceive = true;
+		}
+		if (!data[1]) {
+			grou_activityMain_advanced.objects["obj_活动_已领取_advanced_1"].changeSprite("obj_活动_领取奖励_default");
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.canReceive = false;
+		} else {
+			grou_activityMain_advanced.objects['obj_活动_已领取按钮_advanced_1'].vars_.alreadyReceive = true;
+		}
 	}
 
 	//点击领取按钮的逻辑
@@ -1755,8 +1788,9 @@ if (repeatTime === 0) {
 			"layer": "layer_headerfeet"
 		});
 	}
+	qyengine.guardId("txt_activity_totalConsume_1").text = "活动规则: 累计消耗指定额外的金子即可领取对应" + "\n" + "的奖励当前已消耗金子:" + data_gold;
 	for (var i = 0; i < configDataLength("activity_consume"); i++) {
-		qyengine.instance_create(346, 48, "grou_activityMain_totalConsume_item", {
+		qyengine.instance_create(353, 48, "grou_activityMain_totalConsume_item", {
 			"type": "grou_activityMain_totalConsume_item",
 			"id": "grou_activityMain_totalConsume_item_" + i,
 			"zIndex": 5,
@@ -1765,10 +1799,14 @@ if (repeatTime === 0) {
 		});
 		//添加到滚轴容器
 		qyengine.guardId("scro_activityMain_totalConsume").appendChild("grou_activityMain_totalConsume_item_" + i, 218, 37, i, 0, false, true);
-		if (!data[i]) {
+		if (data[i] == 1) {
 			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].changeSprite("obj_通用_按钮_02_advanced_A0");
 			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取_advanced_0"].changeSprite("obj_活动_领取奖励_default");
 			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].vars_.canReceive = true;
+		} else if (!data[i]) {
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取_advanced_0"].changeSprite("obj_活动_领取奖励_default");
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].vars_.canReceive = false;
+			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].vars_.buttonType = 1;
 		}
 		qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].vars_.touchId = i + 1;
 		qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects['txt_consumeGoldShow'].text =
@@ -1792,7 +1830,9 @@ if (repeatTime === 0) {
 				changeSprite("obj_" + markIcon + "_default");
 			var markNumTextObj = ["txt_activity_advanced_2", "txt_activity_advanced_1", "txt_activity_advanced_3", "txt_activity_advanced_4"];
 			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["grou_activityEquipItem_" + k].objects[markNumTextObj[k]].text = markNum;
-			qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["grou_activityEquipItem_" + k].objects["txt_activityEquipItem_name_" + k].text = markName;
+			var markNameTextObj = ["txt_activityEquipItem_name_1", "txt_activityEquipItem_name_0", "txt_activityEquipItem_name_2", "txt_activityEquipItem_name_3"];
+			//qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["grou_activityEquipItem_" + k].objects[markNameTextObj[k]].text = markName;
+			qyengine.guardId(markNameTextObj[k]).text = markName;
 		}
 		//qyengine.guardId("grou_activityMain_totalConsume_item_" + i)
 		//qyengine.guardId("grou_activityMain_totalConsume_item_" + i).objects["obj_活动_已领取按钮_totalConsume"].changeSprite();
@@ -1827,12 +1867,71 @@ if (repeatTime === 0) {
 		current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "领取成功!");
 		//变量重新赋值
 		current_scene.vars_.nowTouchObj.vars_.canReceive = false;
-		var markScroPos= current_scene.vars_.nowTouchObj.vars_.touchId-1;
+		var markScroPos = current_scene.vars_.nowTouchObj.vars_.touchId - 1;
 		qyengine.guardId("grou_activityMain_totalConsume_item_" + markScroPos).objects["obj_活动_已领取按钮_totalConsume"].
-		changeSprite("obj_活动_已领取按钮_totalConsume_default");
+			changeSprite("obj_活动_已领取按钮_totalConsume_default");
 		qyengine.guardId("grou_activityMain_totalConsume_item_" + markScroPos).objects["obj_活动_已领取_advanced_0"].
-		changeSprite("obj_活动_已领取_default");
+			changeSprite("obj_活动_已领取_default");
 	} else {
 		current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "领取失败!");
 	}
+
+
+
+
+	//滚轴容器的一些处理
+	/**self.vars_.isTouch= true;
+	current_scene.vars_.markPosY=mouseY;
+	 */
+	if (self.vars_.isTouch) {
+		if (Math.abs(mouseY - current_scene.vars_.markPosY) > 10) {
+			self.vars_.isTouch = false;
+			return;
+		}
+	}
+	self.vars_.isTouch = false;
+
+
+	if (self.currentSprite = "obj_活动_已领取按钮_totalConsume") {
+
+	}
+
+
+
+
+
+
+	//点击领取按钮的逻辑
+	if (self.vars_.canReceive) {
+		current_game.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+		current_scene.vars_.nowTouchObj = self;
+		KBEngine.app.player().baseCall('reqGetActivityTwoReward', Number(self.vars_.touchId));
+	} else {
+		/**
+		 * 		if (self.vars_.buttonType) {
+			current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "不能领取奖励!");
+		} else {
+			current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "已经领取过奖励!");
+		}
+		 */
+	}
+
+
+
+	//点击领取按钮的逻辑
+	if (self.vars_.alreadyReceive) {
+		//current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "已经领取过!");
+		return;
+	}
+	if (self.vars_.canReceive) {
+		current_game.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+		KBEngine.app.player().baseCall('reqGetActivityOneReward', Number(self.vars_.touchId));
+	} else {
+		//current_game.scripts["al_scr_"+"createCommonFlutterTxt"].call(this,undefined,this,"不能领取!");
+	}
+
+if(self.spriteName=="obj_活动_已领取按钮_default"){
+	return;
+}
+
 
