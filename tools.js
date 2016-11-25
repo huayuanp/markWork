@@ -192,6 +192,7 @@ qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOne
 //加入控制游戏画面质量的api
 qyengine.setImageLowQuality(),qyengine.setImageHighQuality()
 
+//内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
  * 

@@ -2104,7 +2104,7 @@ if (repeatTime === 0) {
 
 
 
-	if (qyengine.getInstancesByType("grou_shopMainUI").length==0) {
+	if (qyengine.getInstancesByType("grou_shopMainUI").length == 0) {
 		return;
 	}
 	//处理商城的金子或者银子的扣除的延迟
@@ -2118,5 +2118,235 @@ if (repeatTime === 0) {
 		//game.vars_.userInfo.gold -= Number(grou_shopMainUI.vars_.buyAllEquipNeedGold);
 		qyengine.guardId('txt_gold_shop_wh').text = nowGold;
 	}
-//qyengine.guardId('txt_gold_shop_wh').dispatchMessage({"type":'message',"message":'updateGoldNumShow'});
-//qyengine.guardId('txt_silver_shop_wh').dispatchMessage({"type":'message',"message":'updateSilverNumShow'});
+
+
+
+	qyengine.instance_create(200, 400, "grou_superClearPop", {
+		"type": "grou_superClearPop",
+		"id": 'grou_superClearPop',
+		"zIndex": 20,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+
+	if (qyengine.getInstancesByType("grou_superClearPop").length > 0) {
+		grou_superClearPop.destroy();
+	}
+
+	var posX = Number(game.configs.UIConfig.grou_superClearPop.position.split(",")[0]);
+	var posY = Number(game.configs.UIConfig.grou_superClearPop.position.split(",")[1]);
+	qyengine.instance_create(posX, posY, "grou_superClearPop", {
+		"type": "grou_superClearPop",
+		"id": 'grou_superClearPop',
+		"zIndex": 20,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	var needRechangeText = [0, "是否确认切换为超清模式？", "是否确认切换为急速模式？"];            //所在状态:1急速 2:高清
+	grou_superClearPop.objects['txt_superClearRemind_0'].text = needRechangeText[Number(game.vars_.imageQuality)];
+
+
+
+
+
+	//pk界面内部
+	//qyengine.guardId("txt_pkSecret_0").setText();
+	var secretIndex = 0; //密探人数
+	qyengine.guardId('txt_pkRoleNick').setText(game.vars_.userInfo.nick);
+	for (var i = 0; i < game.vars_.rewardOutPkPlayer.length; i++) {
+		qyengine.guardId("obj_pkFightButton_OutFight_" + i).vars_.markVip = game.vars_.rewardOutPkPlayer[i].vip;
+		qyengine.guardId("obj_pkFightButton_OutFight_" + i).vars_.markServer = game.vars_.rewardOutPkPlayer[i].server;
+		if (!game.vars_.rewardOutPkPlayer[i].uid) {
+			qyengine.guardId("obj_pkPlayerPhotoFrame_OutFight_" + i).hide();
+			qyengine.guardId("txt_outPkVipNum_" + i).hide();
+			qyengine.guardId("txt_pkOutName_OutFight_" + i).hide();
+			qyengine.guardId("obj_pkPlayerPhotoImage_" + i).hide();
+			if (secretIndex == 0) {
+				var deltaTime = 20 * 60 - (time() * 0.001 - game.vars_.rewardOutPkPlayer[i].data);
+				if (deltaTime < 0) {
+					deltaTime = 0;
+				}
+				calTime(deltaTime, i);
+				//qyengine.guardId("txt_pkSecret_" + i).setTimeline('tm_pkSecretTime', {
+				//"position": 0,
+				//"start": true,
+				//"loop": true,
+				//"actionIndex": 1
+				//});
+				//js的计时器
+				qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime = setInterval(function () {
+					game.vars_.txt_pkSecretTimeNum.nowTime--;
+					calTime(game.vars_.txt_pkSecretTimeNum.nowTime, game.vars_.txt_pkSecretTimeNum.location);
+					if (game.vars_.txt_pkSecretTimeNum.nowTime <= 0) {
+						//cancelMainPkTime();
+						for (var n = 0; n < 3; n++) {
+							if (qyengine.guardId("txt_pkSecret_" + n).vars_.markCalTime) {
+								clearInterval(qyengine.guardId("txt_pkSecret_" + n).vars_.markCalTime);
+							}
+						}
+						current_game.scripts["al_scr_" + "mainSceneRequestPkPlayer"] && current_game.scripts["al_scr_" + "mainSceneRequestPkPlayer"].call(this, undefined, this);
+					}
+				}, 1000);
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).show();
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).changeSprite("obj_pkFightButton_A1");
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('type', "密探");
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).vars_.id = game.vars_.rewardOutPkPlayer[i].location;
+				qyengine.guardId('obj_pkSecretButtonFrame_' + i).show();
+			} else {
+				qyengine.guardId('txt_pkSecret_' + i).stopTimeline();
+				if (qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime) {
+					clearInterval(qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime);
+				}
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).hide();
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+				qyengine.guardId('obj_pkSecretButtonFrame_' + i).hide();
+				qyengine.guardId("txt_pkSecret_" + i).show();
+				qyengine.guardId("txt_pkSecret_" + i).setText("暂无对手,等待寻找");
+			}
+			secretIndex++;
+		} else {
+			qyengine.guardId('txt_pkSecret_' + i).stopTimeline();
+			if (qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime) {
+				clearInterval(qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime);
+			}
+			qyengine.guardId("txt_outPkVipNum_" + i).setText("VIP" + game.vars_.rewardOutPkPlayer[i].vip);
+			qyengine.guardId("txt_pkOutName_OutFight_" + i).setText(game.vars_.rewardOutPkPlayer[i].nick);
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).show();
+			if (qyengine.guardId("obj_pkFightButton_OutFight_" + i).spriteName == 'obj_pkFightButton_A1') {
+				qyengine.guardId("obj_pkFightButton_OutFight_" + i).changeSprite('obj_pkFightButton_A0');
+			}
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('type', "挑战");
+			qyengine.guardId("grou_pkBigBg").objects['cont_pkOutFight'].objects['obj_pkPlayerPhotoImage_' + i].changeSprite("obj_" + game.configs.role[Number(game.vars_.rewardOutPkPlayer[i].profession)].photo + "_default");
+		}
+
+	}
+	//根据时间计算分秒
+	function calTime(nowTime, location) {
+		if (nowTime > 60) {
+
+			var minusTime = Math.floor(nowTime / 60);
+			var secondTime = Math.floor(nowTime - minusTime * 60);
+			//qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + secondTime);
+			if (secondTime < 10) {
+				qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":0" + secondTime);
+			} else {
+				qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + secondTime);
+			}
+
+		} else {
+			nowTime = Math.floor(nowTime);
+			//qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + nowTime);
+			if (nowTime < 10) {
+				qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:0" + nowTime);
+			} else {
+				qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + nowTime);
+			}
+		}
+		qyengine.guardId("txt_pkSecret_" + location).show();
+		game.vars_.txt_pkSecretTimeNum = { "nowTime": nowTime, "location": location };
+	}
+
+
+
+
+
+	console.log("onRespResult71:", data);
+
+	if (data == 1) {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "首充奖励已领取,请去\n包裹内查看");
+		if (qyengine.getInstancesByType("grou_first").length > 0) {
+			qyengine.guardId('grou_first').destroy();
+		}
+		//obj_战斗_首冲.hide();
+		//obj_PVEicon_首充.hide();
+		game.scripts["al_scr_" + "removeBtnEffect"](null, null, "grou_fight", "obj_PVEicon_首充");
+		game.vars_.userInfo.getFirstReward = false;
+	} else {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "背包已满!");
+	}
+
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "熔炼失败!");
+
+
+
+
+	grou_factionManageMent
+
+	//帮派管理界面3种界面
+	var markMessageObject = ["obj_factionOrangeBar", "obj_factionGreemBar", "obj_factionGreemBar_1", "obj_factionGreemBar_2"];
+	var markMessageName = ["申请", "修改", "设置", "解散"];
+	var markHideObject = [];
+	if (game.vars_.backFaction[1][0] == 2) {        //副族长
+		markHideObject = ["obj_factionGreemBar_1", "obj_factionSetWord", "obj_factionGreemBar_2", "obj_factionDisbandWord"];
+		qyengine.guardId("grou_factionManageMent").objects['obj_factionModifyNoticeWord'].changeSprite("obj_factionExitWord_default");
+		qyengine.guardId(markMessageObject[0]).dispatchMessage({
+			"type": 'message',
+			"message": "申请",
+		});
+		qyengine.guardId("grou_factionManageMent").objects['obj_factionModifyNoticeWord'].changeSprite("obj_factionExitWord_default");
+		qyengine.guardId(markMessageObject[1]).dispatchMessage({
+			"type": 'message',
+			"message": "退出",
+		});
+	} else if (game.vars_.backFaction[1][0] == 3) {    //成员
+		markHideObject = ["obj_factionGreemBar_1", "obj_factionSetWord", "obj_factionGreemBar_2", "obj_factionDisbandWord", "obj_factionGreemBar", "obj_factionModifyNoticeWord"];
+		qyengine.guardId("grou_factionManageMent").objects['obj_factionEnterApply'].changeSprite("obj_factionExitWord_default");
+		qyengine.guardId(markMessageObject[0]).dispatchMessage({
+			"type": 'message',
+			"message": "退出",
+		});
+	} else {                                                //族长
+		for (var i = 0; i < markMessageObject.length; i++) {
+			qyengine.guardId(markMessageObject[i]).dispatchMessage({
+				"type": 'message',
+				"message": markMessageName[i],
+			});
+		}
+	}
+	for (var i = 0; i < markHideObject.length; i++) {
+		qyengine.guardId("grou_factionManageMent").objects[markHideObject[i]].hide();
+	}
+
+
+
+	if (KBEngine.app.player().firstcharge == 1 && KBEngine.app.player().getreward == 1) {    //已经首充
+		if (qyengine.getInstancesByType("grou_fight").length > 0) {
+			grou_fight.objects['obj_PVEicon_首充'].changeSprite("obj_PVEicon_首充_maincity_default");
+			grou_fight.objects['obj_战斗_首冲'].changeSprite("obj_主城_充值_default");
+			if (grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect) {
+				grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect.destroy();
+				grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect = null;
+			}
+		}
+	}
+
+	if (KBEngine.app.player().firstcharge == 1 && KBEngine.app.player().getreward == 1) {
+		current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
+	} else {
+		game.scripts["al_scr_" + 'createRewardFirst'] && game.scripts["al_scr_" + 'createRewardFirst'].call(this, undefined, this);
+	}
+
+
+
+
+
+	if (data == 1) {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "首充奖励已领取,请去\n包裹内查看");
+		if (qyengine.getInstancesByType("grou_first").length > 0) {
+			qyengine.guardId('grou_first').destroy();
+		}
+		//obj_战斗_首冲.hide();
+		//obj_PVEicon_首充.hide();
+		game.scripts["al_scr_" + "removeBtnEffect"](null, null, "grou_fight", "obj_PVEicon_首充");
+		game.vars_.userInfo.getFirstReward = false;
+	} else {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "背包已满!");
+	}
+
+
+	if (grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect) {
+		grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect.destroy();
+		grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect = null;
+	}
