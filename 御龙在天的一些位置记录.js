@@ -2350,3 +2350,182 @@ if (repeatTime === 0) {
 		grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect.destroy();
 		grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect = null;
 	}
+
+
+
+
+
+
+
+
+
+	var needrmb = 0;
+	console.log("已购买金额:" + data[0]);
+	console.log("充值界面数据:", data);
+	var needrmb;
+	var curRmb = data[0];
+	//for (var i = 2; i <= configDataLength("vip"); ++i) {
+	//needrmb = getConfig("vip", i, "rmb");
+	//if (curRmb < needrmb) {
+	//txt_recharge_gold_wh.setText(needrmb - curRmb);
+	//txt_recharge_gold_progress_wh.setText(curRmb + "/" + needrmb);
+	//break;
+	//}
+	//}
+
+	//新更改的
+	if (getConfig("vip", game.vars_.userInfo.vip + 2, "rmb")) {
+		needrmb = Number(getConfig("vip", game.vars_.userInfo.vip + 2, "rmb"));
+		txt_recharge_gold_wh.setText(needrmb - curRmb);
+	}
+	txt_recharge_gold_progress_wh.setText(curRmb + "/" + needrmb);
+	if ((curRmb / needrmb) == 0) {
+		obj_recharge_gold_progress_wh.hide();
+	}
+	else {
+		obj_recharge_gold_progress_wh.show();
+		obj_recharge_gold_progress_wh.setScale(curRmb / needrmb, 1);
+	}
+
+	txt_VIP_recharge.setText("VIP " + game.vars_.userInfo.vip);
+	txt_VIP_recharge_next.setText("VIP " + (game.vars_.userInfo.vip + 1));
+
+	//scro_recharge_progress.width =  parseInt((curRmb/ needrmb)*427);
+
+	qyengine.guardId('grou_recharge_MainUI_wh').show();
+
+	var cellID = 0;
+	for (var cell in game.configs.recharge) {
+		cellID += 1;
+
+		if (!data[2][cellID - 1]) {
+			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.changeSprite("obj_充值_首充_default");
+			if (data[1] == 0 && cellID <= 4) {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name + "x3  首充送" + game.configs.recharge[cell].gift + "金子");
+			}
+			else {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name + " 首充送" + game.configs.recharge[cell].gift + "金子");
+			}
+		}
+		else {
+
+			if (game.configs.recharge[cell].firstGift != -1) {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon_panel.hide();
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.hide();
+			}
+			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name);
+		}
+	}
+
+
+	if (!game.vars_.disconnect) {   //一段时间后不能连上不再重连
+		//qyengine.unscheduleTask(game.vars_.markConnectCallAfter);
+		game.vars_.markConnectCallAfter = qyengine.callAfter(function () {
+			if (qyengine.getInstancesByType('grou_loadingRefreshGame').length > 0) {
+				grou_loadingRefreshGame.destroy();
+			}
+			current_game.scripts["al_scr_" + 'createSystemTipUI'].call(this, undefined, this, 1);
+			game.vars_.disconnect2 = true;
+		}.bind(this), current_scene, 8000);
+		game.vars_.disconnect = true;
+	}
+
+
+	//提示_2   通用_按钮_刷新链接   通用_按钮_08    通用弹出框_01
+	//提示_14   提示_1
+
+	//"disconnect":{"variable":"disconnect","value":"false","comment":"","autosave":false,"serverVariable":false}
+
+	if (qyengine.getInstancesByType("grou_dazao") > 0) {
+		grou_dazao.destroy();
+	}
+
+
+
+	if (qyengine.getInstancesByType("SystemTipUI").length > 0) {
+		return;
+	}
+
+
+	game.vars_.rongCuoDisConnect = 0;
+
+	if (game.vars_.rongCuoDisConnect) {
+		clearInterval(game.vars_.rongCuoDisConnect);
+		game.vars_.rongCuoDisConnect = null;
+	}
+	game.vars_.rongCuoDisConnect = setInterval(function () {
+		//alert("xxx");
+		if (_G.getInstancesByType(_U(7694)).length > 0) {
+			grou_loadingRefreshGame.destroy();
+		}
+		alert("断线重连改为刷新");
+		game.scripts["al_scr_" + 'createSystemTipUI'].call(this, undefined, this, 1);
+		game.vars_.disconnect2 = true;
+		clearInterval(game.vars_.rongCuoDisConnect);
+	}, 6000);
+
+	if (game.vars_.rongCuoDisConnect) {
+		if (_G.getInstancesByType(_U(7694)).length > 0) {
+			grou_loadingRefreshGame.destroy();
+		}
+		alert("断线重连改为刷新");
+		game.scripts["al_scr_" + 'createSystemTipUI'].call(this, undefined, this, 1);
+		game.vars_.disconnect2 = true;
+		clearInterval(game.vars_.rongCuoDisConnect);
+	}
+
+
+
+	game.vars_.markConnectCallAfter = _G.callAfter(function () {
+		if (_G.getInstancesByType(_U(7694)).length > 0) {
+			grou_loadingRefreshGame.destroy();
+		}
+		alert("断线重连改为刷新");
+		game.scripts["al_scr_" + 'createSystemTipUI'].call(this, undefined, this, 1);
+		game.vars_.disconnect2 = true;
+	}.bind(this), current_scene, 8000);
+
+
+
+
+
+	//修改断线重连的时间的间隔
+	if (!game.vars_.reSetFire) {
+		game.vars_.reSetFire = setInterval(function () {
+			//alert("xxx");
+			KBEngine.app.reset();
+			KBEngine.Event.fire("login", KBEngine.app.username, KBEngine.app.password, _G.getQueryString('td_channelid') || "gamemei");
+			current_scene["otherAccountLogin"] = true;
+			current_scene["isConnecting"] = true;
+		}, 2000);
+	}
+
+
+
+	//在状态里面销毁
+	if (game.vars_.reSetFire) {
+		clearInterval(game.vars_.reSetFire);
+		game.vars_.reSetFire = null;
+	}
+	if (game.vars_.rongCuoDisConnect) {
+		clearInterval(game.vars_.rongCuoDisConnect);
+		game.vars_.rongCuoDisConnect=null;
+	}
+
+
+
+   /* if(game.vars_.rongCuoDisConnect){
+		clearInterval(game.vars_.rongCuoDisConnect);
+		game.vars_.rongCuoDisConnect=null;
+	}
+	game.vars_.rongCuoDisConnect = setInterval(function () {
+		//alert("xxx");
+		if (_G.getInstancesByType(_U(7694)).length > 0) {
+			grou_loadingRefreshGame.destroy();
+		}
+		alert("断线重连改为刷新");
+		game.scripts["al_scr_" + 'createSystemTipUI'].call(this, undefined, this, 1);
+		game.vars_.disconnect2 = true;
+		clearInterval(game.vars_.rongCuoDisConnect);
+	}, 8000);*/
+
