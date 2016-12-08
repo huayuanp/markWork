@@ -2,13 +2,13 @@
 //hwangrd 18655950910 wh
 //nginx
 //http: //localhost/ylzt_0823/
-	operationRemind //通用的提示接口
+operationRemind //通用的提示接口
 actionlist_createLoadingCircle //通用的创建加载圈圈
 actionlist_destroyLoadingCircle //通用的销毁圈圈
 KBEngine.app.player().baseCall('reqTestAddEquipment', 22116, 5, 0, 0);
 //拿滚轴里面的对象
 scro_equip.getCell(0, 0).children[0].qyobj
-	//王号的文字的通用的动作序列
+//王号的文字的通用的动作序列
 createCommonFlutterTxt
 //王号的兑换银子的接口
 //董宇的调用帮助的接口
@@ -33,13 +33,13 @@ KBEngine.app.player().baseCall('reqTestAddGoods', 40001, 10);
 //20001 20002 20004 20005 20008 20009 200211 20116 20207
 
 KBEngine.app.player().baseCall('reqTestAddLevelAndVipAndGoldAndSilver', 1, 20, 10000, 1000)
-	//停止唯一标识符的时间轴
+//停止唯一标识符的时间轴
 qyengine.guardId("txt_pkSecret_" + secretLocation).stopTimeline();
 //清除场景的延迟事件
-game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function(hd) {
-		window.clearTimeout(hd);
-	})
-	//添加对象到滚轴容器
+game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
+	window.clearTimeout(hd);
+})
+//添加对象到滚轴容器
 qyengine.guardId('scro_equip')._batchCreate = true
 qyengine.guardId('scro_equip').addOneInstance('grou_packageEquipItem', Math.floor(repeatTime / 4) + 1 - 1, (repeatTime % 4) + 1 - 1, {
 	"way": 'objectName',
@@ -87,7 +87,7 @@ mainGrouUIReturnBtnLogic
 var aa = confirm("登录服务器失败或服务器繁忙,要重试吗?");
 if (aa == true) {
 	location.reload()
-} else {}
+} else { }
 //创建实例
 qyengine.instance_create(1414, 1226, "txt_rankListNumber", {
 	"type": "txt_rankListNumber",
@@ -161,10 +161,10 @@ if (scro_equip.isVisible) {
 
 
 if (!this.addOneInstance("grou_factionFightRankListItem", repeatTime, 0, {
-		id: 'grou_factionFightRankListItem' + repeatTime,
-		px: 35,
-		py: 54
-	})) {
+	id: 'grou_factionFightRankListItem' + repeatTime,
+	px: 35,
+	py: 54
+})) {
 	this.vars_.itemSize = Math.max(repeatTime - 1, 0);
 	break;
 }
@@ -190,7 +190,8 @@ qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOneCell(2 - 1, 3 - 1);
 //js原声的计时器
 //加入控制游戏画面质量的api
-qyengine.setImageLowQuality(),qyengine.setImageHighQuality()
+qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
+//查看对象引用的图片的位置
 
 //内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
@@ -200,4 +201,53 @@ qyengine.setImageLowQuality(),qyengine.setImageHighQuality()
 
 
 
+/*
+yulongzaitianH5_pre_lxjt   新增加的
 
+
+geng957/yulong_xinshouyindao    替换  longxiaojiutian_xinshouyindao*/
+//创建封号提示
+if (qyengine.getInstancesByType("grou_gameIsOff").length == 0) {
+	var posX = Number(game.configs.UIConfig.grou_loadingRefreshGame.position.split(",")[0]);
+	var posY = Number(game.configs.UIConfig.grou_loadingRefreshGame.position.split(",")[1]);
+	var zIndex = Number(game.configs.UIConfig.grou_loadingRefreshGame.zIndex);
+	qyengine.instance_create(posX, posY, "grou_gameIsOff", {
+		"type": "grou_gameIsOff",
+		"id": 'grou_gameIsOff',
+		"zIndex": zIndex,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	if (current_scene.classId == "main_scene") {
+
+	} else {
+		grou_gameIsOff.x += 100;
+	}
+}
+
+
+//loginFailCallback  onLoginBaseappFailed
+al_scr_layer_headerfeet
+if(Number(data[0])==19){
+	current_game.scripts['al_scr_'+"onRespResult0"].call(this,undefined,this);
+	return;
+}
+
+
+//destroyGameIsOff
+if(qyengine.getInstancesByType("grou_gameIsOff").length>0){
+	grou_gameIsOff.destroy();
+}
+
+
+current_game.scripts['al_scr_'+"actionlist_destroyLoadingCircle"].call(this,undefined,this);
+
+if(qyengine.getInstancesByType("grou_gameIsOff")>0){
+	return;
+}
+
+
+
+//ylzt1_foes--------longxiaojiutian_foes 
+//yulong_role--- longxiaojiutian_role
+//yulongzaitianH5_国库---yulongzaitianH5_国库_lxjt

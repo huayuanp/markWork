@@ -2520,154 +2520,30 @@ if (repeatTime === 0) {
 	<font color='#fc050d'>100</font>;
 
 
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "暂未开启!");
 
-
-
-
-
-
-
-
-
-	/* 
-		程序员：王号
-		功能: 初始化VIP礼包列表
-		参数：level: VIP等级
-	*/
-
-	var vipLevel = level;
-
-	if (vipLevel === undefined || vipLevel < 0) {
-		vipLevel = game.vars_.userInfo.vip;
+	if (grou_militaryMain && grou_militaryMain.destroyed_) {
+		(event.event || event.originalEvent || event).stopPropagation && (event.event || event.originalEvent || event).stopPropagation();
+		return;
 	}
+	grou_militaryMain.objects["txt_militaryMain_5"] && clearInterval(grou_militaryMain.objects["txt_militaryMain_5"].vars_.markCalTime);
+	//更新了国库创建英雄记录和防守记录的,如果记录为空会报bug的问题;
 
-	vipLevel = Number(vipLevel);
-	grou_recharge_privilegeUI_wh.vars_.curShowVIPLevel = Math.min(vipLevel + 1, configDataLength("vip_gift"));
-	//更新界面显示
+	KBEngine.app = null;
 
-	var giftInfo = game.configs.vip_gift[grou_recharge_privilegeUI_wh.vars_.curShowVIPLevel];
-	//txt_recharge_disGold_wh.setText(Number(giftInfo.rmb) - game.vars_.userInfo.gold);//还差多少金子
 
-	txt_VIP_recharge.setText('VIP ' + game.vars_.userInfo.vip);//当前等级
-	if (game.vars_.userInfo.vip + 1 > configDataLength("vip_gift")) {
-		txt_nextVIP_recharge.setText('');
-	} else {
-		txt_nextVIP_recharge.setText('VIP ' + (game.vars_.userInfo.vip + 1));//下一级
+
+	if (game.vars_.imageQuality == 1&&Number(data)==1) {   //极速切高清
+		game.vars_.imageQuality = 2;
+		qyengine.setImageHighQuality && qyengine.setImageHighQuality();
+		grou_fight.objects['obj_按钮_极速'].changeSprite("obj_按钮_极速_default");
+		grou_fight.objects['obj_字_极速'].changeSprite("obj_字_极速_default");
+
 	}
-	txt_recharge_privilege_num.setText('VIP' + grou_recharge_privilegeUI_wh.vars_.curShowVIPLevel + '福利');
-
-	txt_recharge_privilege_VIPDesc.setText(giftInfo.dec.replace(/<br>/g, "\n"));//VIP福利描述
-	txt_recharge_privilege_giftNum.setText(giftInfo.name);//VIP礼包名
-
-	//更新进度条
-
-	//创建礼包物品
-	current_game.scripts["al_scr_" + 'createGiftGoods'] && current_game.scripts["al_scr_" + 'createGiftGoods'].call(this, undefined, this, grou_recharge_privilegeUI_wh.vars_.curShowVIPLevel);
-
-
-
-
-	txt_VIP_recharge.setText('VIP ' + game.vars_.userInfo.vip);
-
-	txt_nextVIP_recharge.setText('VIP ' + (game.vars_.userInfo.vip + 1));
-
-	txt_recharge_disGold_wh.setText(grou_recharge_MainUI_wh.objects.txt_recharge_gold_wh.text);
-
-	txt_recharge_gold_progress_wh.setText(grou_recharge_MainUI_wh.objects.txt_recharge_gold_progress_wh.text);
-
-	if (!grou_recharge_MainUI_wh.objects.obj_recharge_gold_progress_wh.isVisible) {
-		obj_recharge_gold_progress1_wh.hide();
-	} else {
-		obj_recharge_gold_progress1_wh.show();
-		obj_recharge_gold_progress1_wh.setScale(grou_recharge_MainUI_wh.objects.obj_recharge_gold_progress_wh.scale.x, grou_recharge_MainUI_wh.objects.obj_recharge_gold_progress_wh.scale.y);
+	if(game.vars_.imageQuality == 2&&Number(data)==2){      //高清切急速
+		game.vars_.imageQuality = 1;
+		qyengine.setImageLowQuality && qyengine.setImageLowQuality();
+		grou_fight.objects['obj_按钮_极速'].changeSprite("obj_按钮_高清_default");
+		grou_fight.objects['obj_字_极速'].changeSprite("obj_字_高清_default");
 	}
-
-
-
-
-
-	qyengine.guardId(_id + i).objects.txt_recharge_privilege_goodnum_wh.hide();
-	qyengine.guardId(_id + i).objects['obj_通用_道具框_白_recharge_wh'].changeSprite("obj_packageSmallFrame_A" + (Number(giftList[i][1]) - 1));
-
-	/*game.vars_.userInfo.packageInfo.packEquip[repeatTime].data
-	console.log("总的 装备数", game.vars_.userInfo.packageInfo.packEquip.length);
-	var index = 0;
-	if (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++ ){
-		if (game.vars_.userInfo.packageInfo.packEquip[repeatTime].data == 1) {
-			index++;
-		}
-	}
-	console.log("已经锁定装备数", index);*/
-
-
-	scro_equip._batchCreate = true;
-	for (var repeatTime = this.vars_.itemSize || 0; repeatTime < game.vars_.userInfo.packageInfo.packEquip.length; repeatTime++) {
-
-
-		this.vars_.itemSize = repeatTime;
-		var result = this.addOneInstance("grou_packageEquipItem", Math.floor(repeatTime / 4), (repeatTime % 4), {
-			id: 'grou_packageEquipItem_' + repeatTime
-		});
-
-		if (!result) {
-			this.vars_.itemSize = Math.max(repeatTime - 1, 0);
-			break;
-		}
-
-
-
-		/*
-				console.log("总的 装备数", game.vars_.userInfo.packageInfo.packEquip.length);
-				var index = 0;
-				for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++ ){
-					if (game.vars_.userInfo.packageInfo.packEquip[i].data == 1) {
-						index++;
-					}
-				}
-				console.log("已经锁定装备数", index);*/
-
-		/*
-				//存储新选择的;
-				if (game.vars_.storageSelectData) {
-					game.vars_.storageSelectData.push(self.vars_.uuid);
-				} else {
-					game.vars_.storageSelectData = [];
-					game.vars_.storageSelectData.push(self.vars_.uuid)
-				}
-		
-		
-				//存储完成确定
-				if (game.vars_.storageSelectData && game.vars_.storageSelectData.length >= 9) {
-		
-				} else if (game.vars_.storageSelectData && game.vars_.storageSelectData.length < 9) {
-		
-				} else {
-		
-				}
-				function clearFusionValue0() {
-					for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
-						for (var j = 0; j < game.vars_.storageSelectData.length; j++) {
-							if (game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion&&(game.vars_.userInfo.packageInfo.packEquip[i].uuid!=game.vars_.storageSelectData[j])) {
-								delete game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion;
-							}
-						}
-					}
-				}
-				function clearFusionValue1(){
-		
-				}
-		*/
-		var markSelectNum = 0;
-		for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
-			if (game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion) {
-				markSelectNum++;
-			}
-		}
-		if(markSelectNum>=9){
-			qyengine.guardId("").dispatchMessage({
-				"type":'message',
-				"message":"sureFusion"
-			});
-		};
-
 
