@@ -2532,18 +2532,49 @@ if (repeatTime === 0) {
 	KBEngine.app = null;
 
 
+	console.group("主场景的pk人物数据的请求发送");
+	console.log("已经收到pk人物数据的回调用");
+	console.groupEnd();
 
-	if (game.vars_.imageQuality == 1&&Number(data)==1) {   //极速切高清
-		game.vars_.imageQuality = 2;
-		qyengine.setImageHighQuality && qyengine.setImageHighQuality();
-		grou_fight.objects['obj_按钮_极速'].changeSprite("obj_按钮_极速_default");
-		grou_fight.objects['obj_字_极速'].changeSprite("obj_字_极速_default");
+	//收缩箭头的事件
+	self.vars_.isTouch = false;
+	self.vars_.canTouch = true;
+	if (self.vars_.isTouch && self.vars_.canTouch) {
+		self.vars_.isTouch = false;
+	}
 
+	self.vars_.moveToPos = false;
+	if (self.vars_.moveToPos) {  //缩
+		//self.vars_.moveToPos=false;
+		self.show();
+		this.moveTo(self.vars_.markStartPos[0], self.vars_.markStartPos[1]);
+	} else {    //放
+		//self.vars_.moveToPos=true;
+		this.moveTo(691, 859, 'time', 1000);
 	}
-	if(game.vars_.imageQuality == 2&&Number(data)==2){      //高清切急速
-		game.vars_.imageQuality = 1;
-		qyengine.setImageLowQuality && qyengine.setImageLowQuality();
-		grou_fight.objects['obj_按钮_极速'].changeSprite("obj_按钮_高清_default");
-		grou_fight.objects['obj_字_极速'].changeSprite("obj_字_高清_default");
+
+	if (self.vars_.moveToPos) {
+		self.vars_.moveToPos = false;
+	} else {
+		self.vars_.moveToPos = true;
+		self.hide();
 	}
+
+	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.canTouch = true;
+	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").setScale(-1, 1);
+
+
+	// obj_主城_福利_1   obj_主城_任务_1
+	current_game.scripts['al_scr_' + "addFusionEffect"].call(this, undefined, this);
+
+	current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this,"grou_fight","obj_PVEicon_熔炉");
+
+obj_PVEicon_玩家头像框_default
+
+
+self.vars_.moveToPos
+
+self.vars_.isFangKai
+
+qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.isFangKai
 

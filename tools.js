@@ -193,6 +193,8 @@ qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOne
 qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
 //查看对象引用的图片的位置
 
+//移动至,按时间
+this.moveTo(691, 859, 'time', 1000);
 //内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
