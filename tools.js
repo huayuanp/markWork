@@ -195,6 +195,16 @@ qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
 
 //移动至,按时间
 this.moveTo(691, 859, 'time', 1000);
+//关闭cache
+grou_fight.currentSprite.cacheAsBitmap = false
+//合并链接存在
+window.adapt
+// 屏蔽按钮的事件,以及取消按钮的屏蔽事件
+this.shieldEvent && this.shieldEvent(["mousedown", "mouseup"], 500)
+qyengine.callAfter(function () {
+	this.cancelShieldEvent && this.cancelShieldEvent(["mousedown", "mouseup"])
+}
+	.bind(this), current_scene, 600);
 //内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
@@ -230,21 +240,21 @@ if (qyengine.getInstancesByType("grou_gameIsOff").length == 0) {
 
 //loginFailCallback  onLoginBaseappFailed
 al_scr_layer_headerfeet
-if(Number(data[0])==19){
-	current_game.scripts['al_scr_'+"onRespResult0"].call(this,undefined,this);
+if (Number(data[0]) == 19) {
+	current_game.scripts['al_scr_' + "onRespResult0"].call(this, undefined, this);
 	return;
 }
 
 
 //destroyGameIsOff
-if(qyengine.getInstancesByType("grou_gameIsOff").length>0){
+if (qyengine.getInstancesByType("grou_gameIsOff").length > 0) {
 	grou_gameIsOff.destroy();
 }
 
 
-current_game.scripts['al_scr_'+"actionlist_destroyLoadingCircle"].call(this,undefined,this);
+current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
 
-if(qyengine.getInstancesByType("grou_gameIsOff")>0){
+if (qyengine.getInstancesByType("grou_gameIsOff") > 0) {
 	return;
 }
 

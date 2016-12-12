@@ -2519,62 +2519,102 @@ if (repeatTime === 0) {
 
 	<font color='#fc050d'>100</font>;
 
-
-	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "暂未开启!");
-
-	if (grou_militaryMain && grou_militaryMain.destroyed_) {
-		(event.event || event.originalEvent || event).stopPropagation && (event.event || event.originalEvent || event).stopPropagation();
-		return;
-	}
-	grou_militaryMain.objects["txt_militaryMain_5"] && clearInterval(grou_militaryMain.objects["txt_militaryMain_5"].vars_.markCalTime);
-	//更新了国库创建英雄记录和防守记录的,如果记录为空会报bug的问题;
-
-	KBEngine.app = null;
-
-
-	console.group("主场景的pk人物数据的请求发送");
-	console.log("已经收到pk人物数据的回调用");
-	console.groupEnd();
-
-	//收缩箭头的事件
-	self.vars_.isTouch = false;
-	self.vars_.canTouch = true;
-	if (self.vars_.isTouch && self.vars_.canTouch) {
-		self.vars_.isTouch = false;
+	var markInstance = ['obj_活动_VIP_1', 'obj_活动_VIP'];
+	for (var i = 0; i < markInstance.length; i++) {
+		grou_activityMain_advanced.objects[markInstance[i]].changeSprite("obj_通用_银子_activity_default");
 	}
 
+
+
+
+
+	qyengine.callAfter(function () {
+		//判断是否需要显示熔炼的特效
+		current_game.scripts['al_scr_' + "addFusionEffect"].call(this, undefined, this);
+		current_game.scripts['al_scr_' + "act_HideAndShow_check"].call(this, undefined, this);
+		current_game.scripts['al_scr_' + "act_RolePartnerCheck"].call(this, undefined, this);
+	}.bind(this), current_scene, 10);
+
+
+	//obj_PVEicon_聊天    (49，654)     熔炼(482,809)    翅膀(582,809)
+	//obj_战斗_收益按钮 (216，909)		txt_missionId（239,898）  txt_missionName (320，898)  txt_multikill (485,898)  obj_战斗_收益按钮底框（457,908）
+	memberInfoUI.objects['obj_帮派成员头像']
+	qyengine.guardId("memberInfoUI" + 0).objects['obj_帮派成员头像'].setScale(0.75, 0.75);
+	qyengine.guardId("inpu_factionAnnounce").getValue().search('&nbsp;')
+	//去掉了空格
+	game.vars_.backFaction[0].notice = game.vars_.backFaction[0].notice.replace("&nbsp;", "");
+
+
+	//
+	self.vars_.moveFinishIndex = 0;
 	self.vars_.moveToPos = false;
-	if (self.vars_.moveToPos) {  //缩
-		//self.vars_.moveToPos=false;
-		self.show();
-		this.moveTo(self.vars_.markStartPos[0], self.vars_.markStartPos[1]);
-	} else {    //放
-		//self.vars_.moveToPos=true;
-		this.moveTo(691, 859, 'time', 1000);
-	}
-
+	//移动完成
+	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.moveFinishIndex++;
 	if (self.vars_.moveToPos) {
 		self.vars_.moveToPos = false;
 	} else {
 		self.vars_.moveToPos = true;
 		self.hide();
 	}
-
+	if (qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.moveFinishIndex < 8) {
+		return
+	}
+	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.moveFinishIndex = 0;
+	if (qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.moveToPos) {    //缩起来的状态
+		qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.moveToPos = false;
+		qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").setScale(1, 1);
+		qyengine.callAfter(function () {
+			//判断是否需要显示熔炼的特效
+			current_game.scripts['al_scr_' + "addFusionEffect"].call(this, undefined, this);
+			current_game.scripts['al_scr_' + "act_HideAndShow_check"].call(this, undefined, this);
+			current_game.scripts['al_scr_' + "act_RolePartnerCheck"].call(this, undefined, this);
+			grou_fight.currentSprite.cacheAsBitmap = true;
+		}.bind(this), current_scene, 10);
+	} else {																	//放开的状态
+		qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.moveToPos = true;
+		qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").setScale(-1, 1);
+		grou_fight.currentSprite.cacheAsBitmap = true;
+	}
 	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.canTouch = true;
-	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").setScale(-1, 1);
 
 
-	// obj_主城_福利_1   obj_主城_任务_1
-	current_game.scripts['al_scr_' + "addFusionEffect"].call(this, undefined, this);
 
-	current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this,"grou_fight","obj_PVEicon_熔炉");
+	if (self.vars_.moveToPos) {
+		self.vars_.moveToPos = false;
+		qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").setScale(1, 1);
+		qyengine.callAfter(function () {
+			//判断是否需要显示熔炼的特效
+			current_game.scripts['al_scr_' + "addFusionEffect"].call(this, undefined, this);
+			current_game.scripts['al_scr_' + "act_HideAndShow_check"].call(this, undefined, this);
+			current_game.scripts['al_scr_' + "act_RolePartnerCheck"].call(this, undefined, this);
+			grou_fight.currentSprite.cacheAsBitmap = true;
+		}.bind(this), current_scene, 10);
+	} else {
+		self.vars_.moveToPos = true;
+		self.hide();
+		qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").setScale(-1, 1);
+		grou_fight.currentSprite.cacheAsBitmap = true;
+	}
+	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.canTouch = true;
 
-obj_PVEicon_玩家头像框_default
 
 
-self.vars_.moveToPos
 
-self.vars_.isFangKai
+	obj_LoongBtn
 
-qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.isFangKai
+	qyengine.callAfter(function () {
+		this.cancelShieldEvent && this.cancelShieldEvent(["mousedown", "mouseup"])
+	}
+		.bind(this), current_scene, 600);
 
+
+	this.shieldEvent && this.shieldEvent(["mousedown", "mouseup"], 100000000000000)
+	qyengine.callAfter(function () {
+		this.cancelShieldEvent && this.cancelShieldEvent(["mousedown", "mouseup"])
+	}
+		.bind(this), current_scene, 550);
+	qyengine.guardId('obj_LoongBtn').shieldEvent && qyengine.guardId('obj_LoongBtn').shieldEvent(["mousedown", "mouseup"], 1000000000000)
+	qyengine.callAfter(function () {
+		qyengine.guardId('obj_LoongBtn').cancelShieldEvent && qyengine.guardId('obj_LoongBtn').cancelShieldEvent(["mousedown", "mouseup"])
+	}
+		.bind(this), current_scene, 550);
