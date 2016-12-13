@@ -2598,23 +2598,190 @@ if (repeatTime === 0) {
 	qyengine.guardId("obj_PVEicon_收缩箭头_mainScene").vars_.canTouch = true;
 
 
-
-
-	obj_LoongBtn
-
-	qyengine.callAfter(function () {
-		this.cancelShieldEvent && this.cancelShieldEvent(["mousedown", "mouseup"])
+	if (Number(data) === 0) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "家族等级达到15级开启!");
 	}
-		.bind(this), current_scene, 600);
 
 
-	this.shieldEvent && this.shieldEvent(["mousedown", "mouseup"], 100000000000000)
-	qyengine.callAfter(function () {
-		this.cancelShieldEvent && this.cancelShieldEvent(["mousedown", "mouseup"])
+
+
+
+
+	//跨服家族战
+	var data_data = [];
+	//关于家族战的报名主界面的数据
+	data_data = [0, 0, 0, [1456342443, 1476342443],
+		[2456342443, 2476342443],
+		[0, 0]
+	]; //开始战斗之前为0否则为1	上次家族排名	上次个人排名 报名时间  战斗时间 报名信息
+
+	if (data[0]) {
+		data_data[5][1] = 1;
+		data_data[5][0] = data[0] - 1;
+	} else {
+		data_data[5][1] = 0;
+		data_data[5][1] = 0;
 	}
-		.bind(this), current_scene, 550);
-	qyengine.guardId('obj_LoongBtn').shieldEvent && qyengine.guardId('obj_LoongBtn').shieldEvent(["mousedown", "mouseup"], 1000000000000)
-	qyengine.callAfter(function () {
-		qyengine.guardId('obj_LoongBtn').cancelShieldEvent && qyengine.guardId('obj_LoongBtn').cancelShieldEvent(["mousedown", "mouseup"])
+	data_data[1] = data[1];
+	data_data[2] = data[2];
+	//关于家族战的报名主界面的数据的数据的初始化
+	grou_factionFightMain.objects["txt_factionFightMain2"].setText("我的家族等级: " + game.vars_.backFaction[0].level);
+	var sighUpCondition = ["txt_factionFightMain5", "txt_factionFightMain4", "txt_factionFightMain3"];
+	var sighUpObj = ["obj_家族_报名参加_2", "obj_家族_报名参加_1", "obj_家族_报名参加_0"];
+	var sighUpObjBackButton = ["obj_通用_按钮_factionFightFindButton_2_1", "obj_通用_按钮_factionFightFindButton_1_1", "obj_通用_按钮_factionFightFindButton_0_1"];
+	for (var i = 0; i < sighUpCondition.length; i++) {
+		grou_factionFightMain.objects[sighUpCondition[i]].text = "报名条件: " + game.configs.guild_war_level[i + 1].level_min + "级<=家族等级<=" + game.configs.guild_war_level[i + 1].level_max + "级";
+		grou_factionFightMain.objects[sighUpObj[i]].vars_.level_min = game.configs.guild_war_level[i + 1].level_min;
+		grou_factionFightMain.objects[sighUpObj[i]].vars_.level_max = game.configs.guild_war_level[i + 1].level_max;
+		if (game.vars_.backFaction[0].level >= game.configs.guild_war_level[i + 1].level_min && game.vars_.backFaction[0].level <= game.configs.guild_war_level[i + 1].level_max) {
+			grou_factionFightMain.objects[sighUpObj[i]].vars_.canTouch = true;
+
+		} else {
+			grou_factionFightMain.objects[sighUpObj[i]].vars_.canTouch = false;
+			grou_factionFightMain.objects[sighUpObj[i]].setHSL && grou_factionFightMain.objects[sighUpObj[i]].setHSL(0, -100, 0);
+			grou_factionFightMain.objects[sighUpObjBackButton[i]].setHSL && grou_factionFightMain.objects[sighUpObjBackButton[i]].setHSL(0, -100, 0);
+		}
 	}
-		.bind(this), current_scene, 550);
+	if (data_data[1]) {
+		grou_factionFightMain.objects["txt_factionFightMain6"].text = "上次家族排名: " + data_data[1];
+	} else {
+		grou_factionFightMain.objects["txt_factionFightMain6"].text = "上次家族排名: 尚无名次";
+	}
+	if (data_data[2]) {
+		grou_factionFightMain.objects["txt_factionFightMain7"].text = "上次个人排名: " + data_data[2];
+	} else {
+		grou_factionFightMain.objects["txt_factionFightMain7"].text = "上次个人排名: " + "尚无名次";
+	}
+	if (data_data[5][1]) {
+		grou_factionFightMain.objects[sighUpObj[data_data[5][0]]].changeSprite("obj_家族_报名参加_A1");
+		grou_factionFightMain.objects[sighUpObj[data_data[5][0]]].setHSL(0, 0, 0);
+		grou_factionFightMain.objects[sighUpObjBackButton[data_data[5][0]]].hide();
+	}
+	/*
+	var time0 = 0;
+	var time1 = 0;
+	for (var i = 3; i <= 4; i++) {
+		if (i === 3) {
+			time0 = changeTimeToText(i);
+		} else {
+			time1 = changeTimeToText(i);
+		}
+	}
+	grou_factionFightMain.objects["txt_factionFightMain0"].text = time0;
+	grou_factionFightMain.objects["txt_factionFightMain1"].text = time1;
+
+	function changeTimeToText(args0) {
+		var temps = ["报名时间: ", "战斗时间: "];
+		var time0_obj = new Date(data_data[args0][0] * 1000);
+		var time0_obj1 = new Date(data_data[args0][1] * 1000);
+		var timeText = temps[args0 - 3] + calNowMonth(time0_obj.toString().split(" ")[1]) + "月" + time0_obj.toString().split(" ")[2] + "日" + time0_obj.toString().split(" ")[4].split(":")[0] + ":" + time0_obj.toString().split(" ")[4].split(":")[1] + "至" +
+			calNowMonth(time0_obj.toString().split(" ")[1]) + "月" + time0_obj1.toString().split(" ")[2] + "日" + time0_obj1.toString().split(" ")[4].split(":")[0] + ":" + time0_obj1.toString().split(" ")[4].split(":")[1];
+		return timeText;
+	}
+	function calNowMonth(monthDate) {
+		var month12 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+		for (var i = 0; i < month12.length; i++) {
+			if (month12[i] == monthDate) {
+				return i;
+			}
+		}
+	}
+	*/
+
+	if (self.vars_.canTouch && self.vars_.isTouch) {
+		self.vars_.isTouch = false;
+		current_game.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+		KBEngine.app.player().baseCall('reqApplyCSGuildsFighting');
+	}
+
+	current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+
+
+	current_scene.vars_.factionFightRewardData = [[0], [0], [0]];
+	var factionFightWarData0 = [[[22501, 12], [22401, 10], [20001, 2], [20014, 3]], [[22501, 12], [22401, 10], [20001, 2], [20014, 3]], [[22501, 12], [22401, 10], [20001, 2], [20014, 3]]];
+	var factionFightWarData1 = [[[22501, 12], [22401, 10], [20001, 2], [20014, 3]], [[22501, 12], [22401, 10], [20001, 2], [20014, 3]], [[22501, 12], [22401, 10], [20001, 2], [20014, 3]]];
+	var factionFightWarData2 = [[[22501, 12], [22401, 10], [20001, 2], [20014, 3]], [[22501, 12], [22401, 10], [20001, 2], [20014, 3]], [[22501, 12], [22401, 10], [20001, 2], [20014, 3]]];
+	current_scene.vars_.factionFightRewardData[0][0] = factionFightWarData0;
+	current_scene.vars_.factionFightRewardData[0][1] = factionFightWarData1;
+	current_scene.vars_.factionFightRewardData[0][2] = factionFightWarData2;
+	function calFactionReward(grade, job) {  //grade 0:青铜 1白银 2黄金
+		for (var i = 1; i < configDataLength("guild_war_reward"); i++) {
+			var markJob = ["guild", "chairman", "self"];
+			var markRewardItemAndNum = game.configs.guild_war_reward[i][markJob[Number(job)]].split("|")[Number(grade)].split(";");
+			var linShiArray = [];
+			for (var j = 0; j < markRewardItemAndNum.length; j++) {
+				var itemId = markRewardItemAndNum[j].split(":")[0];
+				itemId = Number(itemId);
+				var itemNum = markRewardItemAndNum[j].split(":")[1];
+				itemNum = Number(itemNum);
+				linShiArray.push(itemId);
+				linShiArray.push(itemNum);
+			}
+			if (Number(grade) === 0) {
+				factionFightWarData0[i].push(linShiArray);
+			} else if (Number(grade) === 1) {
+				factionFightWarData1[i].push(linShiArray);
+			} else if (Number(grade) === 2) {
+				factionFightWarData2[i].push(linShiArray);
+			}
+		}
+	}
+
+
+
+
+	//
+	//创建主角,初始化主角模块
+var rolesInfo = game.vars_.userInfo.roles;
+
+var rolesNameJson = {"10001":"男战士","10002":"女战士","10003":"男法师","10004":"女法师","10005":"男道士","10006":"女道士"};
+
+for(var i = 0; i < rolesInfo.length; i++){
+	
+	var heroObj = null;
+	
+	if(i == 0){
+				
+		heroObj = qyengine.instance_create(current_scene.full_size.width*0.5,current_scene.full_size.height*0.5,"heroObj_" + rolesInfo[i].id,{"id":"heroObj_" + rolesInfo[i].id,"zIndex":10,"layer":"layer_fight"});
+		
+		//主角
+		current_scene.vars_.heroObj = heroObj;
+		
+		heroObj.setFollowView();
+		
+	}else{
+		
+		//其他角色
+		heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200,current_scene.vars_.heroObj.x + 200),random_range(current_scene.vars_.heroObj.y - 200,current_scene.vars_.heroObj.y + 200),"heroObj_" + rolesInfo[i].id,{"id":"heroObj_" + rolesInfo[i].id,"zIndex":9,"layer":"layer_fight"});
+	}
+
+	heroObj.currentSprite.setFill("");
+
+	heroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
+
+	var size = heroObj.currentAnim.getSize();
+
+	heroObj.currentAnim.position.x = size.width*0.5;
+
+	heroObj.currentAnim.position.y = size.height*0.5;
+
+	heroObj.currentSprite.addChild(heroObj.currentAnim);
+
+	heroObj.currentAnim.setAction("待机");
+
+	heroObj.currentAnim.setDirection(5);
+
+	heroObj.setSize(size);
+	
+	game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
+		
+	current_scene.vars_.heroObjArr.push(heroObj);
+	
+	//换装
+	game.scripts["al_scr_changeObjModel"](null,null,rolesInfo[i],heroObj);
+		
+}
+
+
+
+
