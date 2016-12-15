@@ -189,6 +189,8 @@ qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 //删除滚轴容器的单元格
 qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOneCell(2 - 1, 3 - 1);
 //js原声的计时器
+myVar=setInterval("javascript function",milliseconds);
+clearInterval(myVar);
 //加入控制游戏画面质量的api
 qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
 //查看对象引用的图片的位置

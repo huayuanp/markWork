@@ -2704,83 +2704,147 @@ if (repeatTime === 0) {
 	current_scene.vars_.factionFightRewardData[0][0] = factionFightWarData0;
 	current_scene.vars_.factionFightRewardData[0][1] = factionFightWarData1;
 	current_scene.vars_.factionFightRewardData[0][2] = factionFightWarData2;
+	//家族战奖励的赋值
+	current_scene.vars_.factionFightRewardData = [[0], [0], [0]];
+	for (var a = 0; a < 3; a++) {   //青铜 白银 黄金
+		for (var b = 0; b < 3; b++) {  //家族 族战 自身
+			current_scene.vars_.factionFightRewardData[a][b] = calFactionReward(a, b);
+		}
+	}
 	function calFactionReward(grade, job) {  //grade 0:青铜 1白银 2黄金
+		var markFactionFightWarData = [];
 		for (var i = 1; i < configDataLength("guild_war_reward"); i++) {
 			var markJob = ["guild", "chairman", "self"];
 			var markRewardItemAndNum = game.configs.guild_war_reward[i][markJob[Number(job)]].split("|")[Number(grade)].split(";");
-			var linShiArray = [];
+			var markLinShiCell = [];
 			for (var j = 0; j < markRewardItemAndNum.length; j++) {
+				var linShiArray = [];
 				var itemId = markRewardItemAndNum[j].split(":")[0];
 				itemId = Number(itemId);
 				var itemNum = markRewardItemAndNum[j].split(":")[1];
 				itemNum = Number(itemNum);
 				linShiArray.push(itemId);
 				linShiArray.push(itemNum);
+				markLinShiCell.push(linShiArray);
 			}
-			if (Number(grade) === 0) {
-				factionFightWarData0[i].push(linShiArray);
-			} else if (Number(grade) === 1) {
-				factionFightWarData1[i].push(linShiArray);
-			} else if (Number(grade) === 2) {
-				factionFightWarData2[i].push(linShiArray);
-			}
+			markFactionFightWarData.push(markLinShiCell);
 		}
+		return markFactionFightWarData;
 	}
 
 
+
+
+	obj_通用_方形头像框
+	selectRole_photo_10001
+
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	current_game.scripts['al_scr_' + "createFactionFightDefendRecord"].call(this, undefined, this, data);
+
+
+
+	//跨服家族战,到达战斗时间后的主界面
+	/** 家族列表(包括: 家族名称 等级 所属的服务器名字和编号 未击破城门数量	城门总数量	家族当前士气值 士气值上限 家族当前的排名,帮会id)
+	 * 家族倒计时
+	 * 当前组别的剩余数量、当前组别的总家族数量
+	 * 攻击冷却时间 我的家族排名 未击破城门 家族士气值   我的个人排名 个人士气值
+	 * 
+	*/
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	game.vars_.startFightMainData = [[], 600, [0, 28, 35], [600, 2, 2, 4, 72850, 5, 20000]];
+	var factionDetailRanklist = [];
+	//转服务器传过来的data
+	for (var i = 0; i < data[0].length; i++) {
+		var markMidArray = [data[0][i][1], data[0][i][2], data[0][i][5], data[0][i][4], 4, data[0][i][3], 10000, i, data[0][i][0]];
+		factionDetailRanklist.push(markMidArray);
+		/*
+		factionDetailRanklist[i][0] = data[0][i][1];
+		factionDetailRanklist[i][1] = data[0][i][2];
+		factionDetailRanklist[i][5] = data[0][i][3];
+		factionDetailRanklist[i][6] = 10000;
+		factionDetailRanklist[i][4] = 4;
+		factionDetailRanklist[i][3] = data[0][i][4];
+		factionDetailRanklist[i][2] = data[0][i][5];
+		factionDetailRanklist[i][7] = i;*/
+	}
+	game.vars_.startFightMainData[0] = factionDetailRanklist;
+	game.vars_.startFightMainData[1] = Number(data[1][0]); //家族倒计时
+	game.vars_.startFightMainData[2][0] = Number(data[1][1]);  //当前组别剩余数量
+	game.vars_.startFightMainData[2][1] = data[0].length;
+	game.vars_.startFightMainData[3][0] = Number(data[1][2]);  //攻击冷却时间
+	game.vars_.startFightMainData[3][1] = Number(data[1][3]);     //我的家族排名
+	game.vars_.startFightMainData[3][2] = Number(data[1][4]);  //未击破城门
+	game.vars_.startFightMainData[3][3] = Number(data[1][5]);
+	game.vars_.startFightMainData[3][4] = Number(data[1][6]);//我的个人排名
+	game.vars_.startFightMainData[3][5] = Number(data[1][7]); //个人士气值
+
+
+
+	current_game.scripts['al_scr_' + "createFactionFightCityGateScene"].call(this, undefined, this);
+
+
+
+
+	grou_fightSelectScene.objects["txt_fightSelect_0"].text   //城门界面的活动的倒计时
+	grou_factionFightCommonBotton_0.objects["txt_fightSelect_" + 6].text    //城门界面的攻击冷却时间
 
 
 	//
-	//创建主角,初始化主角模块
-var rolesInfo = game.vars_.userInfo.roles;
+	/*
+	current_scene.vars_.gateServerId=null;
+	self.vars_.uuid*/
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqCrossServerFightRoles", current_scene.vars_.gateServerId, self.vars_.uuid);
 
-var rolesNameJson = {"10001":"男战士","10002":"女战士","10003":"男法师","10004":"女法师","10005":"男道士","10006":"女道士"};
 
-for(var i = 0; i < rolesInfo.length; i++){
-	
-	var heroObj = null;
-	
-	if(i == 0){
-				
-		heroObj = qyengine.instance_create(current_scene.full_size.width*0.5,current_scene.full_size.height*0.5,"heroObj_" + rolesInfo[i].id,{"id":"heroObj_" + rolesInfo[i].id,"zIndex":10,"layer":"layer_fight"});
-		
-		//主角
-		current_scene.vars_.heroObj = heroObj;
-		
-		heroObj.setFollowView();
-		
-	}else{
-		
-		//其他角色
-		heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200,current_scene.vars_.heroObj.x + 200),random_range(current_scene.vars_.heroObj.y - 200,current_scene.vars_.heroObj.y + 200),"heroObj_" + rolesInfo[i].id,{"id":"heroObj_" + rolesInfo[i].id,"zIndex":9,"layer":"layer_fight"});
+	qyengine.getInstancesByType("grou_factionFightMain").length > 0 && grou_factionFightMain.destroy();
+	qyengine.getInstancesByType("grou_fightSelectScene").length > 0 && grou_fightSelectScene.destroy();
+
+
+	KBEngine.app.player().baseCall("reqCrossServerFightRoles", current_scene.vars_.gateServerId, self.vars_.uuid);
+
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqCrossServerFightRolesResult", current_scene.vars_.gateServerId, current_scene.vars_.gateuuid, Number(data));
+
+
+
+	self.classId
+	self.changeSprite("" + self.classId + "_A1");
+	qyengine.instance_create(-37, 50, "grou_factionFightRewardItemSmall", {
+		"type": "grou_factionFightRewardItemSmall",
+		"id": 'grou_factionFightRewardItemSmall' + i,
+		"zIndex": 5,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	//创建家族战的胜利失败界面
+	var posX = Number(game.configs.UIConfig.grou_factionFightSuccess.position.split(",")[0]);
+	var posY = Number(game.configs.UIConfig.grou_factionFightSuccess.position.split(",")[1]);
+	var zIndex = Number(game.configs.UIConfig.grou_factionFightSuccess.zIndex);
+	qyengine.instance_create(posX, posY, "grou_factionFightSuccess", {
+		"type": "grou_factionFightSuccess",
+		"id": "grou_factionFightSuccess",
+		"zIndex": zIndex,
+		"scene": "main_scene",
+		"layer": 'layer_headerfeet'
+	});
+	var markNameAndFightNumInstance = [["txt_factionSuccessName_0", "txt_factionSuccessName_1"], ["txt_factionFightNum_0", "txt_factionFightNum"]];
+	var markNameAndFightNum = [[], []];
+	var aboutCountry = ["魏", "蜀", "吴"];
+	var roleInfo = game.vars_.userInfo.serverName + "." + aboutCountry[Number(game.vars_.userInfo.country)] + "." + game.vars_.userInfo.nick;
+	//国家容错,服务端未传的话,默认魏国
+	var otherInfoCountryIndex = game.vars_.respPvpFightingEnemys[7] ? Number(game.vars_.respPvpFightingEnemys[7]) : 0;
+	var otherInfo = current_scene.vars_.gateServerId + "." + aboutCountry[otherInfoCountryIndex] + game.vars_.respPvpFightingEnemys[2];
+	markNameAndFightNum[0][0] = roleInfo;
+	markNameAndFightNum[0][1] = otherInfo;
+	markNameAndFightNum[1][0] = "战斗力: " + game.vars_.userInfo.fighting;
+	markNameAndFightNum[1][1] = "战斗力: " + data ? data : 1000;
+	for (var i = 0; i < markNameAndFightNumInstance.length; i++) {
+		for (var j = 0; j < markNameAndFightNumInstance[i].length; j++) {
+			grou_factionFightSuccess.objects[markNameAndFightNumInstance[i][j]].text = markNameAndFightNum;
+		}
 	}
 
-	heroObj.currentSprite.setFill("");
-
-	heroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
-
-	var size = heroObj.currentAnim.getSize();
-
-	heroObj.currentAnim.position.x = size.width*0.5;
-
-	heroObj.currentAnim.position.y = size.height*0.5;
-
-	heroObj.currentSprite.addChild(heroObj.currentAnim);
-
-	heroObj.currentAnim.setAction("待机");
-
-	heroObj.currentAnim.setDirection(5);
-
-	heroObj.setSize(size);
-	
-	game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
-		
-	current_scene.vars_.heroObjArr.push(heroObj);
-	
-	//换装
-	game.scripts["al_scr_changeObjModel"](null,null,rolesInfo[i],heroObj);
-		
-}
 
 
 
