@@ -2848,4 +2848,248 @@ if (repeatTime === 0) {
 
 
 
+	qyengine.callAfter(function () {
+		if (qyengine.getInstancesByType("grou_factionFightSuccess").length > 0) {
+			self.vars_.countDown = setInterval(function () {
+				if (Number(self.text) < 0) {
+					clearInterval(self.vars_.countDown);
+					qyengine.getInstancesByType("grou_factionFightSuccess").length > 0 && grou_factionFightSuccess.destroy();
+					current_game.scripts["al_scr_" + "main_sceneBattleInfoInit"] && current_game.scripts["al_scr_" + "main_sceneBattleInfoInit"].call(this, undefined, this);
+					current_game.scripts['al_scr_' + "mainSceneRequestPkPlayer"].call(this, undefined, this);
+					return;
+				}
+				self.text = Number(self.text) - 1;
+			}, 1000);
+		}
+	}.bind(this), current_scene, 10);
 
+
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	current_game.scripts['al_scr_' + "createFactionFightDefendRecord"].call(this, undefined, this, data);
+
+	//请求
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqDefendsLog");
+
+
+
+
+	//current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this,"敬请期待...");
+
+
+
+
+
+	//新的增加更新维护
+	if (current_scene.vars_.serverInfoList[Object.keys(current_scene.vars_.serverInfoList)[Math.max(current_scene.vars_.serverID, 0)]].status != undefined) {
+		if (current_scene.vars_.serverInfoList[Object.keys(current_scene.vars_.serverInfoList)[Math.max(current_scene.vars_.serverID, 0)]].status === 0) {
+			grou_starGameUI.objects['obj_注册登录_良好_1'].changeSprite("obj_注册登录_维护_default");
+			grou_starGameUI.objects['txt_maintenanceRemind'].show();
+			var markRepairTime = current_scene.vars_.serverInfoList[Object.keys(current_scene.vars_.serverInfoList)[Math.max(current_scene.vars_.serverID, 0)]].time;
+			var markNextTime = "" + markRepairTime.split(":")[0] + ":" + (Number(markRepairTime.split(":")[1]) + 10);
+
+			grou_starGameUI.objects['txt_maintenanceRemind'].text = "游戏于" + markRepairTime + "-" + markNextTime + "进行更新维护";
+		} else {
+			grou_starGameUI.objects['txt_maintenanceRemind'].hide();
+			grou_starGameUI.objects['obj_注册登录_良好_1'].changeSprite("obj_注册登录_良好_default");
+		}
+	} else {
+		grou_starGameUI.objects['txt_maintenanceRemind'].hide();
+		grou_starGameUI.objects['obj_注册登录_良好_1'].changeSprite("obj_注册登录_良好_default");
+	}
+
+
+	//在维护中点击开始游戏的话
+	if (grou_starGameUI.objects['txt_maintenanceRemind'].isVisible) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "服务器维护中!");
+		return;
+	}
+	/*
+		程序员: 王号
+		功能：初始化服务器编号列表
+	*/
+
+	//服务器个数
+	var serverNum = Object.keys(current_scene.vars_.serverInfoList).length;
+
+	var stageNum = parseInt(serverNum / 20) + 1; //按20为一组共多少阶
+	var remainingNum = serverNum % 20; //最后一组的个数
+
+	scro_serverIDBttnList.vars_.curSelectedServerStage = '通用_选择框_01_selectServer_loginHistory';
+
+	scro_serverIDBttnList.removeAll();//清空滚轴容器
+
+	//第一个永远是"登录过的
+	qyengine.instance_create(0, 0, '通用_选择框_01_selectServer_loginHistory', {
+		"type": '通用_选择框_01_selectServer_loginHistory',
+		"id": '通用_选择框_01_selectServer_loginHistory',
+		"zIndex": 0,
+	});
+
+	qyengine.instance_create(0, 0, 'txt_serverIDList', {
+		"type": 'txt_serverIDList',
+		"id": 'txt_serverIDList',
+		"zIndex": 0,
+	});
+
+
+	qyengine.guardId('txt_serverIDList').setText('登录过的');
+	qyengine.guardId('通用_选择框_01_selectServer_loginHistory').changeSprite('通用_选择框_01_selectServer_mouseDown');
+	qyengine.guardId('通用_选择框_01_selectServer_loginHistory').vars_.isChangeState = true;
+
+
+	qyengine.guardId('scro_serverIDBttnList').appendChild('通用_选择框_01_selectServer_loginHistory', undefined, undefined, 0, 0, true, true);
+	qyengine.guardId('scro_serverIDBttnList').appendChild('txt_serverIDList', 20, 15, 0, 0, false, true);
+
+	//创建其他服务列表
+	for (var i = stageNum; i > 0; i--) {
+		qyengine.instance_create(0, 0, '通用_选择框_01_selectServer', {
+			"type": '通用_选择框_01_selectServer',
+			"id": '通用_选择框_01_selectServer' + i,
+			"zIndex": 0,
+		});
+
+		qyengine.instance_create(0, 0, 'txt_serverIDList', {
+			"type": 'txt_serverIDList',
+			"id": 'txt_serverIDList' + i,
+			"zIndex": 0,
+		});
+
+
+		qyengine.guardId('txt_serverIDList' + i).setText((i - 1) * 20 + 1 + '-' + i * 20 + '服');
+		qyengine.guardId('通用_选择框_01_selectServer' + i).vars_.serverState = i;
+
+		qyengine.guardId('scro_serverIDBttnList').appendChild('通用_选择框_01_selectServer' + i, undefined, undefined, i, 0, true, true);
+		qyengine.guardId('scro_serverIDBttnList').appendChild('txt_serverIDList' + i, 20, 15, i, 0, false, true);
+	}
+
+
+
+
+
+
+	scro_serverInfoList.removeAll(); //清空滚轴容器
+
+	if (localStorage.length > 0 && localStorage.getItem("loginedServerList")) {
+
+		var _serverInfoList = JSON.parse(localStorage.getItem("loginedServerList"));
+		var nameList = Object.keys(_serverInfoList); //服务器名字
+		var serverID = 0; //服务器编号
+		var rowIndex = 0; //行号
+
+		for (var i = nameList.length; i > 0; --i) {
+
+			i = i;
+			qyengine.instance_create(-4, 38, 'obj_选择框_小框_01_selectServer1', {
+				"type": 'obj_选择框_小框_01_selectServer1',
+				"id": 'obj_选择框_小框_01_selectServer1' + i,
+				"zIndex": 0
+			});
+
+			qyengine.instance_create(-4, 38, 'obj_注册登录_良好', {
+				"type": 'obj_注册登录_良好',
+				"id": 'obj_注册登录_良好' + i,
+				"zIndex": 0
+			});
+
+			qyengine.instance_create(0, 0, 'txt_serverName_wh', {
+				"type": 'txt_serverName_wh',
+				"id": 'txt_serverName_wh' + i,
+				"zIndex": 0
+			});
+
+			qyengine.instance_create(0, 0, 'obj_注册登录_新', {
+				"type": 'obj_注册登录_新',
+				"id": 'obj_注册登录_新' + i,
+				"zIndex": 0
+			});
+
+			qyengine.instance_create(0, 0, 'cont_selectServer_serverInfor', {
+				"type": 'cont_selectServer_serverInfor',
+				"id": 'cont_selectServer_serverInfor' + i,
+				"zIndex": 0
+			});
+
+			serverID = _serverInfoList[nameList[i - 1]].serverID;
+			qyengine.guardId('obj_选择框_小框_01_selectServer1' + i).vars_.serverID = serverID; //设置编号
+			qyengine.guardId('txt_serverName_wh' + i).setText(nameList[i - 1] + '');
+			//pwangrd_qiyun新添加
+			if (_serverInfoList[nameList[i - 1]].name) {
+				qyengine.guardId('txt_serverName_wh' + i).setText("" + qyengine.guardId('txt_serverName_wh' + i).text + " " + _serverInfoList[nameList[i - 1]].name);
+			}
+			/*if (_serverInfoList[nameList[i - 1]].status != undefined && _serverInfoList[nameList[i - 1]].status === 0) {
+				qyengine.guardId('obj_注册登录_新' + i).changeSprite("obj_注册登录_维护_default");
+			}*/
+			if(current_scene.vars_.serverInfoList[nameList[i - 1]].status!=undefined&&Number(current_scene.vars_.serverInfoList[nameList[i - 1]].status)===0){
+				qyengine.guardId('obj_注册登录_良好' + i).changeSprite("obj_注册登录_维护_default");
+			}
+			qyengine.guardId('cont_selectServer_serverInfor' + i).appendChild('obj_选择框_小框_01_selectServer1' + i, 175, 33);
+			qyengine.guardId('cont_selectServer_serverInfor' + i).appendChild('obj_注册登录_良好' + i, 40, 38);
+			qyengine.guardId('cont_selectServer_serverInfor' + i).appendChild('txt_serverName_wh' + i, 109 - 60, 17);
+			qyengine.guardId('cont_selectServer_serverInfor' + i).appendChild('obj_注册登录_新' + i, 300, 36);
+			qyengine.guardId('scro_serverInfoList').appendChild('cont_selectServer_serverInfor' + i, 0, 0, rowIndex, 0, false, true);
+
+			rowIndex++;
+		}
+	}
+
+
+
+
+	if (current_scene.vars_.serverInfoList[nameList[serverID]].status != undefined && current_scene.vars_.serverInfoList[nameList[serverID]].status === 0) {
+		qyengine.guardId('obj_注册登录_新' + _objId).changeSprite("obj_注册登录_维护_default");
+	}
+
+
+
+current_game.scripts['al_scr_'+"createCommonFlutterTxt"].call(this,undefined,this,"创建家族失败!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var markColor = ["<font color='#ffffff'>", "<font color='#11f92c'>", "<font color='#3d98ff'>", "<font color='#f661f1'>", "<font color='#ffbe41'>"];
+var rewardSilver = Number(game.configs.box[current_scene['nowSaleButton'].vars_.Id].silver) * current_scene.nowSaleNum;
+var markShowText = "";
+if (Number(game.configs.box[current_scene['nowSaleButton'].vars_.Id].silver) && Number(game.configs.box[current_scene['nowSaleButton'].vars_.Id].silver) != -1) {
+	markShowText = markColor[0] + "获得:" + rewardSilver + "银子" + "</font>" + '\n';
+}
+//qyengine.guardId('txt_remind').setText('获得:' + rewardSilver + '银子');
+for (var i = 0; i < markOpenReward.length; i++) {
+	var rewardGoodName = 0;
+	var markNowColor = 0;
+	if (game.configs.item[markOpenReward[i][0]]) {
+		rewardGoodName = game.configs.item[markOpenReward[i][0]].name;
+		markNowColor = markColor[Number(game.configs.item[markOpenReward[i][0]].quality) - 1];
+	} else if (game.configs.box[markOpenReward[i][0]]) {
+		rewardGoodName = game.configs.box[markOpenReward[i][0]].name;
+		markNowColor = markColor[Number(game.configs.box[markOpenReward[i][0]].quality) - 1];
+	} else if (game.configs.title[markOpenReward[i][0]]) {
+		rewardGoodName = game.configs.title[markOpenReward[i][0]].name;
+		markNowColor = markColor[Number(game.configs.title[markOpenReward[i][0]].quality) - 1];
+	} else {
+		rewardGoodName = game.configs.equipment[markOpenReward[i][0]].name;
+		markNowColor = markColor[5 - 1];
+	}
+
+	var markGoodNum = markOpenReward[i][1];
+	markShowText = markShowText + markNowColor + '获得:' + rewardGoodName + 'X' + markGoodNum + "</font>" + '\n';
+	//qyengine.guardId('txt_remind_' + (i + 1)).setText('获得:' + rewardGoodName + 'X' + markGoodNum);
+}
+qyengine.instance_create(0, 0, "txt_packFusionRewardStone", {
+	"type": 'txt_packFusionRewardStone',
+	"id": 'txt_packFusionRewardStone_reward',
+	"zIndex": 20,
+	"layer": 'layer_headerfeet',
+	"scene": 'main_scene'
+});
+qyengine.guardId("txt_packFusionRewardStone_reward").setText(markShowText);
