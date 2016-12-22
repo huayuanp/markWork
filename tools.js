@@ -189,7 +189,7 @@ qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 //删除滚轴容器的单元格
 qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOneCell(2 - 1, 3 - 1);
 //js原声的计时器
-myVar=setInterval("javascript function",milliseconds);
+myVar = setInterval("javascript function", milliseconds);
 clearInterval(myVar);
 //加入控制游戏画面质量的api
 qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
@@ -207,6 +207,8 @@ qyengine.callAfter(function () {
 	this.cancelShieldEvent && this.cancelShieldEvent(["mousedown", "mouseup"])
 }
 	.bind(this), current_scene, 600);
+//判断是否是合并的版本
+window.adapt
 //内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
