@@ -2790,11 +2790,50 @@ if (repeatTime === 0) {
 
 
 
+	if (self.id == "txt_battle_taskTitle") {
+		self.currentSprite.style.font = "normal 30px kaiti";
+	} else if (self.id == "txt_battle_taskContent") {
+		self.currentSprite.style.font = "normal 20px kaiti";
+	}
+
+	//任务的收缩(默认张开状态)
+	self.vars_.isNeedPush = true;
+	self.vars_.isTouch = false;
+	self.vars_.canTouch = true;
+	//任务按下
+	self.vars_.isTouch = true;
+	//任务松开
+	if (self.vars_.canTouch && self.vars_.isTouch) {
+		self.vars_.canTouch = false;
+		self.vars_.isTouch = false;
+		//移动至,按时间
+		var markX = grou_battle_task.x;
+		var markY = grou_battle_task.y;
+		if (self.vars_.isNeedPush) {   //张开状态
+			grou_battle_task.moveTo(markX - 220, markY, 'time', 600);
+		} else {                         //收缩状态
+			grou_battle_task.moveTo(markX + 220, markY, 'time', 600);
+		}
+	}
+	//grou_battle_task  移动完成
+	if (self.vars_.isNeedPush) {
+		grou_battle_task.objects['obj_战斗_任务收缩_task'].vars_.isNeedPush = false;
+		for (loneObj in grou_battle_task.objects) {
+			if (grou_battle_task.objects[loneObj].id != "obj_战斗_任务收缩_task" && grou_battle_task.objects[loneObj].id != "obj_战斗_任务收缩框_task" &&
+				grou_battle_task.objects[loneObj].id != "obj_战斗_奖励小框_task") {
+				grou_battle_task.objects[loneObj].hide();
+			}
+		}
+	} else {
+		grou_battle_task.objects['obj_战斗_任务收缩_task'].vars_.isNeedPush = true;
+		for (loneObj in grou_battle_task.objects) {
+			grou_battle_task.objects[loneObj].show();
+		}
+	}
+	grou_battle_task.objects['obj_战斗_任务收缩_task'].vars_.canTouch = true;
 
 
-if(window.adapt){
-	grou_fight.currentSprite.cacheAsBitmap=true;
-}
+	
 
 
 
