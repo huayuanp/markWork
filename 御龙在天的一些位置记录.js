@@ -2743,99 +2743,150 @@ if (repeatTime === 0) {
 
 
 
-	//跨服家族战,到达战斗时间后的主界面
-	/** 家族列表(包括: 家族名称 等级 所属的服务器名字和编号 未击破城门数量	城门总数量	家族当前士气值 士气值上限 家族当前的排名,帮会id)
-	 * 家族倒计时
-	 * 当前组别的剩余数量、当前组别的总家族数量
-	 * 攻击冷却时间 我的家族排名 未击破城门 家族士气值   我的个人排名 个人士气值
-	 * 
-	*/
-	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
-	game.vars_.startFightMainData = [[], 600, [0, 28, 35], [600, 2, 2, 4, 72850, 5, 20000]];
-	var factionDetailRanklist = [];
-	//转服务器传过来的data
-	for (var i = 0; i < data[0].length; i++) {
-		var markMidArray = [data[0][i][1], data[0][i][2], data[0][i][5], data[0][i][4], 4, data[0][i][3], 10000, i, data[0][i][0]];
-		factionDetailRanklist.push(markMidArray);
-		/*
-		factionDetailRanklist[i][0] = data[0][i][1];
-		factionDetailRanklist[i][1] = data[0][i][2];
-		factionDetailRanklist[i][5] = data[0][i][3];
-		factionDetailRanklist[i][6] = 10000;
-		factionDetailRanklist[i][4] = 4;
-		factionDetailRanklist[i][3] = data[0][i][4];
-		factionDetailRanklist[i][2] = data[0][i][5];
-		factionDetailRanklist[i][7] = i;*/
-	}
-	game.vars_.startFightMainData[0] = factionDetailRanklist;
-	game.vars_.startFightMainData[1] = Number(data[1][0]); //家族倒计时
-	game.vars_.startFightMainData[2][0] = Number(data[1][1]);  //当前组别剩余数量
-	game.vars_.startFightMainData[2][1] = data[0].length;
-	game.vars_.startFightMainData[3][0] = Number(data[1][2]);  //攻击冷却时间
-	game.vars_.startFightMainData[3][1] = Number(data[1][3]);     //我的家族排名
-	game.vars_.startFightMainData[3][2] = Number(data[1][4]);  //未击破城门
-	game.vars_.startFightMainData[3][3] = Number(data[1][5]);
-	game.vars_.startFightMainData[3][4] = Number(data[1][6]);//我的个人排名
-	game.vars_.startFightMainData[3][5] = Number(data[1][7]); //个人士气值
 
-
-
-	current_game.scripts['al_scr_' + "createFactionFightCityGateScene"].call(this, undefined, this);
-
-
-
-
-	grou_fightSelectScene.objects["txt_fightSelect_0"].text   //城门界面的活动的倒计时
-	grou_factionFightCommonBotton_0.objects["txt_fightSelect_" + 6].text    //城门界面的攻击冷却时间
-
-
-
-	if (self.id == "txt_battle_taskTitle") {
-		self.currentSprite.style.font = "normal 30px kaiti";
-	} else if (self.id == "txt_battle_taskContent") {
-		self.currentSprite.style.font = "normal 20px kaiti";
-	}
-
-	//任务的收缩(默认张开状态)
-	self.vars_.isNeedPush = true;
-	self.vars_.isTouch = false;
-	self.vars_.canTouch = true;
-	//任务按下
-	self.vars_.isTouch = true;
-	//任务松开
-	if (self.vars_.canTouch && self.vars_.isTouch) {
-		self.vars_.canTouch = false;
-		self.vars_.isTouch = false;
-		//移动至,按时间
-		var markX = grou_battle_task.x;
-		var markY = grou_battle_task.y;
-		if (self.vars_.isNeedPush) {   //张开状态
-			grou_battle_task.moveTo(markX - 220, markY, 'time', 600);
-		} else {                         //收缩状态
-			grou_battle_task.moveTo(markX + 220, markY, 'time', 600);
+	if (qyengine.getInstancesByType("grou_battle_task").length > 0) {
+		grou_battle_task.objects['txt_battle_taskTitle'].text= game.configs.mission[Number(data[0].missionid)].name;
+		grou_battle_task.objects['txt_battle_taskContent'].text= game.configs.mission[Number(data[0].missionid)].dec;
+		if(Number(game.configs.mission[Number(data[0].missionid)].gold)!=-1){
+			grou_battle_task.objects['txt_battle_taskRewardYellow'].text= game.configs.mission[Number(data[0].missionid)].gold;
+		}else{
+			grou_battle_task.objects['txt_battle_taskRewardYellow'].text= 0;
+		}
+		grou_battle_task.objects['txt_battle_taskRewardBlue'].text= game.configs.mission[Number(data[0].missionid)].silver;
+		//grou_battle_task.objects['obj_战斗_金子'].changeSprite();
+		grou_battle_task.vars_.markTask= data[0];
+		if(Number(data[0].progress)!=0&&data[0].curprogress<=data[0].progress){
+			grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite("obj_战斗_领取框_task_A0");
+			grou_battle_task.objects['obj_战斗_领取字_task'].changeSprite("obj_战斗_领取字_task_A0");
+		}
+		if(Number(data[0].progress)===0||Number(data[0].curprogress)>Number(data[0].progress)){
+			grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite("obj_战斗_领取框_task_A1");
+			grou_battle_task.objects['obj_战斗_领取字_task'].changeSprite("obj_战斗_领取字_task_A1");
 		}
 	}
-	//grou_battle_task  移动完成
-	if (self.vars_.isNeedPush) {
-		grou_battle_task.objects['obj_战斗_任务收缩_task'].vars_.isNeedPush = false;
-		for (loneObj in grou_battle_task.objects) {
-			if (grou_battle_task.objects[loneObj].id != "obj_战斗_任务收缩_task" && grou_battle_task.objects[loneObj].id != "obj_战斗_任务收缩框_task" &&
-				grou_battle_task.objects[loneObj].id != "obj_战斗_奖励小框_task") {
-				grou_battle_task.objects[loneObj].hide();
-			}
-		}
-	} else {
-		grou_battle_task.objects['obj_战斗_任务收缩_task'].vars_.isNeedPush = true;
-		for (loneObj in grou_battle_task.objects) {
-			grou_battle_task.objects[loneObj].show();
-		}
+
+
+	//任务领取的请求~~~~~~
+	KBEngine.app.player().baseCall("reqAcievementReward",grou_battle_task.vars_.markTask.missionid);
+
+    //领取点击事件里面的判断
+	if(Number(grou_battle_task.progress)===0||Number(grou_battle_task.curprogress)>Number(grou_battle_task.progress)){
+		return;
 	}
-	grou_battle_task.objects['obj_战斗_任务收缩_task'].vars_.canTouch = true;
+	
+
+	//离线收益界面的显示的更改
+	if(game.vars_.userInfo.vip>0){
+		self.x=-21;
+	}
 
 
+    if(game.vars_.userInfo.vip>0){
+		grou_offLineReward.destroy();
+		current_game.scripts['al_scr_'+"createCommonFlutterTxt"].call(this,undefined,this,'领取成功!');
+		current_game.scripts['al_scr_'+"guide_sendinformation"].call(this,undefined,this);
+	}else{
+		current_game.scripts['al_scr_'+"popRechargeUI"].call(this,undefined,this);
+	}
 	
 
 
+current_game.scripts['al_scr_'+"sceneBattleVarInit"].call(this,undefined,this);
+
+
+KBEngine.app.player().baseCall('reqMainCityPlayers');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//-----------------------------------------------------------------------------------------------------
+//创建主角,初始化主角模块   rolesInfo
+var rolesInfo = game.vars_.userInfo.roles;
+
+var rolesNameJson = {"10001":"男战士","10002":"女战士","10003":"男法师","10004":"女法师","10005":"男道士","10006":"女道士"};
+
+for(var i = 0; i < data[0].length; i++){
+  
+  var otherHeroObj = null;
+  
+  if(i == 0){
+        
+    otherHeroObj = qyengine.instance_create(current_scene.full_size.width*0.5,current_scene.full_size.height*0.5,
+    "obj_mainUIRole_" + rolesInfo[i].id,{"id":"obj_mainUIRole_" + rolesInfo[i].id,"zIndex":10,"layer":"layer_fight"});
+    
+    //主角
+    current_scene.vars_.otherHeroObj = otherHeroObj;
+    current_scene.vars_.otherHeroObj.vars_.currentAtkObj=1;
+    otherHeroObj.setFollowView();
+    
+  }else{
+    
+    //其他角色
+    otherHeroObj = qyengine.instance_create(random_range(current_scene.vars_.otherHeroObj.x - 200,current_scene.vars_.otherHeroObj.x + 200),
+    random_range(current_scene.vars_.otherHeroObj.y - 200,current_scene.vars_.otherHeroObj.y + 200),"obj_mainUIRole_" + rolesInfo[i].id,
+    {"id":"obj_mainUIRole_" + rolesInfo[i].id,"zIndex":9,"layer":"layer_fight"});
+  }
+
+  otherHeroObj.currentSprite.setFill("");
+
+  if(window.currentHeroObjPIXI){
+
+    for(var nameItem in window.currentHeroObjPIXI){
+
+      if(nameItem == rolesNameJson[rolesInfo[i].id]){
+
+        otherHeroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+
+        break;
+      }
+    }
+
+  }else{
+
+    window.currentHeroObjPIXI = {};
+  }
+
+  if(!otherHeroObj.currentAnim){
+
+    otherHeroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
+
+    window.currentHeroObjPIXI[rolesNameJson[rolesInfo[i].id]] = otherHeroObj.currentAnim;
+  }
+  
+  var size = otherHeroObj.currentAnim.getSize();
+
+  otherHeroObj.currentAnim.position.x = size.width*0.5;
+
+  otherHeroObj.currentAnim.position.y = size.height*0.5;
+
+  otherHeroObj.currentSprite.addChild(otherHeroObj.currentAnim);
+
+  otherHeroObj.currentAnim.setAction("待机");
+
+  otherHeroObj.currentAnim.setDirection(5);
+
+  otherHeroObj.setSize(size);
+  
+ // game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
+    
+  current_scene.vars_.otherHeroObjArr.push(otherHeroObj);
+  
+  //换装
+  game.scripts["al_scr_changeObjModel"](null,null,rolesInfo[i],otherHeroObj);
+    
+}
 
 
 
