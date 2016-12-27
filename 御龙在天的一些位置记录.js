@@ -2745,21 +2745,21 @@ if (repeatTime === 0) {
 
 
 	if (qyengine.getInstancesByType("grou_battle_task").length > 0) {
-		grou_battle_task.objects['txt_battle_taskTitle'].text= game.configs.mission[Number(data[0].missionid)].name;
-		grou_battle_task.objects['txt_battle_taskContent'].text= game.configs.mission[Number(data[0].missionid)].dec;
-		if(Number(game.configs.mission[Number(data[0].missionid)].gold)!=-1){
-			grou_battle_task.objects['txt_battle_taskRewardYellow'].text= game.configs.mission[Number(data[0].missionid)].gold;
-		}else{
-			grou_battle_task.objects['txt_battle_taskRewardYellow'].text= 0;
+		grou_battle_task.objects['txt_battle_taskTitle'].text = game.configs.mission[Number(data[0].missionid)].name;
+		grou_battle_task.objects['txt_battle_taskContent'].text = game.configs.mission[Number(data[0].missionid)].dec;
+		if (Number(game.configs.mission[Number(data[0].missionid)].gold) != -1) {
+			grou_battle_task.objects['txt_battle_taskRewardYellow'].text = game.configs.mission[Number(data[0].missionid)].gold;
+		} else {
+			grou_battle_task.objects['txt_battle_taskRewardYellow'].text = 0;
 		}
-		grou_battle_task.objects['txt_battle_taskRewardBlue'].text= game.configs.mission[Number(data[0].missionid)].silver;
+		grou_battle_task.objects['txt_battle_taskRewardBlue'].text = game.configs.mission[Number(data[0].missionid)].silver;
 		//grou_battle_task.objects['obj_战斗_金子'].changeSprite();
-		grou_battle_task.vars_.markTask= data[0];
-		if(Number(data[0].progress)!=0&&data[0].curprogress<=data[0].progress){
+		grou_battle_task.vars_.markTask = data[0];
+		if (Number(data[0].progress) != 0 && data[0].curprogress <= data[0].progress) {
 			grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite("obj_战斗_领取框_task_A0");
 			grou_battle_task.objects['obj_战斗_领取字_task'].changeSprite("obj_战斗_领取字_task_A0");
 		}
-		if(Number(data[0].progress)===0||Number(data[0].curprogress)>Number(data[0].progress)){
+		if (Number(data[0].progress) === 0 || Number(data[0].curprogress) > Number(data[0].progress)) {
 			grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite("obj_战斗_领取框_task_A1");
 			grou_battle_task.objects['obj_战斗_领取字_task'].changeSprite("obj_战斗_领取字_task_A1");
 		}
@@ -2767,37 +2767,34 @@ if (repeatTime === 0) {
 
 
 	//任务领取的请求~~~~~~
-	KBEngine.app.player().baseCall("reqAcievementReward",grou_battle_task.vars_.markTask.missionid);
+	KBEngine.app.player().baseCall("reqAcievementReward", grou_battle_task.vars_.markTask.missionid);
 
-    //领取点击事件里面的判断
-	if(Number(grou_battle_task.progress)===0||Number(grou_battle_task.curprogress)>Number(grou_battle_task.progress)){
+	//领取点击事件里面的判断
+	if (Number(grou_battle_task.progress) === 0 || Number(grou_battle_task.curprogress) > Number(grou_battle_task.progress)) {
 		return;
 	}
-	
+
 
 	//离线收益界面的显示的更改
-	if(game.vars_.userInfo.vip>0){
-		self.x=-21;
+	if (game.vars_.userInfo.vip > 0) {
+		self.x = -21;
 	}
 
 
-    if(game.vars_.userInfo.vip>0){
+	if (game.vars_.userInfo.vip > 0) {
 		grou_offLineReward.destroy();
-		current_game.scripts['al_scr_'+"createCommonFlutterTxt"].call(this,undefined,this,'领取成功!');
-		current_game.scripts['al_scr_'+"guide_sendinformation"].call(this,undefined,this);
-	}else{
-		current_game.scripts['al_scr_'+"popRechargeUI"].call(this,undefined,this);
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, '领取成功!');
+		current_game.scripts['al_scr_' + "guide_sendinformation"].call(this, undefined, this);
+	} else {
+		current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
 	}
-	
-
-
-current_game.scripts['al_scr_'+"sceneBattleVarInit"].call(this,undefined,this);
-
-
-KBEngine.app.player().baseCall('reqMainCityPlayers');
 
 
 
+	current_game.scripts['al_scr_' + "sceneBattleVarInit"].call(this, undefined, this);
+
+
+	KBEngine.app.player().baseCall('reqMainCityPlayers');
 
 
 
@@ -2811,91 +2808,224 @@ KBEngine.app.player().baseCall('reqMainCityPlayers');
 
 
 
-//-----------------------------------------------------------------------------------------------------
-//创建主角,初始化主角模块   rolesInfo
-var rolesInfo = game.vars_.userInfo.roles;
 
-var rolesNameJson = {"10001":"男战士","10002":"女战士","10003":"男法师","10004":"女法师","10005":"男道士","10006":"女道士"};
 
-for(var i = 0; i < data[0].length; i++){
-  
-  var otherHeroObj = null;
-  
-  if(i == 0){
-        
-    otherHeroObj = qyengine.instance_create(current_scene.full_size.width*0.5,current_scene.full_size.height*0.5,
-    "obj_mainUIRole_" + rolesInfo[i].id,{"id":"obj_mainUIRole_" + rolesInfo[i].id,"zIndex":10,"layer":"layer_fight"});
+
+	//-----------------------------------------------------------------------------------------------------
+	//创建主城其它的角色模块,初始化模块   otherHeroObj
+	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
+	var randomPosition = { 'x': random_range(50, current_scene.full_size.width - 50), 'y': random_range(100, current_scene.full_size.width - 100) };
+	for (var j = 0; j < data[0].length; j++) {
+		for (var i = 0; i < data[0][j].roles.length; i++) {
+
+			var otherHeroObj = null;
+
+			if (i == 0) {
+				otherHeroObj = qyengine.instance_create(randomPosition.x, randomPosition.y,
+					"obj_mainUIRole_" + data[0][j].roles[i].profession, { "id": "obj_mainUIRole_" + data[0][j].roles[i].profession, "zIndex": 10, "layer": "layer_fight" });
+
+				//主角
+				current_scene.vars_.otherHeroObj = otherHeroObj;
+				current_scene.vars_.otherHeroObj.vars_.currentAtkObj = 1;
+				otherHeroObj.setFollowView();
+
+			} else {
+
+				//其他角色
+				otherHeroObj = qyengine.instance_create(random_range(current_scene.vars_.otherHeroObj.x - 200, current_scene.vars_.otherHeroObj.x + 200),
+					random_range(current_scene.vars_.otherHeroObj.y - 200, current_scene.vars_.otherHeroObj.y + 200), "obj_mainUIRole_" + data[0][j].roles[i].profession,
+					{ "id": "obj_mainUIRole_" + data[0][j].roles[i].profession, "zIndex": 9, "layer": "layer_fight" });
+			}
+
+			otherHeroObj.currentSprite.setFill("");
+
+			if (window.currentHeroObjPIXI) {
+
+				for (var nameItem in window.currentHeroObjPIXI) {
+
+					if (nameItem == rolesNameJson[data[0][j].roles[i].profession]) {
+
+						otherHeroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+
+						break;
+					}
+				}
+
+			} else {
+
+				window.currentHeroObjPIXI = {};
+			}
+
+			if (!otherHeroObj.currentAnim) {
+
+				otherHeroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[data[0][j].roles[i].profession]);
+
+				window.currentHeroObjPIXI[rolesNameJson[data[0][j].roles[i].profession]] = otherHeroObj.currentAnim;
+			}
+
+			var size = otherHeroObj.currentAnim.getSize();
+
+			otherHeroObj.currentAnim.position.x = size.width * 0.5;
+
+			otherHeroObj.currentAnim.position.y = size.height * 0.5;
+
+			otherHeroObj.currentSprite.addChild(otherHeroObj.currentAnim);
+
+			otherHeroObj.currentAnim.setAction("待机");
+
+			otherHeroObj.currentAnim.setDirection(5);
+
+			otherHeroObj.setSize(size);
+
+			// game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
+			if (!current_scene.vars_.otherHeroObjArr) {
+				current_scene.vars_.otherHeroObjArr = [];
+			}
+			current_scene.vars_.otherHeroObjArr.push(otherHeroObj);
+			var markWingLevel = 0;
+			if (data[0][j].roles.isRebot) {
+				markWingLevel = calWingLevel(Number(data[0][j].uid), i);
+			} else {
+				markWingLevel = data[0][j].roles[i].equips[2];
+			}
+			var markOtherInfo = {
+				'id': data[0][j].roles[i].profession,
+				'equips': calOtherHeroEquip(data[0][j].roles[i].equips),
+				'wing': {
+					'level': markWingLevel
+				}
+			};
+			//换装
+			game.scripts["al_scr_changeObjModel"](null, null, markOtherInfo, otherHeroObj);
+
+		}
+	}
+	function calOtherHeroEquip(equipInfo) {
+		var backArray = [];
+		for (var i = 0; i < equipInfo.length - 1; i++) {
+			var equips = {};
+			if (Number(equipInfo[i]) != 0) {
+				equips.id = equipInfo[i];
+				equips.type = game.configs.equipment[equips.id].type;
+				backArray.push(equips);
+			}
+		}
+		return backArray;
+	}
+	function calWingLevel(uid, index) {  //id 以及是第几个角色
+		var winglevel = game.configs.robot_city[uid].wings.split('|')[index];
+		return Number(winglevel);
+	}
+
+	//------------------------------------------------------------------------
+	current_game.scripts['al_scr_' + "sceneBattleVarInit"].call(this, undefined, this);
+	current_game.scripts['al_scr_' + "createMainUIRole"].call(this, undefined, this);
+	KBEngine.app.player().baseCall('reqMainCityPlayers');
+
+	//首充
+	grou_firstRecharge_new(150, 485)
+	grou_firstRechargeItem(-23, 36)
+
+	var rewardConfig = getConfig("activity_first", 1, "reward");
+	var rewards = rewardConfig.split("|");
+	var equipConfig = getConfig("activity_first", 1, "equip");
+	var equips = equipConfig.split("|");
+	var index = 0;
+
+	for (var i = 0; i < rewards.length; ++i) {
+		//创建item
+		qyengine.instance_create(0, 0, "grou_firstRechargeItem", { "type": "grou_firstRechargeItem", "id": 'item' + index, "zIndex": 0 });
+
+		var rewardDatas = rewards[index].split(":");
+		qyengine.guardId("item" + index).objects.txt_firstChargeItemName.text = getConfig("item", rewardDatas[0], "name");
+		qyengine.guardId("item" + index).objects.txt_firstChargeItemNum.text = rewardDatas[1];
+		//pwangrd_qiyun 后加
+		var markShowQuality = Number(game.configs.item[Number(rewardDatas[0])].quality) - 1;
+		qyengine.guardId('item' + index).objects["obj_通用_道具框_白_firstRecharge"].changeSprite("obj_packageSmallFrame_A" + markShowQuality);
+		qyengine.guardId("item" + index).objects.obj_firstRechargeIcon.changeSprite("obj_" + getConfig("item", rewardDatas[0], "icon") + "_default");
+		console.error("index++", index++);
+		scro_firstRechage_new.appendChild("item" + index, -23, 36, 0, index++, false, true);
+	}
+
+	var index2 = 0;
+	for (var i = 0; i < equips.length; ++i) {
+		//创建item
+		qyengine.instance_create(0, 0, "grou_firstRechargeItem", { "type": "grou_firstRechargeItem", "id": 'item' + index, "zIndex": 0 });
+
+		var rewardDatas = equips[index2].split(":");
+		qyengine.guardId("item" + index).objects.txt_firstChargeItemName.text = getConfig("equipment", rewardDatas[0], "name");
+		qyengine.guardId("item" + index).objects.txt_firstChargeItemNum.text = rewardDatas[2];
+		//pwangrd_qiyun 后加
+		var markShowQuality = Number(rewardDatas[1]) - 1;
+		qyengine.guardId('item' + index).objects["obj_通用_道具框_白_firstRecharge"].changeSprite("obj_packageSmallFrame_A" + markShowQuality);
+		qyengine.guardId("item" + index).objects.obj_firstRechargeIcon.changeSprite("obj_" + getConfig("equipment", rewardDatas[0], "icon") + "_default");
+		console.error("index + (index2++)", index + (index2++));
+		scro_firstRechage_new.appendChild("item" + index++, -23, 36, 0, index + (index2++), false, true);
+		index++;
+	}
+
+
+
+
+
+	//创建实例
+	qyengine.instance_create(400, 400, "grou_firstRecharge_new", {
+		"type": "grou_firstRecharge_new",
+		"id": 'grou_firstRecharge_new',
+		"zIndex": 20,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+
+
+
+
+
+
+	current_game.scripts['al_scr_' + "guide_sendinformation"].call(this, undefined, this);
+	qyengine.getInstancesByType("grou_firstRecharge_new").length > 0 && grou_firstRecharge_new.destroy();
+
+
     
-    //主角
-    current_scene.vars_.otherHeroObj = otherHeroObj;
-    current_scene.vars_.otherHeroObj.vars_.currentAtkObj=1;
-    otherHeroObj.setFollowView();
-    
-  }else{
-    
-    //其他角色
-    otherHeroObj = qyengine.instance_create(random_range(current_scene.vars_.otherHeroObj.x - 200,current_scene.vars_.otherHeroObj.x + 200),
-    random_range(current_scene.vars_.otherHeroObj.y - 200,current_scene.vars_.otherHeroObj.y + 200),"obj_mainUIRole_" + rolesInfo[i].id,
-    {"id":"obj_mainUIRole_" + rolesInfo[i].id,"zIndex":9,"layer":"layer_fight"});
-  }
+	if(NoticeMainPanel.isVisible){
+		return;
+	}
+	if (KBEngine.app.player().firstcharge == 1 && KBEngine.app.player().getreward == 1) {
+		NoticeMainPanel.show();
+	} else {
+		qyengine.getInstancesByType('NoticeMainPanel').length>0&&NoticeMainPanel.destroy();
+		game.scripts["al_scr_" + 'createRewardFirst'] && game.scripts["al_scr_" + 'createRewardFirst'].call(this, undefined, this);
+	}
 
-  otherHeroObj.currentSprite.setFill("");
-
-  if(window.currentHeroObjPIXI){
-
-    for(var nameItem in window.currentHeroObjPIXI){
-
-      if(nameItem == rolesNameJson[rolesInfo[i].id]){
-
-        otherHeroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
-
-        break;
-      }
-    }
-
-  }else{
-
-    window.currentHeroObjPIXI = {};
-  }
-
-  if(!otherHeroObj.currentAnim){
-
-    otherHeroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
-
-    window.currentHeroObjPIXI[rolesNameJson[rolesInfo[i].id]] = otherHeroObj.currentAnim;
-  }
-  
-  var size = otherHeroObj.currentAnim.getSize();
-
-  otherHeroObj.currentAnim.position.x = size.width*0.5;
-
-  otherHeroObj.currentAnim.position.y = size.height*0.5;
-
-  otherHeroObj.currentSprite.addChild(otherHeroObj.currentAnim);
-
-  otherHeroObj.currentAnim.setAction("待机");
-
-  otherHeroObj.currentAnim.setDirection(5);
-
-  otherHeroObj.setSize(size);
-  
- // game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
-    
-  current_scene.vars_.otherHeroObjArr.push(otherHeroObj);
-  
-  //换装
-  game.scripts["al_scr_changeObjModel"](null,null,rolesInfo[i],otherHeroObj);
-    
+//领取奖励的时候
+var needHideObj=['obj_二期首充_6元按钮','obj_二期首充_98元按钮','obj_呼吸灯特效','obj_呼吸灯橙特效'];
+for(var i=0;i< needHideObj.length;i++){
+	grou_firstRecharge_new.objects[needHideObj[i]].hide();
 }
+grou_firstRecharge_new.objects['first_recharge_btn_get'].show();
+grou_firstRecharge_new.objects['obj_首充_领取奖励'].show();
 
 
 
 
+first_recharge_btn_get
+obj_首充_领取奖励
 
 
 
 
+first_recharge_btn_get.show();
+first_recharge_icon_get.show();
 
-
-
-
+first_recharge_btn_6.hide();
+first_recharge_icon_6.hide();
+first_recharge_btn_12.hide();
+first_recharge_icon_12.hide();
+first_recharge_btn_30.hide();
+first_recharge_icon_30.hide();
+first_recharge_btn_98.hide();
+first_recharge_icon_98.hide();
+first_recharge_text1.hide();
+first_recharge_text2.hide();
+first_recharge_text3.hide();
+first_recharge_text4.hide();
