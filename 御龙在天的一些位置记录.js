@@ -2986,46 +2986,123 @@ if (repeatTime === 0) {
 	qyengine.getInstancesByType("grou_firstRecharge_new").length > 0 && grou_firstRecharge_new.destroy();
 
 
-    
-	if(NoticeMainPanel.isVisible){
+
+	if (NoticeMainPanel.isVisible) {
 		return;
 	}
 	if (KBEngine.app.player().firstcharge == 1 && KBEngine.app.player().getreward == 1) {
 		NoticeMainPanel.show();
 	} else {
-		qyengine.getInstancesByType('NoticeMainPanel').length>0&&NoticeMainPanel.destroy();
+		qyengine.getInstancesByType('NoticeMainPanel').length > 0 && NoticeMainPanel.destroy();
 		game.scripts["al_scr_" + 'createRewardFirst'] && game.scripts["al_scr_" + 'createRewardFirst'].call(this, undefined, this);
 	}
 
-//领取奖励的时候
-var needHideObj=['obj_二期首充_6元按钮','obj_二期首充_98元按钮','obj_呼吸灯特效','obj_呼吸灯橙特效'];
-for(var i=0;i< needHideObj.length;i++){
-	grou_firstRecharge_new.objects[needHideObj[i]].hide();
+	//领取奖励的时候
+	var needHideObj = ['obj_二期首充_6元按钮', 'obj_二期首充_98元按钮', 'obj_呼吸灯特效', 'obj_呼吸灯橙特效'];
+	for (var i = 0; i < needHideObj.length; i++) {
+		grou_firstRecharge_new.objects[needHideObj[i]].hide();
+	}
+	grou_firstRecharge_new.objects['first_recharge_btn_get'].show();
+	grou_firstRecharge_new.objects['obj_首充_领取奖励'].show();
+
+
+
+	/*
+		first_recharge_btn_get
+		obj_首充_领取奖励
+	*/
+
+
+	if (grou_firstRecharge_new.objects['obj_二期首充_6元按钮'].isVisible) {
+		grou_firstRecharge_new.objects['first_recharge_btn_get'].isVisible = false;
+		grou_firstRecharge_new.objects['obj_首充_领取奖励'].isVisible = false;
+	}
+
+
+
+
+
+
+	console.log("onRespResult71:", data);
+
+	if (data == 1) {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "首充奖励已领取,请去\n包裹内查看");
+		if (qyengine.getInstancesByType("grou_firstRecharge_new").length > 0) {
+			qyengine.guardId('grou_firstRecharge_new').destroy();
+		}
+		//obj_战斗_首冲.hide();
+		//obj_PVEicon_首充.hide();
+		game.scripts["al_scr_" + "removeBtnEffect"](null, null, "grou_fight", "obj_PVEicon_首充");
+		game.vars_.userInfo.getFirstReward = false;
+		if (qyengine.getInstancesByType("grou_fight").length > 0) {
+			grou_fight.objects['obj_PVEicon_首充'].changeSprite("obj_PVEicon_首充_maincity_default");
+			grou_fight.objects['obj_战斗_首冲'].changeSprite("obj_主城_充值_default");
+			if (grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect) {
+				grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect.destroy();
+				grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect = null;
+			}
+		}
+	} else {
+		current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "背包已满!");
+	}
+
+
+
+
+
+
+
+	game.scripts["al_scr_" + "removeBtnEffect"](null, null, "grou_fight", "obj_PVEicon_首充");
+	game.vars_.userInfo.getFirstReward = false;
+	if (qyengine.getInstancesByType("grou_fight").length > 0) {
+		grou_fight.objects['obj_PVEicon_首充'].changeSprite("obj_PVEicon_首充_maincity_default");
+		grou_fight.objects['obj_战斗_首冲'].changeSprite("obj_主城_充值_default");
+		if (grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect) {
+			grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect.destroy();
+			grou_fight.objects.obj_PVEicon_首充.vars_.roundEffect = null;
+		}
+	}
+
+
+
+	if (current_scene.classId == "main_scene") {
+		current_game.scripts["al_scr_" + 'changeObjModel'].call(this, undefined, this, game.vars_.userInfo.roles[0], current_scene.vars_.heroObj);
+	}
+
+
+	if (grou_firstRecharge_new.vars_.needShowOffLine) {
+		game.scripts["al_scr_" + "createOffLineScene"](null, null);
+		game.scripts["al_scr_" + "actionlist_createOffLineScene"](null, null);
+	}
+
+
+	qyengine.getInstancesByType("grou_payWay_recharge").length > 0 && grou_payWay_recharge.destroy();
+	current_game.scripts['al_scr_' + "onRespPayResultQuery"].call(this, undefined, this, 1);
+
+
+	if (KBEngine.app.player().step && KBEngine.app.player().step.split(",")[0] >= 10) {
+		console.log("asdfasdf")
+	}
+
+//人物的移动~~~~~~~~~~~~~~~~~~~~~~~~~
+
+if(self.distanceTo(current_scene.vars_.heroObj.id)>random_range(100,400))
+{
+this.setVar('currentAtkObj',null);
+local['movePos']=[random_range(current_scene.vars_.heroObj.x-random_range(-300,300), current_scene.vars_.heroObj.x + random_range(-300,300)),random_range(current_scene.vars_.heroObj.y-random_range(-300,300), current_scene.vars_.heroObj.y + random_range(-300,300))];
+current_game.scripts["al_scr_"+'changeDirection'] && current_game.scripts["al_scr_"+'changeDirection'].call(this,undefined,this,[self.x,self.y],[local.movePos[0],local.movePos[1]],0,"跑");
+this.moveTo(local.movePos[0],local.movePos[1],self.vars_.currentMoveSpeed, 1);
+this.setVar('moveEndPos',local.movePos);
+this.setVar('moveToHeroObj',true);
 }
-grou_firstRecharge_new.objects['first_recharge_btn_get'].show();
-grou_firstRecharge_new.objects['obj_首充_领取奖励'].show();
+else
+{
+if(self.vars_.currentState!="待机")
+{
+this.setSpeed(0,0);
+self.currentAnim.setAction("待机");
+		
+self.vars_.currentState = "待机";
+}
+}
 
-
-
-
-first_recharge_btn_get
-obj_首充_领取奖励
-
-
-
-
-first_recharge_btn_get.show();
-first_recharge_icon_get.show();
-
-first_recharge_btn_6.hide();
-first_recharge_icon_6.hide();
-first_recharge_btn_12.hide();
-first_recharge_icon_12.hide();
-first_recharge_btn_30.hide();
-first_recharge_icon_30.hide();
-first_recharge_btn_98.hide();
-first_recharge_icon_98.hide();
-first_recharge_text1.hide();
-first_recharge_text2.hide();
-first_recharge_text3.hide();
-first_recharge_text4.hide();
