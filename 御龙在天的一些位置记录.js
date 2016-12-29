@@ -3084,25 +3084,146 @@ if (repeatTime === 0) {
 		console.log("asdfasdf")
 	}
 
-//人物的移动~~~~~~~~~~~~~~~~~~~~~~~~~
+	//人物的移动~~~~~~~~~~~~~~~~~~~~~~~~~
 
-if(self.distanceTo(current_scene.vars_.heroObj.id)>random_range(100,400))
-{
-this.setVar('currentAtkObj',null);
-local['movePos']=[random_range(current_scene.vars_.heroObj.x-random_range(-300,300), current_scene.vars_.heroObj.x + random_range(-300,300)),random_range(current_scene.vars_.heroObj.y-random_range(-300,300), current_scene.vars_.heroObj.y + random_range(-300,300))];
-current_game.scripts["al_scr_"+'changeDirection'] && current_game.scripts["al_scr_"+'changeDirection'].call(this,undefined,this,[self.x,self.y],[local.movePos[0],local.movePos[1]],0,"跑");
-this.moveTo(local.movePos[0],local.movePos[1],self.vars_.currentMoveSpeed, 1);
-this.setVar('moveEndPos',local.movePos);
-this.setVar('moveToHeroObj',true);
-}
-else
-{
-if(self.vars_.currentState!="待机")
-{
-this.setSpeed(0,0);
-self.currentAnim.setAction("待机");
-		
-self.vars_.currentState = "待机";
-}
-}
+	if (self.distanceTo(current_scene.vars_.heroObj.id) > random_range(100, 400)) {
+		this.setVar('currentAtkObj', null);
+		local['movePos'] = [random_range(current_scene.vars_.heroObj.x - random_range(-300, 300), current_scene.vars_.heroObj.x + random_range(-300, 300)), random_range(current_scene.vars_.heroObj.y - random_range(-300, 300), current_scene.vars_.heroObj.y + random_range(-300, 300))];
+		current_game.scripts["al_scr_" + 'changeDirection'] && current_game.scripts["al_scr_" + 'changeDirection'].call(this, undefined, this, [self.x, self.y], [local.movePos[0], local.movePos[1]], 0, "跑");
+		this.moveTo(local.movePos[0], local.movePos[1], self.vars_.currentMoveSpeed, 1);
+		this.setVar('moveEndPos', local.movePos);
+		this.setVar('moveToHeroObj', true);
+	}
+	else {
+		if (self.vars_.currentState != "待机") {
+			this.setSpeed(0, 0);
+			self.currentAnim.setAction("待机");
+
+			self.vars_.currentState = "待机";
+		}
+	}
+
+
+	//--------------------------------------------------------------------------------------
+
+	//-----------------------------------------------------------------------------------------------------
+	//创建主角,初始化主角模块   rolesInfo
+	//var rolesInfo = game.vars_.userInfo.roles;
+
+	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
+
+	for (var j = 0; j < data[0].length; j++) {
+		var otherHeroObjArrLinShi = [];
+		for (var i = 0; i < data[0][j].roles.length; i++) {
+			var randomPosition = { 'x': random_range(50, current_scene.full_size.width - 50), 'y': random_range(100, current_scene.full_size.width - 100) };
+			var otherHeroObj = null;
+
+			if (i == 0) {
+				otherHeroObj = qyengine.instance_create(randomPosition.x, randomPosition.y,
+					"obj_mainUIRole_" + data[0][j].roles[i].profession, { "id": "obj_mainUIRole_" + data[0][j].roles[i].profession, "zIndex": 10, "layer": "layer_fight" });
+
+				//主角
+				current_scene.vars_.otherHeroObj = otherHeroObj;
+				current_scene.vars_.otherHeroObj.vars_.currentAtkObj = 1;
+				otherHeroObj.setFollowView();
+
+			} else {
+
+				//其他角色
+				otherHeroObj = qyengine.instance_create(random_range(current_scene.vars_.otherHeroObj.x - 200, current_scene.vars_.otherHeroObj.x + 200),
+					random_range(current_scene.vars_.otherHeroObj.y - 200, current_scene.vars_.otherHeroObj.y + 200), "obj_mainUIRole_" + data[0][j].roles[i].profession,
+					{ "id": "obj_mainUIRole_" + data[0][j].roles[i].profession, "zIndex": 9, "layer": "layer_fight" });
+			}
+
+			otherHeroObj.currentSprite.setFill("");
+
+			if (window.currentHeroObjPIXI) {
+
+				for (var nameItem in window.currentHeroObjPIXI) {
+
+					if (nameItem == rolesNameJson[data[0][j].roles[i].profession]) {
+
+						otherHeroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+
+						break;
+					}
+				}
+
+			} else {
+
+				window.currentHeroObjPIXI = {};
+			}
+
+			if (!otherHeroObj.currentAnim) {
+
+				otherHeroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[data[0][j].roles[i].profession]);
+
+				window.currentHeroObjPIXI[rolesNameJson[data[0][j].roles[i].profession]] = otherHeroObj.currentAnim;
+			}
+
+			var size = otherHeroObj.currentAnim.getSize();
+
+			otherHeroObj.currentAnim.position.x = size.width * 0.5;
+
+			otherHeroObj.currentAnim.position.y = size.height * 0.5;
+
+			otherHeroObj.currentSprite.addChild(otherHeroObj.currentAnim);
+
+			otherHeroObj.currentAnim.setAction("待机");
+
+			otherHeroObj.currentAnim.setDirection(5);
+
+			otherHeroObj.setSize(size);
+
+			// game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
+			/*
+			if (!current_scene.vars_.otherHeroObjArr) {
+				current_scene.vars_.otherHeroObjArr = [];
+			}
+			current_scene.vars_.otherHeroObjArr.push(otherHeroObj);
+			*/
+			otherHeroObjArrLinShi.push(otherHeroObj);
+			if (data[0][j].roles.isRebot) {
+				markWingLevel = calWingLevel(Number(data[0][j].uid), i);
+			} else {
+				markWingLevel = data[0][j].roles[i].equips[2];
+			}
+			var markOtherInfo = {
+				'id': data[0][j].roles[i].profession,
+				'equips': calOtherHeroEquip(data[0][j].roles[i].equips),
+				'wing': {
+					'level': markWingLevel
+				}
+			};
+			//换装
+			game.scripts["al_scr_changeObjModel"](null, null, markOtherInfo, otherHeroObj);
+
+		}
+		if (!current_scene.vars_.otherHeroObjArr) {
+			current_scene.vars_.otherHeroObjArr = [];
+		}
+		current_scene.vars_.otherHeroObjArr.push(otherHeroObjArrLinShi);
+	}
+	function calOtherHeroEquip(equipInfo) {
+		var backArray = [];
+		for (var i = 0; i < equipInfo.length; i++) {
+			var equips = {};
+			if (Number(equipInfo[i]) != 0) {
+				equips.id = equipInfo[i];
+				equips.type = game.configs.equipment[equips.id].type;
+				backArray.push(equips);
+			}
+		}
+		return backArray;
+	}
+	function calWingLevel(uid, index) {  //id 以及是第几个角色
+		var winglevel = game.configs.robot_city[uid].wings.split('|')[index];
+		return Number(winglevel);
+	}
+
+
+
+
+
+
 
