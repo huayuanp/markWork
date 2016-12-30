@@ -2839,13 +2839,13 @@ if (repeatTime === 0) {
 
 			otherHeroObj.currentSprite.setFill("");
 
-			if (window.currentHeroObjPIXI) {
+			if (window.currentOtherHeroObjPIXI) {
 
-				for (var nameItem in window.currentHeroObjPIXI) {
+				for (var nameItem in window.currentOtherHeroObjPIXI) {
 
 					if (nameItem == rolesNameJson[data[0][j].roles[i].profession]) {
 
-						otherHeroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+						otherHeroObj.currentAnim = window.currentOtherHeroObjPIXI[nameItem];
 
 						break;
 					}
@@ -2853,14 +2853,14 @@ if (repeatTime === 0) {
 
 			} else {
 
-				window.currentHeroObjPIXI = {};
+				window.currentOtherHeroObjPIXI = {};
 			}
 
 			if (!otherHeroObj.currentAnim) {
 
 				otherHeroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[data[0][j].roles[i].profession]);
 
-				window.currentHeroObjPIXI[rolesNameJson[data[0][j].roles[i].profession]] = otherHeroObj.currentAnim;
+				window.currentOtherHeroObjPIXI[rolesNameJson[data[0][j].roles[i].profession]] = otherHeroObj.currentAnim;
 			}
 
 			var size = otherHeroObj.currentAnim.getSize();
@@ -3104,18 +3104,13 @@ if (repeatTime === 0) {
 	}
 
 
-	//--------------------------------------------------------------------------------------
-
-	//-----------------------------------------------------------------------------------------------------
-	//创建主角,初始化主角模块   rolesInfo
-	//var rolesInfo = game.vars_.userInfo.roles;
-
+	//其它玩家的绘制以及信息的显示------------------------------------------
 	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
-
 	for (var j = 0; j < data[0].length; j++) {
 		var otherHeroObjArrLinShi = [];
+		var randomPosition = { 'x': random_range(50, current_scene.full_size.width - 50), 'y': random_range(100, current_scene.full_size.width - 100) };
 		for (var i = 0; i < data[0][j].roles.length; i++) {
-			var randomPosition = { 'x': random_range(50, current_scene.full_size.width - 50), 'y': random_range(100, current_scene.full_size.width - 100) };
+
 			var otherHeroObj = null;
 
 			if (i == 0) {
@@ -3125,8 +3120,7 @@ if (repeatTime === 0) {
 				//主角
 				current_scene.vars_.otherHeroObj = otherHeroObj;
 				current_scene.vars_.otherHeroObj.vars_.currentAtkObj = 1;
-				otherHeroObj.setFollowView();
-
+				//otherHeroObj.setFollowView();
 			} else {
 
 				//其他角色
@@ -3136,14 +3130,14 @@ if (repeatTime === 0) {
 			}
 
 			otherHeroObj.currentSprite.setFill("");
+            /*
+			if (window.currentOtherHeroObjPIXI) {
 
-			if (window.currentHeroObjPIXI) {
-
-				for (var nameItem in window.currentHeroObjPIXI) {
+				for (var nameItem in window.currentOtherHeroObjPIXI) {
 
 					if (nameItem == rolesNameJson[data[0][j].roles[i].profession]) {
 
-						otherHeroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+						otherHeroObj.currentAnim = window.currentOtherHeroObjPIXI[nameItem];
 
 						break;
 					}
@@ -3151,14 +3145,15 @@ if (repeatTime === 0) {
 
 			} else {
 
-				window.currentHeroObjPIXI = {};
+				window.currentOtherHeroObjPIXI = {};
 			}
 
+            */
 			if (!otherHeroObj.currentAnim) {
 
 				otherHeroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[data[0][j].roles[i].profession]);
 
-				window.currentHeroObjPIXI[rolesNameJson[data[0][j].roles[i].profession]] = otherHeroObj.currentAnim;
+				//window.currentOtherHeroObjPIXI[rolesNameJson[data[0][j].roles[i].profession]] = otherHeroObj.currentAnim;
 			}
 
 			var size = otherHeroObj.currentAnim.getSize();
@@ -3182,6 +3177,18 @@ if (repeatTime === 0) {
 			}
 			current_scene.vars_.otherHeroObjArr.push(otherHeroObj);
 			*/
+			otherHeroObj.vars_.objNameTxt = qyengine.instance_create(0, 0, "objNameTxt", {
+				"id": data[0][j].uid + "objNameTxt",
+				"zIndex": 0,
+				"layer": "layer_fight"
+			});
+			otherHeroObj.vars_.nick = data[0][j].nick;
+			otherHeroObj.vars_.level = data[0][j].level;
+			var markCountry = ['魏', '蜀', '吴'];
+			var nowCountry = markCountry[Number(data[0][j].country)];
+			otherHeroObj.vars_.objNameTxt.text = otherHeroObj.vars_.nick + " " + "Lv: " + otherHeroObj.vars_.level;
+			otherHeroObj.vars_.objNameTxt.setFollowObj(otherHeroObj.id, -otherHeroObj.vars_.objNameTxt.currentSprite.realWidth * 0.5,
+				-otherHeroObj.height * 0.2 * otherHeroObj.scaleY - otherHeroObj.vars_.objNameTxt.currentSprite.realHeight, "both");
 			otherHeroObjArrLinShi.push(otherHeroObj);
 			if (data[0][j].roles.isRebot) {
 				markWingLevel = calWingLevel(Number(data[0][j].uid), i);
@@ -3204,9 +3211,35 @@ if (repeatTime === 0) {
 		}
 		current_scene.vars_.otherHeroObjArr.push(otherHeroObjArrLinShi);
 	}
+
+	game.vars_.mainCityOtherPlayerMove = setInterval(function () {
+		var moveNum = calRandomMoveIndex();
+		for (var i = 0; i < moveNum.length; i++) {
+			current_scene.vars_.otherHeroObjArr[moveNum[i]][0].moveTo(random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50), 210, 1);
+		}
+	}, random_range(5000, 30000));
+	game.vars_.mainCityOtherPlayerFollow = setInterval(function () {   //随从的跟随
+		for (var i = 0; i < current_scene.vars_.otherHeroObjArr.length; i++) {
+
+		}
+	}, 1000);
+	function calRandomMoveIndex() {
+		var markAllRandom = [];
+		var needSelectNum = random_range(1, 6);
+		var needBackArrPos = [];
+		for (var i = 0; i < current_scene.vars_.otherHeroObjArr.length - 1; i++) {
+			markAllRandom.push(i);
+		}
+		for (var j = 0; j < needSelectNum; j++) {
+			var sliceItem = random_range(0, markAllRandom.length - 1);
+			needBackArrPos.push(markAllRandom[sliceItem]);
+			markAllRandom.splice(sliceItem, 1);
+		}
+		return needBackArrPos;
+	}
 	function calOtherHeroEquip(equipInfo) {
 		var backArray = [];
-		for (var i = 0; i < equipInfo.length; i++) {
+		for (var i = 0; i < equipInfo.length - 1; i++) {
 			var equips = {};
 			if (Number(equipInfo[i]) != 0) {
 				equips.id = equipInfo[i];
@@ -3225,5 +3258,10 @@ if (repeatTime === 0) {
 
 
 
+	//--------------------------------
+
+
+	current_game.scripts["al_scr_" + "changeDirection"] && current_game.scripts["al_scr_" + "changeDirection"].call(this, undefined, this, event.argument0, event.argument1, event.argument2, event.argument3);
+    current_scene.scripts['al_scr_'+"followMove"].call(this,undefined,this);
 
 

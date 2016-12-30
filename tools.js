@@ -197,6 +197,8 @@ qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
 
 //移动至,按时间
 this.moveTo(691, 859, 'time', 1000);
+//移动至,按速度
+qyengine.guardId("obj_3").moveTo(100 + qyengine.guardId("obj_3").x, qyengine.guardId("obj_3").y, 200, 1);
 //关闭cache
 grou_fight.currentSprite.cacheAsBitmap = false
 //合并链接存在
