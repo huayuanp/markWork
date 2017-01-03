@@ -3169,7 +3169,7 @@ if (repeatTime === 0) {
 			otherHeroObj.currentAnim.setDirection(5);
 
 			otherHeroObj.setSize(size);
-
+            
 			// game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
 			/*
 			if (!current_scene.vars_.otherHeroObjArr) {
@@ -3177,6 +3177,8 @@ if (repeatTime === 0) {
 			}
 			current_scene.vars_.otherHeroObjArr.push(otherHeroObj);
 			*/
+			otherHeroObj.vars_.currentDirection= 5;
+
 			otherHeroObj.vars_.objNameTxt = qyengine.instance_create(0, 0, "objNameTxt", {
 				"id": data[0][j].uid + "objNameTxt",
 				"zIndex": 0,
@@ -3216,6 +3218,9 @@ if (repeatTime === 0) {
 		var moveNum = calRandomMoveIndex();
 		for (var i = 0; i < moveNum.length; i++) {
 			current_scene.vars_.otherHeroObjArr[moveNum[i]][0].moveTo(random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50), 210, 1);
+			qyengine.guardId("").dispatchMessage({
+				current_scene.vars_.otherHeroObjArr[moveNum[i]][0]
+			});
 		}
 	}, random_range(5000, 30000));
 	game.vars_.mainCityOtherPlayerFollow = setInterval(function () {   //随从的跟随
