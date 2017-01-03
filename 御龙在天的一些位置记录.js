@@ -3165,11 +3165,11 @@ if (repeatTime === 0) {
 			otherHeroObj.currentSprite.addChild(otherHeroObj.currentAnim);
 
 			otherHeroObj.currentAnim.setAction("待机");
-
+			otherHeroObj.currentAnim.setLoop(true);
 			otherHeroObj.currentAnim.setDirection(5);
 
 			otherHeroObj.setSize(size);
-            
+
 			// game.scripts["al_scr_sceneSetHeroInfo"](null,null,heroObj,rolesInfo[i]);
 			/*
 			if (!current_scene.vars_.otherHeroObjArr) {
@@ -3177,8 +3177,8 @@ if (repeatTime === 0) {
 			}
 			current_scene.vars_.otherHeroObjArr.push(otherHeroObj);
 			*/
-			otherHeroObj.vars_.currentDirection= 5;
-
+			otherHeroObj.vars_.currentDirection = 5;
+			otherHeroObj.vars_.currentState = "待机";
 			otherHeroObj.vars_.objNameTxt = qyengine.instance_create(0, 0, "objNameTxt", {
 				"id": data[0][j].uid + "objNameTxt",
 				"zIndex": 0,
@@ -3216,21 +3216,77 @@ if (repeatTime === 0) {
 
 	game.vars_.mainCityOtherPlayerMove = setInterval(function () {
 		var moveNum = calRandomMoveIndex();
+		var markTimeOutArr = [1000, 1400, 900, 80, 100, 800, 200, 500, 1, 1];
+		var moveNumLength = moveNum.length;
+		var moveNumIndex = 0;
+		while (moveNumIndex < moveNumLength) {
+			setTimeout(function () {
+				//for (var i = 0; i < moveNum.length; i++) {
+				var markEndPos = [random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50)];
+				var moveNumPos = random_range(0, moveNum.length - 1);
+				current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].moveTo(markEndPos[0], markEndPos[1], 210, 1);
+				var startPos = [current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].x, current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].y];
+				var endPos = [];
+				current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].dispatchMessage({
+					'type': 'message',
+					'message': 'MainSceneChangeDirection',
+					'argument0': startPos,
+					'argument1': markEndPos,
+					'argument2': 0,
+					'argument3': '跑'
+				});
+				moveNum.slice(moveNumPos, 1);
+				//}
+			}, markTimeOutArr[random_range(0, 9)]);
+			moveNumIndex++;
+		}
+		//if (moveNumIndex < moveNum.length) {
+
+		//}
+		/*
 		for (var i = 0; i < moveNum.length; i++) {
-			current_scene.vars_.otherHeroObjArr[moveNum[i]][0].moveTo(random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50), 210, 1);
-			qyengine.guardId("").dispatchMessage({
-				current_scene.vars_.otherHeroObjArr[moveNum[i]][0]
+			var markEndPos = [random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50)];
+			current_scene.vars_.otherHeroObjArr[moveNum[i]][0].moveTo(markEndPos[0], markEndPos[1], 210, 1);
+			var startPos = [current_scene.vars_.otherHeroObjArr[moveNum[i]][0].x, current_scene.vars_.otherHeroObjArr[moveNum[i]][0].y];
+			var endPos = [];
+			current_scene.vars_.otherHeroObjArr[moveNum[i]][0].dispatchMessage({
+				'type': 'message',
+				'message': 'MainSceneChangeDirection',
+				'argument0': startPos,
+				'argument1': markEndPos,
+				'argument2': 0,
+				'argument3': '跑'
 			});
 		}
-	}, random_range(5000, 30000));
+		*/
+	}, random_range(5000, 20000));
 	game.vars_.mainCityOtherPlayerFollow = setInterval(function () {   //随从的跟随
 		for (var i = 0; i < current_scene.vars_.otherHeroObjArr.length; i++) {
-
+			for (var j = 0; j < current_scene.vars_.otherHeroObjArr[i].length; j++) {
+				if (j > 0) {
+					//参数0: 它的主角色
+					current_scene.vars_.otherHeroObjArr[i][j].dispatchMessage({
+						'type': 'message',
+						'message': 'MainSceneFollowMove',
+						'argument0': current_scene.vars_.otherHeroObjArr[i][0]
+					});
+				}
+			}
+		}
+		//主角的随从跟随
+		if (current_scene.vars_.heroObjArr.length > 0) {
+			for (var k = 1; k < current_scene.vars_.heroObjArr.length; k++) {
+				current_scene.vars_.heroObjArr[k].dispatchMessage({
+					'type': 'message',
+					'message': 'MainSceneFollowMove',
+					'argument0': current_scene.vars_.heroObjArr[0]
+				});
+			}
 		}
 	}, 1000);
 	function calRandomMoveIndex() {
 		var markAllRandom = [];
-		var needSelectNum = random_range(1, 6);
+		var needSelectNum = random_range(4, 10);
 		var needBackArrPos = [];
 		for (var i = 0; i < current_scene.vars_.otherHeroObjArr.length - 1; i++) {
 			markAllRandom.push(i);
@@ -3259,14 +3315,98 @@ if (repeatTime === 0) {
 		return Number(winglevel);
 	}
 
+	//----------次要角色跟随它的主角移动的逻辑 
+	console.error('mainRole-------------', mainRole);
+	if (!self.vars_.moveToHeroObj == true) {
+		this.setVar('currentAtkObj', null);
+		local['movePos'] = [random_range(mainRole.x - 300, mainRole.x + 300), random_range(mainRole.y - 300, mainRole.y + 300)];
+		current_game.scripts["al_scr_" + 'changeDirection'] && current_game.scripts["al_scr_" + 'changeDirection'].call(this, undefined, this, [self.x, self.y], [local.movePos[0], local.movePos[1]], 0, "run");
+		this.moveTo(local.movePos[0], local.movePos[1], 190, 1);
+		this.setVar('moveEndPos', local.movePos);
+		this.setVar('moveToHeroObj', true);
+	} else {
+		if ((Math.abs(self.x - self.vars_.moveEndPos[0]) <= 20) && (Math.abs(self.y - self.vars_.moveEndPos[1]) <= 20)) {
+			if (self.vars_.currentState != "stand") {
+				this.setSpeed(0, 0);
+				self.setSliceAnimationAction(getConfig("heroAction", self.vars_.currentDirection, "stand"), true);
 
+				self.vars_.currentState = "stand";
+				this.setVar('moveToHeroObj', false);
+			}
+		}
+	}
+	//-------------------点击主角进行移动~~~~~~~~~~~~~~
+	if (current_scene.vars_.openGrouUI) {  //说明现在是在主城上面~~~
+		var markRolePos = [current_scene.vars_.heroObjArr[0].x, current_scene.vars_.heroObjArr[0].y];
+		current_scene.vars_.heroObjArr[0].moveTo(mouseX, mouseY, 210, 1);
+		current_scene.vars_.heroObjArr[0].dispatchMessage({
+			'type': 'message',
+			'message': 'MainSceneChangeDirection',
+			'argument0': markRolePos,
+			'argument1': [mouseX, mouseY],
+			'argument2': 0,
+			'argument3': '跑'
+		});
+	}
+	//----------------从主城返回到战斗场景~~~~~~
+	game.vars_.mainCityOtherPlayerMove && clearInterval(game.vars_.mainCityOtherPlayerMove);
+	game.vars_.mainCityOtherPlayerFollow && clearInterval(game.vars_.mainCityOtherPlayerFollow);
+	for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
+		current_scene.vars_.heroObjArr[i].destroy();
+	}
+	for (var a = 0; a < current_scene.vars_.otherHeroObjArr.length; a++) {
+		for (var b = 0; b < current_scene.vars_.otherHeroObjArr[a].length; b++) {
+			current_scene.vars_.otherHeroObjArr[a][b].destroy();
+		}
+	}
+	current_scene.vars_.heroObjArr = null;
+	current_scene.vars_.otherHeroObjArr = null;
+	current_scene.vars_.currentWavesType = 0;
+	current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this);
 
-
-
+	current_scene.scripts['al_scr_' + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
 	//--------------------------------
-
+	current_game.scripts['al_scr_' + "sceneBattleVarInit"].call(this, undefined, this);
+	current_game.scripts['al_scr_' + "createMainUIRole"].call(this, undefined, this);
+	KBEngine.app.player().baseCall('reqMainCityPlayers');
 
 	current_game.scripts["al_scr_" + "changeDirection"] && current_game.scripts["al_scr_" + "changeDirection"].call(this, undefined, this, event.argument0, event.argument1, event.argument2, event.argument3);
-    current_scene.scripts['al_scr_'+"followMove"].call(this,undefined,this);
+	current_scene.scripts['al_scr_' + "followMove"].call(this, undefined, this);
+
+	for (var i = 0; i < 5; i++) {
+		var xxx = setTimeout(function () {
+			console.log("i", i);
+		}, 2000);
+	}
+
+
+	//------------点击的判断~~~~~~~~~~~~~
+	var isIn= judgeIsIn();
+	if(isIn){
+		return;
+	}
+	function judgeIsIn() {
+		for (item in grou_feet.objects) {
+			var leftX = grou_feet.objects[item].x + grou_feet.x + current_scene.viewOffset.x - grou_feet.objects[item].width / 2;
+			var rightX = grou_feet.objects[item].x + grou_feet.x + current_scene.viewOffset.x + grou_feet.objects[item].width / 2;
+			var upY = grou_feet.objects[item].y + grou_feet.x + current_scene.viewOffset.y - grou_feet.objects[item].height / 2;
+			var downY = grou_feet.objects[item].y + grou_feet.x + current_scene.viewOffset.y + grou_feet.objects[item].height / 2;
+			if (mouseX >= leftX && mouseX <= rightX && mouseY <= downY && mouseY >= upX) {
+				return true;
+			}
+			//console.log(grou_feet.objects[item].id);
+		}
+		for (mainItem in grou_maincity.objects) {
+			var leftX = grou_maincity.objects[mainItem].x + grou_maincity.x + current_scene.viewOffset.x - grou_maincity.objects[mainItem].width / 2;
+			var rightX = grou_maincity.objects[mainItem].x + grou_maincity.x + current_scene.viewOffset.x + grou_maincity.objects[mainItem].width / 2;
+			var upY = grou_maincity.objects[mainItem].y + grou_maincity.x + current_scene.viewOffset.y - grou_maincity.objects[mainItem].height / 2;
+			var downY = grou_maincity.objects[mainItem].y + grou_maincity.x + current_scene.viewOffset.y + grou_maincity.objects[mainItem].height / 2;
+			if (mouseX >= leftX && mouseX <= rightX && mouseY <= downY && mouseY >= upX) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 
