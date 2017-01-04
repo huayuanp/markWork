@@ -3104,6 +3104,7 @@ if (repeatTime === 0) {
 	}
 
 
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
 	//其它玩家的绘制以及信息的显示------------------------------------------
 	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
 	for (var j = 0; j < data[0].length; j++) {
@@ -3115,18 +3116,22 @@ if (repeatTime === 0) {
 
 			if (i == 0) {
 				otherHeroObj = qyengine.instance_create(randomPosition.x, randomPosition.y,
-					"obj_mainUIRole_" + data[0][j].roles[i].profession, { "id": "obj_mainUIRole_" + data[0][j].roles[i].profession, "zIndex": 10, "layer": "layer_fight" });
+					"obj_mainUIRole_" + data[0][j].roles[i].profession, { "id": "obj_mainUIOther_" + data[0][j].roles[i].profession, "zIndex": 10, "layer": "layer_fight" });
 
 				//主角
 				current_scene.vars_.otherHeroObj = otherHeroObj;
 				current_scene.vars_.otherHeroObj.vars_.currentAtkObj = 1;
+				otherHeroObj.vars_.isMain = true;
+				otherHeroObj.vars_.inArrayIndex = j;
 				//otherHeroObj.setFollowView();
 			} else {
 
 				//其他角色
 				otherHeroObj = qyengine.instance_create(random_range(current_scene.vars_.otherHeroObj.x - 200, current_scene.vars_.otherHeroObj.x + 200),
 					random_range(current_scene.vars_.otherHeroObj.y - 200, current_scene.vars_.otherHeroObj.y + 200), "obj_mainUIRole_" + data[0][j].roles[i].profession,
-					{ "id": "obj_mainUIRole_" + data[0][j].roles[i].profession, "zIndex": 9, "layer": "layer_fight" });
+					{ "id": "obj_mainUIOther_" + data[0][j].roles[i].profession, "zIndex": 9, "layer": "layer_fight" });
+				otherHeroObj.vars_.inArrayIndex = j;
+				otherHeroObj.vars_.storageMainObj = current_scene.vars_.otherHeroObj;
 			}
 
 			otherHeroObj.currentSprite.setFill("");
@@ -3197,6 +3202,7 @@ if (repeatTime === 0) {
 			} else {
 				markWingLevel = data[0][j].roles[i].equips[2];
 			}
+			console.log("翅膀的等级~~~~~",markWingLevel);
 			var markOtherInfo = {
 				'id': data[0][j].roles[i].profession,
 				'equips': calOtherHeroEquip(data[0][j].roles[i].equips),
@@ -3212,91 +3218,6 @@ if (repeatTime === 0) {
 			current_scene.vars_.otherHeroObjArr = [];
 		}
 		current_scene.vars_.otherHeroObjArr.push(otherHeroObjArrLinShi);
-	}
-
-	game.vars_.mainCityOtherPlayerMove = setInterval(function () {
-		var moveNum = calRandomMoveIndex();
-		var markTimeOutArr = [1000, 1400, 900, 80, 100, 800, 200, 500, 1, 1];
-		var moveNumLength = moveNum.length;
-		var moveNumIndex = 0;
-		while (moveNumIndex < moveNumLength) {
-			setTimeout(function () {
-				//for (var i = 0; i < moveNum.length; i++) {
-				var markEndPos = [random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50)];
-				var moveNumPos = random_range(0, moveNum.length - 1);
-				current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].moveTo(markEndPos[0], markEndPos[1], 210, 1);
-				var startPos = [current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].x, current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].y];
-				var endPos = [];
-				current_scene.vars_.otherHeroObjArr[moveNum[moveNumPos]][0].dispatchMessage({
-					'type': 'message',
-					'message': 'MainSceneChangeDirection',
-					'argument0': startPos,
-					'argument1': markEndPos,
-					'argument2': 0,
-					'argument3': '跑'
-				});
-				moveNum.slice(moveNumPos, 1);
-				//}
-			}, markTimeOutArr[random_range(0, 9)]);
-			moveNumIndex++;
-		}
-		//if (moveNumIndex < moveNum.length) {
-
-		//}
-		/*
-		for (var i = 0; i < moveNum.length; i++) {
-			var markEndPos = [random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50)];
-			current_scene.vars_.otherHeroObjArr[moveNum[i]][0].moveTo(markEndPos[0], markEndPos[1], 210, 1);
-			var startPos = [current_scene.vars_.otherHeroObjArr[moveNum[i]][0].x, current_scene.vars_.otherHeroObjArr[moveNum[i]][0].y];
-			var endPos = [];
-			current_scene.vars_.otherHeroObjArr[moveNum[i]][0].dispatchMessage({
-				'type': 'message',
-				'message': 'MainSceneChangeDirection',
-				'argument0': startPos,
-				'argument1': markEndPos,
-				'argument2': 0,
-				'argument3': '跑'
-			});
-		}
-		*/
-	}, random_range(5000, 20000));
-	game.vars_.mainCityOtherPlayerFollow = setInterval(function () {   //随从的跟随
-		for (var i = 0; i < current_scene.vars_.otherHeroObjArr.length; i++) {
-			for (var j = 0; j < current_scene.vars_.otherHeroObjArr[i].length; j++) {
-				if (j > 0) {
-					//参数0: 它的主角色
-					current_scene.vars_.otherHeroObjArr[i][j].dispatchMessage({
-						'type': 'message',
-						'message': 'MainSceneFollowMove',
-						'argument0': current_scene.vars_.otherHeroObjArr[i][0]
-					});
-				}
-			}
-		}
-		//主角的随从跟随
-		if (current_scene.vars_.heroObjArr.length > 0) {
-			for (var k = 1; k < current_scene.vars_.heroObjArr.length; k++) {
-				current_scene.vars_.heroObjArr[k].dispatchMessage({
-					'type': 'message',
-					'message': 'MainSceneFollowMove',
-					'argument0': current_scene.vars_.heroObjArr[0]
-				});
-			}
-		}
-	}, 1000);
-	function calRandomMoveIndex() {
-		var markAllRandom = [];
-		var needSelectNum = random_range(4, 10);
-		var needBackArrPos = [];
-		for (var i = 0; i < current_scene.vars_.otherHeroObjArr.length - 1; i++) {
-			markAllRandom.push(i);
-		}
-		for (var j = 0; j < needSelectNum; j++) {
-			var sliceItem = random_range(0, markAllRandom.length - 1);
-			needBackArrPos.push(markAllRandom[sliceItem]);
-			markAllRandom.splice(sliceItem, 1);
-		}
-		return needBackArrPos;
 	}
 	function calOtherHeroEquip(equipInfo) {
 		var backArray = [];
@@ -3349,13 +3270,16 @@ if (repeatTime === 0) {
 		});
 	}
 	//----------------从主城返回到战斗场景~~~~~~
-	game.vars_.mainCityOtherPlayerMove && clearInterval(game.vars_.mainCityOtherPlayerMove);
-	game.vars_.mainCityOtherPlayerFollow && clearInterval(game.vars_.mainCityOtherPlayerFollow);
+	//game.vars_.mainCityOtherPlayerMove && clearInterval(game.vars_.mainCityOtherPlayerMove);
+	//game.vars_.mainCityOtherPlayerFollow && clearInterval(game.vars_.mainCityOtherPlayerFollow);
+
 	for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
+		current_scene.vars_.heroObjArr[i].vars_.setIntervalValue && clearInterval(current_scene.vars_.heroObjArr[i].vars_.setIntervalValue);
 		current_scene.vars_.heroObjArr[i].destroy();
 	}
 	for (var a = 0; a < current_scene.vars_.otherHeroObjArr.length; a++) {
 		for (var b = 0; b < current_scene.vars_.otherHeroObjArr[a].length; b++) {
+			current_scene.vars_.otherHeroObjArr[a][b].vars_.setIntervalValue && clearInterval(current_scene.vars_.otherHeroObjArr[a][b].vars_.setIntervalValue);
 			current_scene.vars_.otherHeroObjArr[a][b].destroy();
 		}
 	}
@@ -3382,8 +3306,8 @@ if (repeatTime === 0) {
 
 
 	//------------点击的判断~~~~~~~~~~~~~
-	var isIn= judgeIsIn();
-	if(isIn){
+	var isIn = judgeIsIn();
+	if (isIn) {
 		return;
 	}
 	function judgeIsIn() {
@@ -3407,6 +3331,131 @@ if (repeatTime === 0) {
 			}
 		}
 		return false;
+	}
+
+	//--------角色的创建事件里面
+	if (self.vars_.isMain) {  //是主角
+		self.vars_.setIntervalValue = setInterval(function () {
+			var markEndPos = [random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50)];
+			var moveNumPos = random_range(0, moveNum.length - 1);
+			self.moveTo(markEndPos[0], markEndPos[1], 210, 1);
+			var startPos = [self.x, self.y];
+			self.dispatchMessage({
+				'type': 'message',
+				'message': 'MainSceneChangeDirection',
+				'argument0': startPos,
+				'argument1': markEndPos,
+				'argument2': 0,
+				'argument3': '跑'
+			});
+		}, random_range(5000, 30000));
+	}
+	/*else {        //跟随的角色
+		self.vars_.setIntervalValue = setInterval(function () {
+			self.dispatchMessage({
+				'type': 'message',
+				'message': 'MainSceneFollowMove',
+				'argument0': self.vars_.storageMainObj
+			});
+		}, 1000);
+	}*/
+
+	//---------移动结束重置
+	if (self.vars_.isMain) {
+		if (self.vars_.isSelf) {//玩家自己
+			if (current_scene.vars_.heroObjArr.length > 1) {
+				for (var i = 1; i < current_scene.vars_.heroObjArr.length; i++) {
+					current_scene.vars_.heroObjArr[i].vars_.moveToHeroObj = false;
+				}
+			}
+		} else {
+			if (current_scene.vars_.otherHeroObjArr[self.vars_.inArrayIndex].length > 1) {
+				for (var i = 1; i < current_scene.vars_.otherHeroObjArr[self.vars_.inArrayIndex].length; i++) {
+					current_scene.vars_.otherHeroObjArr[self.vars_.inArrayIndex][i].vars_.moveToHeroObj = false;
+				}
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+	//--------角色的创建事件里面
+	setTimeout(function () {
+		if (self.vars_.isMain) {  //是主角
+			console.log("self.vars_.isMain", self.vars_.isMain);
+			self.vars_.setIntervalValue = setInterval(function () {
+				var markEndPos = [random_range(50, current_scene.full_size.width - 50), random_range(50, current_scene.full_size.height - 50)];
+				var moveNumPos = random_range(0, moveNum.length - 1);
+				self.moveTo(markEndPos[0], markEndPos[1], 210, 1);
+				var startPos = [self.x, self.y];
+				self.dispatchMessage({
+					'type': 'message',
+					'message': 'MainSceneChangeDirection',
+					'argument0': startPos,
+					'argument1': markEndPos,
+					'argument2': 0,
+					'argument3': '跑'
+				});
+			}, random_range(5000, 30000));
+		} else {        //跟随的角色
+			console.log("self.vars_.storageMainObj", self.vars_.storageMainObj);
+			self.vars_.setIntervalValue = setInterval(function () {
+				self.dispatchMessage({
+					'type': 'message',
+					'message': 'MainSceneFollowMove',
+					'argument0': self.vars_.storageMainObj
+				});
+			}, 1000);
+		}
+	}, 500);
+
+
+	//---------
+	game.vars_.mainCityOtherPlayerFollow = setInterval(function () {   //随从的跟随
+		for (var i = 0; i < current_scene.vars_.otherHeroObjArr.length; i++) {
+			for (var j = 1; j < current_scene.vars_.otherHeroObjArr[i].length; j++) {
+				if (j > 0) {
+					//参数0: 它的主角色
+					current_scene.vars_.otherHeroObjArr[i][j].dispatchMessage({
+						'type': 'message',
+						'message': 'MainSceneFollowMove',
+						'argument0': current_scene.vars_.otherHeroObjArr[i][0]
+					});
+				}
+			}
+		}
+		//主角的随从跟随
+		if (current_scene.vars_.heroObjArr.length > 0) {
+			for (var k = 1; k < current_scene.vars_.heroObjArr.length; k++) {
+				current_scene.vars_.heroObjArr[k].dispatchMessage({
+					'type': 'message',
+					'message': 'MainSceneFollowMove',
+					'argument0': current_scene.vars_.heroObjArr[0]
+				});
+			}
+		}
+	}, 1000);
+
+
+	// ------------战印  
+	var imageName = getConfig("title", imageID, "pic");
+
+	var currentHeroObj = current_scene.vars_.heroObj;
+
+	if (!currentHeroObj.vars_.battleStampImg == false) {
+
+		currentHeroObj.vars_.battleStampImg.changeSprite(imageName + "_default");
+
+	} else {
+
+		currentHeroObj.vars_.battleStampImg = qyengine.instance_create(0, 0, imageName, { "id": "heroObj_" + imageName, "zIndex": currentHeroObj.zIndex, "layer": "layer_fight" });
+
+		currentHeroObj.vars_.battleStampImg.setFollowObj(currentHeroObj.id, 0, -currentHeroObj.height * 0.25 * currentHeroObj.scaleY - currentHeroObj.vars_.bloodBg.height - currentHeroObj.vars_.battleStampImg.height * 0.5 * currentHeroObj.vars_.battleStampImg.scaleY - 24, "both");
 	}
 
 

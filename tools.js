@@ -215,6 +215,8 @@ window.adapt
 current_game.scripts['al_scr_' + "sceneBattleVarInit"].call(this, undefined, this);
 current_game.scripts['al_scr_' + "createMainUIRole"].call(this, undefined, this);
 KBEngine.app.player().baseCall('reqMainCityPlayers');
+
+current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this);
 //内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
