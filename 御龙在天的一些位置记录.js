@@ -3199,10 +3199,17 @@ if (repeatTime === 0) {
 			otherHeroObjArrLinShi.push(otherHeroObj);
 			if (data[0][j].roles.isRebot) {
 				markWingLevel = calWingLevel(Number(data[0][j].uid), i);
+				var markOtherHeroTitle = game.configs.robot_city[Number(data[0][j].uid)].title;
+				if (Number(markOtherHeroTitle) != -1 && Number(Number(markOtherHeroTitle)) != 0) {
+					current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this,Number(markOtherHeroTitle),otherHeroObj);
+				}
 			} else {
 				markWingLevel = data[0][j].roles[i].equips[2];
+				if(data[0][j].title!=0&&data[0][j].title!=-1){
+					current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this,Number(data[0][j].title),otherHeroObj);
+				}
 			}
-			console.log("翅膀的等级~~~~~",markWingLevel);
+			console.log("翅膀的等级~~~~~", markWingLevel);
 			var markOtherInfo = {
 				'id': data[0][j].roles[i].profession,
 				'equips': calOtherHeroEquip(data[0][j].roles[i].equips),
@@ -3442,20 +3449,12 @@ if (repeatTime === 0) {
 	}, 1000);
 
 
-	// ------------战印  
-	var imageName = getConfig("title", imageID, "pic");
-
-	var currentHeroObj = current_scene.vars_.heroObj;
-
-	if (!currentHeroObj.vars_.battleStampImg == false) {
-
-		currentHeroObj.vars_.battleStampImg.changeSprite(imageName + "_default");
-
-	} else {
-
-		currentHeroObj.vars_.battleStampImg = qyengine.instance_create(0, 0, imageName, { "id": "heroObj_" + imageName, "zIndex": currentHeroObj.zIndex, "layer": "layer_fight" });
-
-		currentHeroObj.vars_.battleStampImg.setFollowObj(currentHeroObj.id, 0, -currentHeroObj.height * 0.25 * currentHeroObj.scaleY - currentHeroObj.vars_.bloodBg.height - currentHeroObj.vars_.battleStampImg.height * 0.5 * currentHeroObj.vars_.battleStampImg.scaleY - 24, "both");
+	// ------------
+	//创建战印
+	if(Number(KBEngine.app.player().mainTitle)!=0&&Number(KBEngine.app.player().mainTitle)!=-1){
+		current_game.scripts['al_scr_'+"createMainCityTitle"].call(this,undefined,this,Number(KBEngine.app.player().mainTitle),heroObj);
 	}
 
+
+current_scene.vars_.isInMainCity= true;
 
