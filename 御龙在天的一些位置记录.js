@@ -3201,12 +3201,12 @@ if (repeatTime === 0) {
 				markWingLevel = calWingLevel(Number(data[0][j].uid), i);
 				var markOtherHeroTitle = game.configs.robot_city[Number(data[0][j].uid)].title;
 				if (Number(markOtherHeroTitle) != -1 && Number(Number(markOtherHeroTitle)) != 0) {
-					current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this,Number(markOtherHeroTitle),otherHeroObj);
+					current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this, Number(markOtherHeroTitle), otherHeroObj);
 				}
 			} else {
 				markWingLevel = data[0][j].roles[i].equips[2];
-				if(data[0][j].title!=0&&data[0][j].title!=-1){
-					current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this,Number(data[0][j].title),otherHeroObj);
+				if (data[0][j].title != 0 && data[0][j].title != -1) {
+					current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this, Number(data[0][j].title), otherHeroObj);
 				}
 			}
 			console.log("翅膀的等级~~~~~", markWingLevel);
@@ -3451,10 +3451,28 @@ if (repeatTime === 0) {
 
 	// ------------
 	//创建战印
-	if(Number(KBEngine.app.player().mainTitle)!=0&&Number(KBEngine.app.player().mainTitle)!=-1){
-		current_game.scripts['al_scr_'+"createMainCityTitle"].call(this,undefined,this,Number(KBEngine.app.player().mainTitle),heroObj);
+	if (Number(KBEngine.app.player().mainTitle) != 0 && Number(KBEngine.app.player().mainTitle) != -1) {
+		current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this, Number(KBEngine.app.player().mainTitle), heroObj);
 	}
 
 
-current_scene.vars_.isInMainCity= true;
+	current_scene.vars_.isInMainCity = true;
+	//----------------
+	var startScenePic = ["obj_Map_10001_1", "obj_Map_10001_2", "obj_Map_10001_3", "obj_Map_10001_4"];
+	var endScenePic = ["obj_Map_10000_1", "obj_Map_10000_2", "obj_Map_10000_3", "obj_Map_10000_4"];
+	for (var i = 0; i < startScenePic.length; i++) {
+		qyengine.guardId(startScenePic[i]).changeSprite(""+endScenePic[i]+"_default");
+	}
+	
+//"obj_创建角色_框_3"   positionObj      <font  color='#c5c5c6'>      </font>
 
+/*
+     选择未锁<font  color='#f0a049'>橙色</font>装备(剩余0件)
+	 选择未锁<font  color='#ac55d4'>紫色</font>装备(剩余0件)
+	 选择未锁<font  color='#5558d4'>蓝色</font>装备(剩余0件)
+	 选择未锁<font  color='#55d2d4'> 绿色</font>装备(剩余0件)
+	 选择未锁<font  color='#c5c5c6'>白色</font>装备(剩余0件)
+	 选择未锁低于人物等级30级
+的装备(剩余1)
+*/
+qyengine.guardId(self.vars_.positionObj).x
