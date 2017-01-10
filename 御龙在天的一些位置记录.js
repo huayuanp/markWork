@@ -3456,23 +3456,58 @@ if (repeatTime === 0) {
 	}
 
 
-	current_scene.vars_.isInMainCity = true;
-	//----------------
-	var startScenePic = ["obj_Map_10001_1", "obj_Map_10001_2", "obj_Map_10001_3", "obj_Map_10001_4"];
-	var endScenePic = ["obj_Map_10000_1", "obj_Map_10000_2", "obj_Map_10000_3", "obj_Map_10000_4"];
-	for (var i = 0; i < startScenePic.length; i++) {
-		qyengine.guardId(startScenePic[i]).changeSprite(""+endScenePic[i]+"_default");
+	qyengine.guardId("obj_通用_道具框_橙_1").x
+	var markOtherObj = ["obj_通用_道具框_橙_1", "obj_通用_道具框_蓝_1", "obj_通用_道具框_橙", "obj_通用_道具框_橙_2", "obj_通用_道具框_蓝_3", "obj_通用_道具框_蓝",
+		"obj_通用_道具框_橙_3", "obj_通用_道具框_蓝_2", "obj_通用_道具框_紫"];
+	var posList = { 1: { x: 233, y: 329 }, 2: { x: 365, y: 329 }, 3: { x: 67, y: 468 }, 4: { x: 523, y: 468 }, 5: { x: 67, y: 600 }, 6: { x: 523, y: 600 }, 7: { x: 230, y: 723 }, 8: { x: 367, y: 723 }, 9: { x: 295, y: 523 } };
+	for (markItem in posList) {
+		//console.log(Number(markItem))
+		posList[markItem].x = grou_factionbaoku.objects[markOtherObj[Number(markItem)]].x;
+		posList[markItem].y = grou_factionbaoku.objects[markOtherObj[Number(markItem)]].y;
 	}
-	
-//"obj_创建角色_框_3"   positionObj      <font  color='#c5c5c6'>      </font>
 
-/*
-     选择未锁<font  color='#f0a049'>橙色</font>装备(剩余0件)
-	 选择未锁<font  color='#ac55d4'>紫色</font>装备(剩余0件)
-	 选择未锁<font  color='#5558d4'>蓝色</font>装备(剩余0件)
-	 选择未锁<font  color='#55d2d4'> 绿色</font>装备(剩余0件)
-	 选择未锁<font  color='#c5c5c6'>白色</font>装备(剩余0件)
-	 选择未锁低于人物等级30级
-的装备(剩余1)
-*/
-qyengine.guardId(self.vars_.positionObj).x
+
+	for (item in game.configs.robot_city) {
+		if (game.configs.robot_city[item].title == 30017) {
+			console.log(item);
+		}
+	}
+
+
+
+	//--------------关闭公告
+	qyengine.guardId(current_scene.vars_.desId).destroy();
+	//pwangrd 新增加
+	if (NoticeMainPanel.isVisible) {
+		return;
+	}
+	if (current_scene.classId != "main_scene") {
+		//NoticeMainPanel.show();
+		qyengine.getInstancesByType('NoticeMainPanel').length > 0 && NoticeMainPanel.destroy();
+		return;
+	}
+
+
+
+	if (window.adapt) {
+		grou_fight.currentSprite.cacheAsBitmap = false;
+	}
+
+	var markRemoveEffectObj = ["obj_PVEicon_熔炉", "obj_PVEicon_伙伴", "obj_PVEicon_翅膀"];
+	for (var i = 0; i < markRemoveEffectObj.length; i++) {
+		if (qyengine.getInstancesByType("grou_battle").length > 0) {
+			current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this, "grou_battle", markRemoveEffectObj[i]);
+		} else {
+			current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this, "grou_fight", markRemoveEffectObj[i]);
+		}
+	}
+
+
+	if(qyengine.getInstancesByType("grou_battle").length > 0){
+		grou_battle.objects['obj_PVEicon_收缩箭头_mainScene'].setScale(1,1);
+		grou_fight.objects['obj_PVEicon_收缩箭头_mainScene'].setScale(1,1);
+	}else{
+		grou_fight.objects['obj_PVEicon_收缩箭头_mainScene'].setScale(1,1);
+	}
+
+

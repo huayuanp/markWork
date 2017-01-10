@@ -211,6 +211,8 @@ qyengine.callAfter(function () {
 	.bind(this), current_scene, 600);
 //判断是否是合并的版本
 window.adapt
+//查看对象的图片所在的路径
+selectRole_photo_10001.currentSprite.fill_
 //-------清除场景中的角色
 current_game.scripts['al_scr_' + "sceneBattleVarInit"].call(this, undefined, this);
 current_game.scripts['al_scr_' + "createMainUIRole"].call(this, undefined, this);
