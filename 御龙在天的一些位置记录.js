@@ -3585,182 +3585,34 @@ if (repeatTime === 0) {
 	}
 
 
-	//  obj_战斗_exp   obj_战斗_血量条_01
 
-	current_game.scripts['al_scr_' + "createMonthCardUI"].call(this, undefined, this);
-
-
-	//grou_fight.objects['obj_主城_邮箱_1']
-	current_game.scripts['al_scr_' + ""].call(this, undefined, this);
-
-	grou_recharge_cell_wh(-212, 75)
-	//--------充值的新的逻辑
-	/* 
-		程序员：王号
-		功能: 初始化充值列表
+	var markJoinCondition = ['obj_家族设置_不需要验证', "obj_家族设置_需要验证", "obj_家族设置_不能加入"];
+	var markLimit = ['obj_家族设置_50级_faction', "obj_家族设置_80级_faction", "obj_家族设置_100级_faction", "obj_家族设置_120级_faction"];
+	grou_factionModifySet.objects['obj_家族设置_不需要验证'].changeSprite("" + markJoinCondition[current_scene['nowAllowNum'] - 1] + "_default");
+	grou_factionModifySet.objects['obj_家族设置_1级_faction'].changeSprite("" + markLimit[current_scene["nowLimitNum"] - 1] + "_default");
+	/*parseInt(game.vars_.userInfo.serverName.substr(1))
+	switch (current_scene['nowAllowNum']) {
+		case 1:
+			qyengine.guardId('txt_factionSet').setText('不需要验证');
+			break;
+		case 2:
+			qyengine.guardId('txt_factionSet').setText('需要验证');
+			break;
+		case 3:
+			qyengine.guardId('txt_factionSet').setText('不能加入');
+			break;
+	}
 	*/
-	game.vars_.gameFirstRecharge = false;
-
-	qyengine.instance_create(0, 0, 'grou_recharge_cell_wh', {
-		"type": 'grou_recharge_cell_wh',
-		"id": 'grou_recharge_cell_wh' + 100,
-		"zIndex": 0,
-	});
-	qyengine.guardId('grou_recharge_cell_wh' + 100).objects['obj_充值_小界面_01'].vars_.touchMonthCard = true;
-	qyengine.guardId('grou_recharge_cell_wh' + 100).objects['obj_充值_月卡特权'].show();
-	var needHide = ['obj_充值_首充', 'txt_recharge_cell_desc_wh_2', "obj_充值_金子文字_01_reCharge_1",
-		"txt_recharge_cell_desc_wh_1", "obj_充值_送", "obj_充值_金子文字_01_reCharge", "txt_recharge_goodPrice_wh", "obj_充值_价格按钮"];
-	for (var a = 0; a < needHide.length; a++) {
-		qyengine.guardId('grou_recharge_cell_wh' + 100).objects[needHide[a]].hide();
-	}
-	qyengine.guardId('grou_recharge_cell_wh' + 100).objects['obj_recharge_golds_icon_wh'].changeSprite("obj_recharge_golds_icon_wh_A0");
-	qyengine.guardId('grou_recharge_MainUI_wh').objects.scro_recharge_goldList_wh.appendChild('grou_recharge_cell_wh' + cellID, -212, 75, 0, 0, false, true);
-
-	var cellID = 1;
-	for (var cell in game.configs.recharge) {
-		cellID += 1;
-
-		qyengine.instance_create(0, 0, 'grou_recharge_cell_wh', {
-			"type": 'grou_recharge_cell_wh',
-			"id": 'grou_recharge_cell_wh' + cellID,
-			"zIndex": 0,
-		});
-
-		qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_充值_价格按钮.vars_.goodId = game.configs.recharge[cell].id;
-		qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_goodPrice_wh.setText(game.configs.recharge[cell].rmb);
-		qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_golds_icon_wh.changeSprite("obj_recharge_golds_icon_wh_A" + (cellID - 1));
-		//qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_buy_goldNum_wh.setText(game.configs.recharge[cell].name);
-		/*
-		if (game.vars_.userInfo.firstRecharge) {
-			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name + "x3  首充送" + game.configs.recharge[cell].gift + "金子");
-		}
-		else {
-			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name);
-		}
-		*/
-		qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh_2.setText(game.configs.recharge[cell].baseGold);
-		qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh_1.setText(Number(game.configs.recharge[cell].baseGold) * 2);
-		qyengine.guardId('grou_recharge_MainUI_wh').objects.scro_recharge_goldList_wh.appendChild('grou_recharge_cell_wh' + cellID, -212, 75, Math.floor((cellID - 1) / 3), (cellID - 1) % 3, false, true);
-	}
+	//qyengine.guardId('txt_factionSet_limit').setText(getConfig('factionJoinLimit', current_scene["nowLimitNum"], 'limitNum'));
+grou_factionModifySet.objects['obj_家族设置_不需要验证'].changeSprite("" + "obj_家族设置_不能加入" + "_default");
 
 
-	//cellID-1/3
-	//--------------充值界面服务端的回调
-	var needrmb = 0;
-	console.log("已购买金额:" + data[0]);
-	console.log("充值界面数据:", data);
-	var needrmb;
-	var curRmb = data[0];
-	//for (var i = 2; i <= configDataLength("vip"); ++i) {
-	//needrmb = getConfig("vip", i, "rmb");
-	//if (curRmb < needrmb) {
-	//txt_recharge_gold_wh.setText(needrmb - curRmb);
-	//txt_recharge_gold_progress_wh.setText(curRmb + "/" + needrmb);
-	//break;
-	//}
-	//}
-
-	//新更改的
-	if (getConfig("vip", game.vars_.userInfo.vip + 2, "rmb")) {
-		needrmb = Number(getConfig("vip", game.vars_.userInfo.vip + 2, "rmb"));
-		txt_recharge_gold_wh.setText(needrmb - curRmb);
-	}
-	txt_recharge_gold_progress_wh.setText(curRmb + "/" + needrmb);
-
-	if ((curRmb / needrmb) == 0) {
-		obj_recharge_gold_progress_wh.hide();
-	}
-	else {
-		obj_recharge_gold_progress_wh.show();
-		obj_recharge_gold_progress_wh.setScale(curRmb / needrmb, 1);
-	}
-
-	txt_VIP_recharge.setText(game.vars_.userInfo.vip);
-	txt_VIP_recharge_next.setText((game.vars_.userInfo.vip + 1));
-
-	//scro_recharge_progress.width =  parseInt((curRmb/ needrmb)*427);
-
-	qyengine.guardId('grou_recharge_MainUI_wh').show();
-
-	var cellID = 1;
-	for (var cell in game.configs.recharge) {
-		cellID += 1;
-
-		if (!data[2][cellID - 2]) {
-			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.changeSprite("obj_充值_首充_default");
-			/*
-			if (data[1] == 0 && cellID <= 4) {
-				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name + "x3  首充送" + game.configs.recharge[cell].gift + "金子");
-			}
-			else {
-				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name + " 首充送" + game.configs.recharge[cell].gift + "金子");
-			}
-			*/
-		}
-		else {
-
-			if (game.configs.recharge[cell].firstGift != -1) {
-				//qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon_panel.hide();
-				//qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.hide();
-			}
-			if (cellID >= 4 && cellID <= 5) {
-				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.changeSprite("obj_充值_推荐_default");
-			} else if (cellID >= 6 && cellID <= 7) {
-				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.changeSprite("obj_充值_热卖_default");
-			} else {
-				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon_panel.hide();
-				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.hide();
-
-
-			}
-			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh_2.setText(game.configs.recharge[cell].baseGold);
-			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh_1.setText(Number(game.configs.recharge[cell].gift));
-		}
-	}
+var markLimit = ['obj_家族设置_50级_faction', "obj_家族设置_80级_faction", "obj_家族设置_100级_faction", "obj_家族设置_120级_faction"];
+grou_factionModifySet.objects['obj_家族设置_1级_faction'].changeSprite("" + markLimit[current_scene["nowLimitNum"] - 1] + "_default");
 
 
 
-
-	//---创建邮箱上面的
-
-
-
-
-	if (Number(data)) {    //1创建邮箱上面旋转
-		if (Number(qyengine.getInstancesByType("grou_fight").length) > 0) {
-			if (!qyengine.guardId("obj_ANTX_mail_x") || qyengine.guardId("obj_ANTX_mail_x").destroyed_) {
-				grou_fight.objects["obj_主城_邮箱_1"].vars_.roundEffect = qyengine.instance_create(grou_fight.objects["obj_主城_邮箱_1"].x + grou_fight.x, grou_fight.objects["obj_主城_邮箱_1"].y + grou_fight.y, "obj_自动挑战特效", {
-					"type": "obj_自动挑战特效",
-					"id": "obj_ANTX_mail_x",
-					"zIndex": grou_fight.objects["obj_主城_邮箱_1"].zIndex,
-					"scene": 'main_scene',
-					"layer": 'layer_headerfeet'
-				});
-			} else {
-
-				if (grou_fight.isVisible) {
-					qyengine.guardId("obj_ANTX_mail_x").show();
-				} else {
-					qyengine.guardId("obj_ANTX_mail_x").hide();
-				}
-			}
-
-			//grou_maincity.appendChild("obj_ANTX_mail", grou_maincity.objects["obj_主城_邮箱_1"].x, grou_maincity.objects["obj_主城_邮箱_1"].y);
-		}
-	} else {               //0销毁邮箱上面的旋转的特效
-		if (Number(qyengine.getInstancesByType("grou_fight").length) > 0) {
-			grou_fight.objects["obj_ANTX_mail"] && grou_fight.objects["obj_ANTX_mail"].destroy();
-		}
-	}
-
-
-
-
-
-
-
-qyengine.instance_create(100,200,"grou_factionApplyItem",{"type":"grou_factionApplyItem","id":'grou_factionApplyItem'+repeatTime,"zIndex":3,"scene":'main_scene',"layer":'layer_headerfeet'});
-
+(-2,28)
 
 
 
