@@ -3447,130 +3447,6 @@ if (repeatTime === 0) {
 			}
 		}
 	}, 1000);
-
-
-	// ------------
-	//创建战印
-	if (Number(KBEngine.app.player().mainTitle) != 0 && Number(KBEngine.app.player().mainTitle) != -1) {
-		current_game.scripts['al_scr_' + "createMainCityTitle"].call(this, undefined, this, Number(KBEngine.app.player().mainTitle), heroObj);
-	}
-
-
-	qyengine.guardId("obj_通用_道具框_橙_1").x
-	var markOtherObj = ["obj_通用_道具框_橙_1", "obj_通用_道具框_蓝_1", "obj_通用_道具框_橙", "obj_通用_道具框_橙_2", "obj_通用_道具框_蓝_3", "obj_通用_道具框_蓝",
-		"obj_通用_道具框_橙_3", "obj_通用_道具框_蓝_2", "obj_通用_道具框_紫"];
-	var posList = { 1: { x: 233, y: 329 }, 2: { x: 365, y: 329 }, 3: { x: 67, y: 468 }, 4: { x: 523, y: 468 }, 5: { x: 67, y: 600 }, 6: { x: 523, y: 600 }, 7: { x: 230, y: 723 }, 8: { x: 367, y: 723 }, 9: { x: 295, y: 523 } };
-	for (markItem in posList) {
-		//console.log(Number(markItem))
-		posList[markItem].x = grou_factionbaoku.objects[markOtherObj[Number(markItem)]].x;
-		posList[markItem].y = grou_factionbaoku.objects[markOtherObj[Number(markItem)]].y;
-	}
-
-
-	for (item in game.configs.robot_city) {
-		if (game.configs.robot_city[item].title == 30017) {
-			console.log(item);
-		}
-	}
-
-
-
-	//--------------关闭公告
-	qyengine.guardId(current_scene.vars_.desId).destroy();
-	//pwangrd 新增加
-	if (NoticeMainPanel.isVisible) {
-		return;
-	}
-	if (current_scene.classId != "main_scene") {
-		//NoticeMainPanel.show();
-		qyengine.getInstancesByType('NoticeMainPanel').length > 0 && NoticeMainPanel.destroy();
-		return;
-	}
-
-
-
-	if (window.adapt) {
-		grou_fight.currentSprite.cacheAsBitmap = false;
-	}
-
-	var markRemoveEffectObj = ["obj_PVEicon_熔炉", "obj_PVEicon_伙伴", "obj_PVEicon_翅膀"];
-	for (var i = 0; i < markRemoveEffectObj.length; i++) {
-		if (qyengine.getInstancesByType("grou_battle").length > 0) {
-			current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this, "grou_battle", markRemoveEffectObj[i]);
-		} else {
-			current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this, "grou_fight", markRemoveEffectObj[i]);
-		}
-	}
-
-
-
-
-
-	var req = new XMLHttpRequest();
-	req.onreadystatechange = function () {
-		if (req.readyState == 4 && req.status == 200) {
-			var data = JSON.parse(req.responseText);
-			data.forEach(function (i) {
-				game.configs.notice[i.id] = i;
-			})
-		}
-	};
-	req.open('get', 'http://123.207.107.108/lxjt_dev/notice.json?v=' + time('local'));
-	req.send();
-
-
-
-	var req = [];
-	for (var a = 0; a < 5; a++) {
-		req[a] = new XMLHttpRequest();
-	}
-	req[0].onreadystatechange = function () {
-		if (req.readyState == 4 && req.status == 200) {
-			var data = JSON.parse(req.responseText);
-			data.forEach(function (i) {
-				game.configs.activity[i.id] = i;
-			})
-		}
-	};
-	req[1].onreadystatechange = function () {
-		if (req.readyState == 4 && req.status == 200) {
-			var data = JSON.parse(req.responseText);
-			data.forEach(function (i) {
-				game.configs.activity_charts[i.id] = i;
-			})
-		}
-	};
-	req[2].onreadystatechange = function () {
-		if (req.readyState == 4 && req.status == 200) {
-			var data = JSON.parse(req.responseText);
-			data.forEach(function (i) {
-				game.configs.activity_consume[i.id] = i;
-			})
-		}
-	};
-	req[3].onreadystatechange = function () {
-		if (req.readyState == 4 && req.status == 200) {
-			var data = JSON.parse(req.responseText);
-			data.forEach(function (i) {
-				game.configs.activity_level[i.id] = i;
-			})
-		}
-	};
-	req[4].onreadystatechange = function () {
-		if (req.readyState == 4 && req.status == 200) {
-			var data = JSON.parse(req.responseText);
-			data.forEach(function (i) {
-				game.configs.activity_vip[i.id] = i;
-			})
-		}
-	};
-	var markAddress = ['http://123.207.107.108/lxjt_dev/s1/activity.json?v=', 'http://123.207.107.108/lxjt_dev/s1/activity_charts.json?v=',
-		'http://123.207.107.108/lxjt_dev/s1/activity_consume.json?v=', 'http://123.207.107.108/lxjt_dev/s1/activity_level.json?v=',
-		'http://123.207.107.108/lxjt_dev/s1/activity_vip.json?v=']
-	for (var b = 0; b < 5; b++) {
-		req[b].open('get', markAddress[b] + time('local'));
-		req[b].send();
-	}
 	/*
 	obj_充值_推荐_default
 	obj_充值_热卖_default
@@ -3604,15 +3480,94 @@ if (repeatTime === 0) {
 	}
 	*/
 	//qyengine.guardId('txt_factionSet_limit').setText(getConfig('factionJoinLimit', current_scene["nowLimitNum"], 'limitNum'));
-grou_factionModifySet.objects['obj_家族设置_不需要验证'].changeSprite("" + "obj_家族设置_不能加入" + "_default");
+	grou_factionModifySet.objects['obj_家族设置_不需要验证'].changeSprite("" + "obj_家族设置_不能加入" + "_default");
 
 
-var markLimit = ['obj_家族设置_50级_faction', "obj_家族设置_80级_faction", "obj_家族设置_100级_faction", "obj_家族设置_120级_faction"];
-grou_factionModifySet.objects['obj_家族设置_1级_faction'].changeSprite("" + markLimit[current_scene["nowLimitNum"] - 1] + "_default");
+	var markLimit = ['obj_家族设置_50级_faction', "obj_家族设置_80级_faction", "obj_家族设置_100级_faction", "obj_家族设置_120级_faction"];
+	grou_factionModifySet.objects['obj_家族设置_1级_faction'].changeSprite("" + markLimit[current_scene["nowLimitNum"] - 1] + "_default");
 
 
 
-(-2,28)
+	(-2, 28)
+	onRespMissionPush
+
+
+	//新的活动的界面的一些记录 ~~~~~~~
+	grou_activityMainTab_cell(73, 64)
+	grou_activityInTestCell(78, 89)
+
+
+	for (var i = 0; i < 5; i++) {
+		qyengine.instance_create(73, 64, "grou_activityMainTab_cell", {
+			"type": "grou_activityMainTab_cell",
+			"id": 'grou_activityMainTab_cell_' + i,
+			"zIndex": 5,
+			"scene": 'main_scene',
+			"layer": 'layer_headerfeet'
+		});
+		self.appendChild("grou_activityMainTab_cell_" + i, 73, 64, 1 - 1, i, false, true);
+		var markActivityIcon = ["obj_活动_封测特权0", "obj_活动_累计消耗0", "obj_活动_等级礼包0", "obj_活动_王者争霸0", "obj_活动_积分转轮0"];
+		//var markActivityName=["obj_活动_封测特权1","obj_活动_累计消耗1"];
+		var markStartString = markActivityIcon[i].substring(0, markActivityIcon[i].length - 1);
+		if (i === 0) {
+			qyengine.guardId('grou_activityMainTab_cell_' + i).objects['obj_活动_封测特权1'].changeSprite(markStartString + "2_default");
+		} else {
+			qyengine.guardId('grou_activityMainTab_cell_' + i).objects['obj_活动_封测特权1'].changeSprite(markStartString + "1_default");
+			qyengine.guardId('grou_activityMainTab_cell_' + i).objects['obj_活动_封测特权0'].changeSprite(markActivityIcon[i] + "_default");
+		}
+		qyengine.guardId('grou_activityMainTab_cell_' + i).objects['obj_活动_框未选中'].vars_.nowTab = i;
+	}
+
+
+
+	self.vars_.nowAtTab = 0;   //现在所在的tab标签~~~~~~~~~
+	//新的封测高级礼包界面的一些创建
+	var markTime = game.configs.activity_vip[grou_activityMain.vars_.markContinueData[0]].time_start1.split("|");
+	self.objects["txt_inTestTime_0"].text = "" + markTime[0] + ":00、" + markTime[1] + ":00";
+	var activityTimeStartAndEnd = calEveryActivityTime();
+	self.objects['txt_inTestTime_title'].text = activityTimeStartAndEnd[0] + activityTimeStartAndEnd[1];
+	for (var i = 0; i < 2; i++) {
+		qyengine.instance_create(0, 0, "grou_activityInTestCell", {
+			"type": "grou_activityInTestCell",
+			"id": 'grou_activityInTestCell' + i,
+			"zIndex": 5,
+			"scene": 'main_scene',
+			"layer": 'layer_headerfeet'
+		});
+		qyengine.guardId("scro_activityInTest").appendChild("grou_activityInTestCell"+i,78,89,i,0,false,true);
+		var markWhichRewardObj=["obj_活动_12点礼包","obj_活动_21点礼包"];
+		qyengine.guardId('grou_activityInTestCell' + i).objects['obj_活动_12点礼包'].changeSprite(markWhichRewardObj[i]+"_default");
+		qyengine.guardId('grou_activityInTestCell' + i).objects['obj_活动_小按钮框2'].vars_.receiveRewardId=i;
+		var markIcon=["obj_通用_金子_advaced","obj_通用_银子_activity"];
+		qyengine.guardId('grou_activityInTestCell' + i).objects['obj_activityInTestIcon_0'].changeSprite(markIcon[i]+"_default");
+		var markGoldAndSilverNum=[game.configs.activity_vip[/*grou_activityMain.vars_.markContinueData[0]*/1].gold,game.configs.activity_vip[/*grou_activityMain.vars_.markContinueData[0]*/1].silver];
+		qyengine.guardId('grou_activityInTestCell' + i).objects['txt_activityGoodsNum_0'].text=''+markGoldAndSilverNum[i];
+	}
+	function calEveryActivityTime() {
+		var startAndOver = ["start", "over"];
+		var markTime = [];
+		for (var j = 0; j < startAndOver.length; j++) {
+			var startTime = game.configs.activity[/*grou_activity_main_new.vars_.nowAtTab + */1][startAndOver[j]].split("|");
+			var startTimeText = ""
+			if (j === 0) {
+				startTimeText = "活动时间:";
+			} else {
+				startTimeText = "-"
+			}
+			var nyr = ['年', '月', '日'];
+			for (var k = 0; k < startTime.length; k++) {
+				startTimeText = startTimeText + startTime[k] + nyr[k];
+			}
+			markTime.push(startTimeText);
+		}
+		return markTime;
+	}
+
+
+
+
+
+
 
 
 

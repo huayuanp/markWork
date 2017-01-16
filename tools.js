@@ -149,7 +149,9 @@ qyengine.guardId('txt_pkRoleNick').setFontColor('#f7ad0d');
 
 //设置字体为楷体
 self.currentSprite.style.font = "normal 25px kaiti";
-
+//设置字体的描边
+self.currentSprite.style.font = "normal 800 25px/1.1 serif";
+self.setStroke("#000000", 4);
 //唯一标识符的对象  .classId
 
 //清空滚轴
