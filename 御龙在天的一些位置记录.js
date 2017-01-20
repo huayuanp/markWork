@@ -3688,23 +3688,194 @@ if (repeatTime === 0) {
 	}
 	//排行礼包
 	var markxxx = current_game.scripts['al_scr_' + "rechangeActivityTime"].call(this, undefined, this, 3);
-	grou_activityMain_rankReward.objects['txt_activity_totalConsume_0'].setText("活动时间: " + markxxx);
+
+	//活动中的一些请求
+	if (self.vars_.touchId == 1) {
+		current_game.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+		//current_game.scripts['al_scr_'+"createConsumeReward"].call(this,undefined,this,0);
+		KBEngine.app.player().baseCall('reqActivityTwo');
+	}
+	if (self.vars_.touchId == 0) {
+		current_game.scripts['al_scr_' + "actionlist_createLoadingCircle"].call(this, undefined, this);
+		KBEngine.app.player().baseCall('reqActivityOne');
+	}
+	if (self.vars_.touchId == 2) {
+		//current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "暂未开启");
+		current_game.scripts['al_scr_' + "act_levelgift_open"].call(this, undefined, this);
+	}
+	if (self.vars_.touchId == 3) {
+		//current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "暂未开启");
+		current_game.scripts['al_scr_' + "createActivityRankReward"].call(this, undefined, this);
+	}
 
 
-	current_game.scripts['createSceneOtherPlayerShow'].call(this, undefined, this);
-	//-----------------------------标签的点击
+	qyengine.guardId("grou_activityMainTab_cell" + i).objects['obj_主城_红点_activity_new'].show();
+
+	/**
+	 * 点击活动按钮的回调逻辑
+	 */
+	console.log("活动红点的回调----", data);
+	current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	for (var i = 0; i < data[0].length; i++) {
+		if (Number(data[0][i])) {
+			grou_activityMain_new.vars_.nowAtTab
+			qyengine.guardId("grou_activityMainTab_cell" + grou_activityMain_new.vars_.nowAtTab).objects['obj_主城_红点_activity_new'].show();
+		} else {
+			qyengine.guardId("grou_activityMainTab_cell" + grou_activityMain_new.vars_.nowAtTab).objects['obj_主城_红点_activity_new'].hide();
+		}
+	}
+	//活动持续的第n天
+
+	grou_activityMain_new.vars_.markContinueData = data[1];
+	grou_activityMain_new.vars_.markContinueData1 = data[1];
+	if (Number(data[1][0]) === 0) {
+		grou_activityMain_new.vars_.markContinueData[0] = 1;
+	}
 
 
 
-
-	if (qyengine.getInstancesByType("grou_activityMain").length == 0) {
-		qyengine.instance_create(9, 45, "grou_activity_main_new", {
-			"type": "grou_activity_main_new",
-			"id": "grou_activity_main_new",
+	if (Number(event.argument0) == 2) {
+		current_game.scripts['al_scr_' + "act_levelgift_open"].call(this, undefined, this);
+	} else {
+		qyengine.instance_create(830, 812, nextCreateGroup, {
+			"type": nextCreateGroup,
+			"id": nextCreateGroup,
 			"zIndex": 5,
 			"scene": "main_scene",
 			"layer": "layer_headerfeet"
 		});
+	}
+	//-129            -282
+	//积分物品的创建
+	var initProgressWidth = 620;
+	var allLuckNum = 1200;
+	var grouPosPlus = -153;
+	for (var i = 1; i <= configDataLength("luckywheel_score"); i++) {
+		qyengine.instance_create(0, 0, "grou_activityLuckyWheelGood", {
+			"type": "grou_activityLuckyWheelGood",
+			"id": "grou_activityLuckyWheelGood_" + i,
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.markIndex = i;
+		var posCost = Number(game.configs.luckywheel_score[i].cost);
+		var progressPosX = grou_activityLuckyWheel.objects["obj_活动_积分转轮_条"].x;
+		var goodPos = (initProgressWidth / allLuckNum) * postCost + progressPosX + grouPosPlus;
+		grou_activityLuckyWheel.appendChild("grou_activityLuckyWheelGood_" + i, goodPos, 91);
+		var itemId = 0;
+		var itemNum = 0;
+		var itemIcon = 0;
+		var itemQuality = 0;
+		if (i <= 2) {
+			itemId = game.configs.luckywheel_score[i].item.split(";")[0].split("|")[0];
+			itemNum = game.configs.luckywheel_score[i].item.split(";")[0].split("|")[1];
+			itemIcon = game.configs.item[Number(itemId)].icon;
+			itemQuality = game.configs.item[Number(itemId)].quality;
+		} else {
+			itemId = game.configs.luckywheel_score[i].title.split("|")[0];
+			itemNum = game.configs.luckywheel_score[i].title.split("|")[1];
+			itemIcon = game.configs.title[Number(itemId)].icon;
+			itemQuality = game.configs.title[Number(itemId)].quality;
+		}
+		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_activityLuckyWheel"].changeSprite("obj_" + itemIcon + "_default");
+		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].changeSprite("obj_packageSmallFrame_A" + (Number(itemQuality) - 1));
+		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["txt_luckyWheelGoodNum"].text = itemNum;
+		//创建进度条上的积分文字
+		qyengine.instance_create(0, 0, "txt_luckyWheelProgressNum", {
+			"type": "txt_luckyWheelProgressNum",
+			"id": "txt_luckyWheelProgressNum_" + i,
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+		grou_activityLuckyWheel.appendChild("txt_luckyWheelProgressNum_" + i, goodPos - grouPosPlus - 46, 181);
+		qyengine.guardId("txt_luckyWheelProgressNum_" + i).text = "" + posCost + "分"
+	}
+	//转轮物品的创建
+	var luckywheel_lotteryPos = [[232, 351], [320, 419], [357, 527], [319, 632], [228, 696],
+	[119, 697], [28, 633], [-6, 524], [29, 417], [119, 348]];
+	for (item in game.configs.luckywheel_lottery) {
+		qyengine.instance_create(0, 0, "obj_wheel_lottery_icon", {
+			"type": "obj_wheel_lottery_icon",
+			"id": "obj_wheel_lottery_icon_" + i,
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+		grou_activityLuckyWheel.appendChild("obj_wheel_lottery_icon_" + i, luckywheel_lotteryPos[item][0], luckywheel_lotteryPos[item][1]);
+		var markId = 0;
+		var markNum = 0;
+		var markIcon = 0;
+		if (game.configs.luckywheel_lottery[item].reward == -1) {  //战印记
+			markId = game.configs.luckywheel_lottery[item].title.split("|")[0];
+			markNum = game.configs.luckywheel_lottery[item].title.split("|")[1];
+			markIcon = game.configs.title[Number(markId)].icon;
+		} else {											//物品
+			markId = game.configs.luckywheel_lottery[item].reward.split("|")[0];
+			markNum = game.configs.luckywheel_lottery[item].reward.split("|")[1];
+			markIcon = game.configs.item[Number(markId)].icon;
+		}
+		qyengine.guardId("obj_wheel_lottery_icon_" + i).changeSprite("obj_" + markIcon + "_default");
+		qyengine.guardId("obj_wheel_lottery_icon_" + i).vars_.touchIndex = i;
+		qyengine.guardId("obj_wheel_lottery_icon_" + i).vars_.touchId = markId;
+	}
+
+
+
+
+	if (self.vars_.isTouch && self.vars_.canTouch) {
+		self.vars_.isTouch = false;
+		if (self.vars_.isFree == 1) {  //第一个按钮
+
+		} else {			//第二个按钮
+
+		}
+	}
+
+
+
+
+	onRespClickActivityFive
+	onRespActivityReward
+	onRespActivityFiveRank
+
+
+	//点击进入大转盘的回调
+	var needShow = ["obj_通用_金子_advaced_one", "txt_activityIntegralextract_num_one", "obj_活动_积分转轮_抽取1次"];
+	if (Number(data[0]) <= 0) {
+		grou_activityLuckyWheel.objects['obj_活动_积分转轮_免费抽取'].hide();
+		for (item in needShow) {
+			grou_activityLuckyWheel.objects[needShow[item]].show();
+		}
+	} else {
+		grou_activityLuckyWheel.objects['obj_活动_积分转轮_免费抽取'].show();
+		for (item in needShow) {
+			grou_activityLuckyWheel.objects[needShow[item]].hide();
+		}
+	}
+	grou_activityLuckyWheel.objects['txt_activityFreeNum'].text = "今日免费次数:" + data[0];
+	grou_activityLuckyWheel.objects['obj_活动_积分转轮_按钮框'].vars_.plusNum = Number(data[0]);
+	grou_activityLuckyWheel.objects['txt_nowLuckyWheelNum'].text = data[1];
+	for (index in data[2]) {   //已经领取过变灰色不可点击
+		var AlreadyRewardIndex = Number(data[2][index]) - 1;
+		qyengine.guardId("grou_activityLuckyWheelGood_" + AlreadyRewardIndex).objects["obj_activityLuckyWheel"].setHSL(0, -100, 0);
+		qyengine.guardId("grou_activityLuckyWheelGood_" + AlreadyRewardIndex).objects["obj_通用_道具框_绿_activityIntest"].vars_.alreadyReward = true;
+	}
+	for (index in configDataLength("luckywheel_score")) {
+		if (data[1] <= Number(game.configs.luckywheel_score[index].cost)) {
+			if (!interateData(index, data[2])) {  //达成条件未领取需要增加特效
+				qyengine.guardId("grou_activityLuckyWheelGood_" + AlreadyRewardIndex).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward = true;
+			}
+		}
+	}
+	function interateData(place, arrData) {
+		for (item in arrData) {
+			if (Number(arrData[item]) == place) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 
