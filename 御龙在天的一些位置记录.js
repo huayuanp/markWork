@@ -3748,7 +3748,7 @@ if (repeatTime === 0) {
 	//-129            -282
 	//积分物品的创建
 	var initProgressWidth = 620;
-	var allLuckNum = 1200;
+	var allLuckNum = 1500;
 	var grouPosPlus = -153;
 	for (var i = 1; i <= configDataLength("luckywheel_score"); i++) {
 		qyengine.instance_create(0, 0, "grou_activityLuckyWheelGood", {
@@ -3771,14 +3771,16 @@ if (repeatTime === 0) {
 			itemId = game.configs.luckywheel_score[i].item.split(";")[0].split("|")[0];
 			itemNum = game.configs.luckywheel_score[i].item.split(";")[0].split("|")[1];
 			itemIcon = game.configs.item[Number(itemId)].icon;
+			itemIcon = "obj_" + itemIcon + "_default";
 			itemQuality = game.configs.item[Number(itemId)].quality;
 		} else {
 			itemId = game.configs.luckywheel_score[i].title.split("|")[0];
 			itemNum = game.configs.luckywheel_score[i].title.split("|")[1];
 			itemIcon = game.configs.title[Number(itemId)].icon;
+			itemIcon = "" + itemIcon + "_default";
 			itemQuality = game.configs.title[Number(itemId)].quality;
 		}
-		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_activityLuckyWheel"].changeSprite("obj_" + itemIcon + "_default");
+		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_activityLuckyWheel"].changeSprite(itemIcon);
 		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].changeSprite("obj_packageSmallFrame_A" + (Number(itemQuality) - 1));
 		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["txt_luckyWheelGoodNum"].text = itemNum;
 		//创建进度条上的积分文字
@@ -3798,12 +3800,12 @@ if (repeatTime === 0) {
 	for (item in game.configs.luckywheel_lottery) {
 		qyengine.instance_create(0, 0, "obj_wheel_lottery_icon", {
 			"type": "obj_wheel_lottery_icon",
-			"id": "obj_wheel_lottery_icon_" + i,
+			"id": "obj_wheel_lottery_icon_" + (Number(item) - 1),
 			"zIndex": 5,
 			"scene": "main_scene",
 			"layer": "layer_headerfeet"
 		});
-		grou_activityLuckyWheel.appendChild("obj_wheel_lottery_icon_" + i, luckywheel_lotteryPos[item][0], luckywheel_lotteryPos[item][1]);
+		grou_activityLuckyWheel.appendChild("obj_wheel_lottery_icon_" + (Number(item) - 1), luckywheel_lotteryPos[(Number(item) - 1)][0], luckywheel_lotteryPos[(Number(item) - 1)][1]);
 		var markId = 0;
 		var markNum = 0;
 		var markIcon = 0;
@@ -3811,14 +3813,16 @@ if (repeatTime === 0) {
 			markId = game.configs.luckywheel_lottery[item].title.split("|")[0];
 			markNum = game.configs.luckywheel_lottery[item].title.split("|")[1];
 			markIcon = game.configs.title[Number(markId)].icon;
+			markIcon = "" + markIcon + "_default";
 		} else {											//物品
 			markId = game.configs.luckywheel_lottery[item].reward.split("|")[0];
 			markNum = game.configs.luckywheel_lottery[item].reward.split("|")[1];
 			markIcon = game.configs.item[Number(markId)].icon;
+			markIcon = "obj_" + markIcon + "_default";
 		}
-		qyengine.guardId("obj_wheel_lottery_icon_" + i).changeSprite("obj_" + markIcon + "_default");
-		qyengine.guardId("obj_wheel_lottery_icon_" + i).vars_.touchIndex = i;
-		qyengine.guardId("obj_wheel_lottery_icon_" + i).vars_.touchId = markId;
+		qyengine.guardId("obj_wheel_lottery_icon_" + (Number(item) - 1)).changeSprite(markIcon);
+		qyengine.guardId("obj_wheel_lottery_icon_" + (Number(item) - 1)).vars_.touchIndex = (Number(item) - 1);
+		qyengine.guardId("obj_wheel_lottery_icon_" + (Number(item) - 1)).vars_.touchId = markId;
 	}
 
 
@@ -3877,6 +3881,510 @@ if (repeatTime === 0) {
 		}
 		return false;
 	}
+
+
+	//开始转轮
+	var needMovePlace = 1;
+	var detectionFinish = 0;
+	for (var i = 0; i < 100; i++) {
+		qyengine.guardId("obj_活动_积分转轮_转轮3").vars_.haha = setTimeout(function () {
+			console.log("needMovePlace", needMovePlace);
+			console.log("detectionFinish", detectionFinish);
+			var extraEvery = ((needMovePlace - 1) * 36 + 18) / 100;
+			var circleNum = 5;
+			var rotationEvery = 360 * 5 / 100;
+			qyengine.guardId("obj_活动_积分转轮_转轮3").setRotation(qyengine.guardId("obj_活动_积分转轮_转轮3").rotation - rotationEvery - extraEvery);
+			detectionFinish++;
+			if (detectionFinish >= 100) {
+				console.log("说明已经完成循环");
+				//window.clearInterval(qyengine.guardId("obj_活动_积分转轮_转轮3").vars_.haha);
+			}
+		}, i * 50);
+	}
+
+
+
+
+
+
+
+
+
+
+
+	//点击开始转盘的回调
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	/*
+	data[1]//活动的剩余次数
+	data[2] //活动积分
+	*/
+	current_scene.vars_.storageResultTurn = data;
+	qyengine.guardId('obj_活动_积分转轮_转轮3').dispatchMessage({
+		"type": 'message',
+		"message": "turn",
+		"argument0": current_scene.vars_.turnType,
+		"argument1": data[0]
+	});
+
+	grou_activityLuckyWheel.objects['txt_activityFreeNum'].text = "今日免费次数:" + data[1];
+	grou_activityLuckyWheel.objects['obj_活动_积分转轮_按钮框'].vars_.plusNum = Number(data[1]);
+	//积分
+	grou_activityLuckyWheel.objects['txt_nowLuckyWheelNum'].text = data[2];
+	if (ifBeyond(Number(data[2]))) {
+		var markPlace = 0;
+		for (item in game.configs.luckywheel_score) {
+			if (Number(data[2]) < Number(game.configs.luckywheel_score[item].cost)) {
+				markPlace = item;
+			}
+		}
+		if ((markPlace - 1) > 0) {
+			for (var i = 0; i < markPlace - 1; i++) {
+				if (!(qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward || qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.alreadyReward)) {
+					//变为可领取状态,并且增加特效
+					qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward = true;
+				}
+			}
+		}
+	} else {  //所有的积分的奖品都可领取
+		for (var i = 0; i < configDataLength("luckywheel_score"); i++) {
+			if (!(qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward || qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.alreadyReward)) {
+				//变为可领取状态,并且增加特效
+				qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward = true;
+			}
+		}
+	}
+	function ifBeyond(markIntegral) {
+		for (item in game.configs.luckywheel_score) {
+			if (markIntegral < Number(game.configs.luckywheel_score[item].cost)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+
+	//大转盘开始转动的逻辑
+	/*
+	event.argument0
+	event.argument1
+	*/
+
+	turnDownLogic();
+	function turnDownLogic() {
+		qyengine.guardId("obj_活动_积分转轮_转轮3").setRotation(0);
+		var needMovePlace = 1;
+		var detectionFinish = 0;
+		for (var i = 0; i < 100; i++) {
+			setTimeout(function () {
+				console.log("needMovePlace", needMovePlace);
+				console.log("detectionFinish", detectionFinish);
+				var extraEvery = ((needMovePlace - 1) * 36 + 18) / 100;
+				var circleNum = 5;
+				var rotationEvery = 360 * 5 / 100;
+				qyengine.guardId("obj_活动_积分转轮_转轮3").setRotation(qyengine.guardId("obj_活动_积分转轮_转轮3").rotation - rotationEvery - extraEvery);
+				detectionFinish++;
+				if (detectionFinish >= 100) {
+					console.log("说明已经完成循环");
+					if (current_scene.vars_.turnType == 10) {
+						//current_game.scripts['al_scr_' + "turnFinish"].call(this, undefined, this, current_scene.vars_.storageResultTurn);
+						turnDownLogic();
+						//current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "已获得物品!");
+						collectItemAndTitle();
+						qyengine.guardId("obj_活动_积分转轮_按钮框").vars_.canTouch = true;
+					} else {
+						current_game.scripts['al_scr_' + "turnFinish"].call(this, undefined, this, current_scene.vars_.storageResultTurn);
+						//current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "已获得物品!");
+						collectItemAndTitle();
+						qyengine.guardId("obj_活动_积分转轮_按钮框").vars_.canTouch = true;
+					}
+					//window.clearInterval(qyengine.guardId("obj_活动_积分转轮_转轮3").vars_.haha);
+				}
+			}, i * 50);
+		}
+	}
+	function collectItemAndTitle() {
+		for (var i = 0; i < current_scene.vars_.storageResultTurn[0].length; i++) {
+			var itemId = 0;
+			var itemNum = 0;
+			var itemColor = 0;
+			if (game.configs.luckywheel_lottery[current_scene.vars_.storageResultTurn[0][i]].title == -1) {
+				itemId = game.configs.luckywheel_lottery[current_scene.vars_.storageResultTurn[0][i]].reward.split("|")[0];
+				itemId = Number(itemId);
+				itemNum = game.configs.luckywheel_lottery[current_scene.vars_.storageResultTurn[0][i]].reward.split("|")[1];
+				itemNum = Number(itemNum);
+				itemColor = Number(game.configs.item[itemId].quality) - 1;
+			} else {
+				itemId = game.configs.luckywheel_lottery[current_scene.vars_.storageResultTurn[0][i]].title.split("|")[0];
+				itemId = Number(itemId);
+				itemNum = game.configs.luckywheel_lottery[current_scene.vars_.storageResultTurn[0][i]].title.split("|")[1];
+				itemNum = Number(itemNum);
+				itemColor = Number(game.configs.title[itemId].quality) - 1;
+			}
+			var colorArr = ["#ffffff", "#11f92c", "#3d98ff", "#f661f1", "#ffbe41"];
+			if (!current_scene.vars_.currentPkDropInfo) {
+				current_scene.vars_.currentPkDropInfo = [];
+			}
+			if (!current_scene.vars_.dropInfoColorArr) {
+				current_scene.vars_.dropInfoColorArr = [];
+			}
+			current_scene.vars_.currentPkDropInfo.push([itemId, itemNum]);
+			current_scene.vars_.dropInfoColorArr.push([i, colorArr[itemColor]]);
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+	//点击开始转盘的回调
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	/*
+	data[1]//活动的剩余次数
+	data[2] //活动积分
+	*/
+	grou_activityLuckyWheel.objects['txt_activityFreeNum'].text = "今日免费次数:" + data[1];
+	grou_activityLuckyWheel.objects['obj_活动_积分转轮_按钮框'].vars_.plusNum = Number(data[2]);
+	//积分
+	grou_activityLuckyWheel.objects['txt_nowLuckyWheelNum'].text = data[2];
+	if (ifBeyond(Number(data[2]))) {
+		var markPlace = 0;
+		for (item in game.configs.luckywheel_score) {
+			if (Number(data[2]) < Number(game.configs.luckywheel_score[item].cost)) {
+				markPlace = item;
+			}
+		}
+		if ((markPlace - 1) > 0) {
+			for (var i = 1; i < markPlace; i++) {
+				if (!(qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward || qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.alreadyReward)) {
+					//变为可领取状态,并且增加特效
+					qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward = true;
+				}
+			}
+		}
+	} else {  //所有的积分的奖品都可领取
+		for (var i = 0; i < configDataLength("luckywheel_score"); i++) {
+			if (!(qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward || qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.alreadyReward)) {
+				//变为可领取状态,并且增加特效
+				qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward = true;
+			}
+		}
+	}
+	function ifBeyond(markIntegral) {
+		for (item in game.configs.luckywheel_score) {
+			if (markIntegral < Number(game.configs.luckywheel_score[item].cost)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+
+
+	//活动排行榜的请求
+	current_game.scripts["al_scr_" + "actionlist_createLoadingCircle"].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqAcitivityFiveRank");
+
+
+
+
+	grou_activityFiveRank_cell(-2, -6)
+
+
+
+
+
+	//活动5排行榜的绘制
+	qyengine.instance_create(198, 320, "grou_activityFiveRank", {
+		"type": "grou_activityFiveRank",
+		"id": 'grou_activityFiveRank',
+		"zIndex": 5,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+
+	grou_activityFiveRank.objects["txt_activityFiveRankFeetNum_0"].text = data[1];
+	if (Number(data[1]) > 50 || Number(data[1]) === 0) {
+		grou_activityFiveRank.objects["txt_activityFiveRankFeetNum_2"].text = "无奖励";
+		grou_activityFiveRank.objects["txt_activityFiveRankFeetNum_3"].hide();
+		grou_activityFiveRank.objects["obj_activityFiveRankReward_0"].hide();
+		grou_activityFiveRank.objects["obj_activityFiveRankReward_1"].hide();
+		grou_activityFiveRank.objects["obj_活动_积分转轮排行_数字框_activityFive_3"].hide();
+	} else {
+		grou_activityFiveRank.objects["txt_activityFiveRankFeetNum_1"].text = grou_activityLuckyWheel.objects["txt_nowLuckyWheelNum"].text;
+		var item0 = 0;
+		var item1 = 0;
+		var itemIcon0 = 0;
+		var itemIcon1 = 0;
+		if (Number(data[1]) <= 3) {
+			item1 = game.configs.luckywheel_rank[Number(data[1])].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[Number(data[1])].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[Number(data[1])].item.split("|")[0] + "_default";
+		} else if (Number(Number(data[1])) <= 10) {
+			item1 = game.configs.luckywheel_rank[4].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[4].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[4].item.split("|")[0] + "_default";
+		} else if (Number(Number(data[1])) <= 20) {
+			item1 = game.configs.luckywheel_rank[5].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[5].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[5].item.split("|")[0] + "_default";
+		} else {
+			item1 = game.configs.luckywheel_rank[6].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[6].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[6].item.split("|")[0] + "_default";
+		}
+		grou_activityFiveRank.objects["txt_activityFiveRankFeetNum_2"].text = item0;
+		grou_activityFiveRank.objects["txt_activityFiveRankFeetNum_3"].text = item1;
+		grou_activityFiveRank.objects["obj_activityFiveRankReward_0"].changeSprite("obj_通用_银子_activity_default");
+		grou_activityFiveRank.objects["obj_activityFiveRankReward_1"].changeSprite(itemIcon1);
+	}
+
+	for (var i = 0; i < data[0].length; i++) {
+		var item0 = 0;
+		var item1 = 0;
+		var itemIcon0 = 0;
+		var objLevel = 0;
+		if (Number(i + 1) <= 3) {
+			objLevelArr = ["obj_杀戮榜_1_activityFive_default", "obj_杀戮榜_2_activityFive_default", "obj_杀戮榜_3_activityFive_default"];
+			objLevel = objLevelArr[i];
+			item1 = game.configs.luckywheel_rank[i + 1].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[i + 1].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[i + 1].item.split("|")[0] + "_default";
+		} else if (Number(i + 1) <= 10) {
+			item1 = game.configs.luckywheel_rank[4].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[4].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[4].item.split("|")[0] + "_default";
+		} else if (Number(i + 1) <= 20) {
+			item1 = game.configs.luckywheel_rank[5].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[5].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[5].item.split("|")[0] + "_default";
+		} else {
+			item1 = game.configs.luckywheel_rank[6].item.split("|")[1];
+			item0 = game.configs.luckywheel_rank[6].silver;
+			itemIcon0 = "obj_通用_银子_activity_default";
+			itemIcon1 = "obj_" + game.configs.luckywheel_rank[6].item.split("|")[0] + "_default";
+		}
+		game.configs.config_activityFiveRank[i + 1] = {
+			id: i + 1,
+			name: data[0][i][1],
+			index: i + 1,
+			vip: "VIP" + data[0][i][2],
+			level: "lv." + data[0][i][3],
+			jifen: "累计积分:" + data[0][i][4],
+			item0: item0,
+			item1: item1,
+			itemicon0: itemIcon0,
+			itemicon1: itemIcon1,
+			objlevel: objLevel,
+			photo: "selectRole_photo_" + data[0][i][0] + "_default",
+		};
+	}
+	scro_activityFiveRank.refreshRelations();
+
+
+	if (self.objLevel) {
+		console.error("self.objLevel----------", self.objLevel);
+	}
+
+
+
+	if (!self.vars_.objlevel) {
+		self.hide();
+	} else {
+		self.changeSprite("self.vars_.objlevel");
+	}
+	self.changeSprite("obj_通用_银子_activity_default");
+	if (self.vars_.itemicon0) {
+		self.changeSprite(itemicon0);
+	}
+	if (self.vars_.itemicon1) {
+		self.changeSprite(itemicon1);
+	}
+	//头像
+	if (self.vars_.photo) {
+		self.changeSprite(self.vars_.photo);
+	}
+
+	if (self.vars_.index && self.vars_.index > 3) {
+		self.show();
+
+	}
+
+	qyengine.getInstancesByType("grou_activityFiveRank").length > 0 && grou_activityFiveRank.destroy();
+
+	current_game.scripts["al_scr_" + "createPKDropGoodsTxt"].call(this, undefined, this);
+
+
+
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "领取失败,不在时间内!");
+
+	var allLuckNum = 1500;
+	grou_activityLuckyWheel.objects['obj_活动_积分转轮_条'].setScale((Number(data[1]) / allLuckNum), 1);
+
+
+	//积分物品的创建
+	var initProgressWidth = 620;
+	var allLuckNum = 1500;
+	var grouPosPlus = -153;
+	for (var i = 1; i <= configDataLength("luckywheel_score"); i++) {
+		qyengine.instance_create(0, 0, "grou_activityLuckyWheelGood", {
+			"type": "grou_activityLuckyWheelGood",
+			"id": "grou_activityLuckyWheelGood_" + i,
+			"zIndex": 5,
+			"scene": "main_scene",
+			"layer": "layer_headerfeet"
+		});
+		qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].vars_.markIndex = i;
+		var posCost = Number(game.configs.luckywheel_score[i].cost);
+		var progressPosX = grou_activityLuckyWheel.objects["obj_活动_积分转轮_条"].x;
+		var goodPos = (initProgressWidth / allLuckNum) * posCost + progressPosX + grouPosPlus;
+	}
+	//改变进度条
+	function rechangeProgress() {
+		//设置进度条
+		var allLuckNum = 1500;
+		var nowJiFen = Number(current_scene.vars_.storageResultTurn[2]);
+		grou_activityLuckyWheel.objects['obj_活动_积分转轮_条'].setScale((nowJiFen / allLuckNum), 1);
+	}
+
+
+
+
+
+
+
+
+
+
+
+	//点击进入大转盘的回调
+	var needShow = ["obj_通用_金子_advaced_one", "txt_activityIntegralextract_num_one", "obj_活动_积分转轮_抽取1次"];
+	if (Number(data[0]) <= 0) {
+		grou_activityLuckyWheel.objects['obj_活动_积分转轮_免费抽取'].hide();
+		for (item in needShow) {
+			grou_activityLuckyWheel.objects[needShow[item]].show();
+		}
+	} else {
+		grou_activityLuckyWheel.objects['obj_活动_积分转轮_免费抽取'].show();
+		for (item in needShow) {
+			grou_activityLuckyWheel.objects[needShow[item]].hide();
+		}
+	}
+	grou_activityLuckyWheel.objects['txt_activityFreeNum'].text = "今日免费次数:" + data[0];
+	grou_activityLuckyWheel.objects['obj_活动_积分转轮_按钮框'].vars_.plusNum = Number(data[0]);
+	grou_activityLuckyWheel.objects['txt_nowLuckyWheelNum'].text = data[1];
+	//设置进度条
+	var allLuckNum = 1500;
+	grou_activityLuckyWheel.objects['obj_活动_积分转轮_条'].setScale((Number(data[1]) / allLuckNum), 1);
+	for (index in data[2]) {   //已经领取过变灰色不可点击
+		var AlreadyRewardIndex = Number(data[2][index]);
+		//qyengine.guardId("grou_activityLuckyWheelGood_" + AlreadyRewardIndex).objects["obj_activityLuckyWheel"].setHSL(0, -100, 0);
+		qyengine.guardId("grou_activityLuckyWheelGood_" + AlreadyRewardIndex).objects["obj_通用_道具框_绿_activityIntest"].vars_.alreadyReward = true;
+		var markOpenBoxChange = ["obj_活跃宝箱_铜_开_activityFive_default", "obj_活跃宝箱_银_开_activityFive_default", "obj_活跃宝箱_金_开_activityFive_default", "obj_活跃宝箱_金_开_activityFive_default"];
+		qyengine.guardId("grou_activityLuckyWheelGood_" + AlreadyRewardIndex).objects["obj_通用_道具框_绿_activityIntest"].changeSprite(markOpenBoxChange[AlreadyRewardIndex - 1]);
+	}
+
+
+
+	current_game.scripts['al_scr_' + "rechangeJiFenState"].call(this, undefined, this);
+	openBoxRechangeState();
+	function openBoxRechangeState() {
+		for (index in game.configs.luckywheel_score) {
+			if (current_scene.vars_.storageResultTurn[2] >= Number(game.configs.luckywheel_score[index].cost)) {
+				//if (!interateData(index, data[2])) {  //达成条件未领取需要增加特效
+				if (qyengine.guardId("grou_activityLuckyWheelGood_" + index).objects["obj_通用_道具框_绿_activityIntest"].vars_.alreadyReward) {
+					continue;
+				}
+				if (qyengine.guardId("grou_activityLuckyWheelGood_" + index).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward && qyengine.guardId("canReceiveBoxEffect_" + index)) {
+					qyengine.guardId("canReceiveBoxEffect_" + index).destroy();
+				}
+				qyengine.guardId("grou_activityLuckyWheelGood_" + index).objects["obj_通用_道具框_绿_activityIntest"].vars_.canReward = true;
+				qyengine.instance_create(0, 0, "canReceiveBoxEffect", {
+					"type": "canReceiveBoxEffect",
+					"id": "canReceiveBoxEffect_" + index,
+					"zIndex": 5,
+					"scene": "main_scene",
+					"layer": "layer_headerfeet"
+				});
+				var xxx = qyengine.guardId("grou_activityLuckyWheelGood_" + index).objects["obj_通用_道具框_绿_activityIntest"].currentSprite.getGlobalPosition();
+				qyengine.guardId("canReceiveBoxEffect_" + index).x = xxx.x + 40;
+				qyengine.guardId("canReceiveBoxEffect_" + index).y = xxx.y + 40;
+				//}
+			}
+		}
+	}
+	function interateData(place, arrData) {
+		for (item in arrData) {
+			if (Number(arrData[item]) == place) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/*
+	qyengine.instance_create(0, 0, "canReceiveBoxEffect", {
+		"type": "canReceiveBoxEffect",
+		"id": "canReceiveBoxEffect",
+		"zIndex": 5,
+		"scene": "main_scene",
+		"layer": "layer_headerfeet"
+	});
+	var xxx = qyengine.guardId("grou_activityLuckyWheelGood_" + i).objects["obj_通用_道具框_绿_activityIntest"].currentSprite.getGlobalPosition();
+	canReceiveBoxEffect.x = xxx.x + 40;
+	canReceiveBoxEffect.y = xxx.y + 40;
+	*/
+
+
+	//开始和截至时间
+	var markContinueTime = 4;
+	if (game.configs.activity[5]) {
+		markContinueTime = current_game.scripts['al_scr_' + "rechangeActivityTime"].call(this, undefined, this, 4);
+	} else {
+		markContinueTime = current_game.scripts['al_scr_' + "rechangeActivityTime"].call(this, undefined, this, 3);
+	}
+	grou_activityLuckyWheel.txt_inTestTime_title.text = markContinueTime[0] + markContinueTime[1];
+
+
+
+    grou_noticeNew_cell.objects['txt_noticeTitleNew'].text= game.configs.notice[2].title;
+	grou_noticeNew_cell.objects['txt_noticeInfoNew'].text= game.configs.notice[2].text;
+	qyengine.guardId("txt_noticeTitleNew_scro").text= game.configs.notice[3].title;
+	for (item in game.configs.notice) {
+		if (item > 2) {
+			//var markTitle = game.configs.notice[item].title;
+			var markContent = game.configs.notice[item].text;
+			game.configs.config_noticeNew[item] = {
+				id: item,
+				content: markContent
+			};
+		}
+	}
+	scro_notice_cell.refreshRelations();
+
+
+	qyengine.instance_create(360, 642, "Notice_new", {
+		"type": "Notice_new",
+		"id": "Notice_new",
+		"zIndex": 5,
+		"scene": 'main_scene',
+		'layer': 'layer_headerfeet'
+	});
+
+
 
 
 

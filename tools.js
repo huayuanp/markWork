@@ -173,6 +173,8 @@ if (!this.addOneInstance("grou_factionFightRankListItem", repeatTime, 0, {
 
 //添加实例到滚轴容器
 qyengine.guardId("scro_1").appendChild("xxxxxxxxxx", 120, 30, 1 - 1, 2 - 1, false, true);
+//滚轴容器跳转到指定的行和列
+qyengine.guardId("scro_1").scrollerTo && qyengine.guardId("scro_1").scrollerTo(1 - 1, 2 - 1);
 //通过设置饱和度使其变灰
 this.setHSL && this.setHSL(0, -100, 0);
 //延迟执行
@@ -221,6 +223,8 @@ current_game.scripts['al_scr_' + "createMainUIRole"].call(this, undefined, this)
 KBEngine.app.player().baseCall('reqMainCityPlayers');
 
 current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this);
+//修正引擎的bug,组合UI改名
+$.utils.getAllJson().structure.groupUIs.push("grou_activityConsume_cell")
 //内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
