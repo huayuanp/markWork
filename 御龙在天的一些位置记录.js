@@ -4360,9 +4360,9 @@ if (repeatTime === 0) {
 
 
 
-    grou_noticeNew_cell.objects['txt_noticeTitleNew'].text= game.configs.notice[2].title;
-	grou_noticeNew_cell.objects['txt_noticeInfoNew'].text= game.configs.notice[2].text;
-	qyengine.guardId("txt_noticeTitleNew_scro").text= game.configs.notice[3].title;
+	grou_noticeNew_cell.objects['txt_noticeTitleNew'].text = game.configs.notice[2].title;
+	grou_noticeNew_cell.objects['txt_noticeInfoNew'].text = game.configs.notice[2].text;
+	qyengine.guardId("txt_noticeTitleNew_scro").text = game.configs.notice[3].title;
 	for (item in game.configs.notice) {
 		if (item > 2) {
 			//var markTitle = game.configs.notice[item].title;
@@ -4384,6 +4384,195 @@ if (repeatTime === 0) {
 		'layer': 'layer_headerfeet'
 	});
 
+
+
+
+
+
+
+
+
+
+
+	"<font  color='#ffe57a'><font b='800'>1.专属高级礼包</font></font><br>活动时间内，每天中午12点--14点，晚上18点到20点，都可以领取一次封测高级大礼包，礼包内含海量金子和VIP经验。<br>&nbsp;<br><font  color='#ffe57a'><font b='800'>2.累计消耗大回馈</font></font><br>活动时间内，累计消耗一定数量的金子，即可领取对应的丰厚奖励，各种珍贵道具材料免费领！<br>&nbsp;<br><font  color='#ffe57a'><font b='800'>3.等级礼包</font></font><br>活动时间，达到相应的等级，即可领取对应的奖励，赶快加油升级吧！<br>&nbsp;<br><font  color='#ffe57a'><font b='800'>4.王者争霸排行榜</font></font><br>活动时间内，玩家在等级排行榜或者战力排行榜达到相应的名次（以每天零点排行榜数据为准），即可通过邮件收到丰厚的奖励。奖励每天凌晨五点发放。<br>&nbsp;<br>"
+
+	current_game.scripts['al_scr_' + 'createNoticeNew'].call(this, undefined, this);
+
+	if (current_scene.classId == "main_scene") {
+		qyengine.instance_create(360, 642, "Notice_new", {
+			"type": "Notice_new",
+			"id": "Notice",
+			"zIndex": 5,
+			"scene": 'main_scene',
+			'layer': 'layer_headerfeet'
+		});
+	} else {
+		qyengine.instance_create(360 + 100, 642, "Notice_new", {
+			"type": "Notice_new",
+			"id": "Notice",
+			"zIndex": 5,
+			"scene": 'main_scene',
+			'layer': 'layer_headerfeet'
+		});
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/*
+		程序员:王号
+		功能: 弹出物品详情框
+		参数:goodId 物品ID
+	*/
+
+	var _goodId = Number(goodId);
+
+	if (!_goodId) {
+		console.log("数据出错！");
+		return;
+	}
+	var quColour = ["#ffffff", "#00ff15", "#0011ff", "#ff00dd", "#a35700"];
+	//弹框
+	var pos = getConfig('UIConfig', 'grou_shop_goodDetail', 'position').split(',');
+	var zIndex = getConfig('UIConfig', 'grou_shop_goodDetail', 'zIndex');
+	var layer = getConfig('UIConfig', 'grou_shop_goodDetail', 'layer');
+
+	if (z_index) {
+		zIndex = z_index;
+	}
+	//返回格子的的品质底图
+	function ReturnGridQuality(quality) {
+		return "role_quality_" + quality + "_default";
+	}
+	qyengine.instance_create(pos[0], pos[1], 'grou_shop_goodDetail', { "id": 'grou_shop_goodDetail', "zIndex": zIndex, "layer": layer });
+	console.log("物品详情框！");
+	var markIcon = 0;
+	var markName = 0;
+	var markQuality = 0;
+	//pwang 增加
+	if (game.configs.item[_goodId]) {
+		markIcon = game.configs.item[_goodId].icon;
+		markName = game.configs.item[_goodId].name;
+		markQuality = game.configs.item[_goodId].quality;
+	} else {
+		markIcon = game.configs.title[_goodId].icon;
+		markName = game.configs.title[_goodId].name;
+		markQuality = game.configs.title[_goodId].quality;
+	}
+	grou_shop_goodDetail.objects.obj_shop_goodDetail_Icon_wh.changeSprite('obj_' + markIcon + '_default');
+	grou_shop_goodDetail.objects.txt_shop_goodsDetailName.setText(markName);
+	grou_shop_goodDetail.objects.txt_shop_goodsDetailName.setFontColor(quColour[markQuality - 1]);
+	//obj_通用_道具框_橙_shop_goodDetail_wh_1_1
+
+	grou_shop_goodDetail.objects.obj_通用_道具框_橙_shop_goodDetail_wh_1_1.changeSprite(ReturnGridQuality(markQuality));
+	var decStr = 0;
+	if (game.configs.item) {
+		decStr = game.configs.item[_goodId].dec;
+	} else {
+		decStr = game.configs.title[_goodId].dec;
+	}
+	//var decStr = game.configs.item[_goodId].dec;
+	//首先要判断这个文本有没|
+	if (decStr.indexOf("|") > 0) {
+		var decStrArr = decStr.split("|");
+		decStr = "";
+		for (var i = 0; i < decStrArr.length; i++) {
+			decStr = decStr + decStrArr[i] + "\n";
+
+		}
+
+	}
+	grou_shop_goodDetail.objects.txt_shop_equipment_des_wh.setText(decStr);
+
+
+
+	popGoodDetailInfoUI
+
+	touchId
+
+	current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.touchId, 5);
+
+
+	//--------------
+
+
+	grou_activity_rewardInfo_cell(-120, -99)
+
+	//绘制物品
+	var goodInfo = game.configs.luckywheel_score[event.argument0];
+	var drawGroupNum = 0;
+	if (goodInfo.item != -1) {
+		for (item in goodInfo.item.split(";")) {
+			var markId = goodInfo.item.split(";")[item].split("|")[0];
+			var markNum = goodInfo.item.split(";")[item].split("|")[1];
+			var markName = game.configs.item[markId].name;
+			var markIcon = game.configs.item[markId].icon;
+			var markQuality = game.configs.item[markId].quality;
+			markIcon = "obj_" + markIcon + "_default";
+			drawGrouReward(markIcon, markNum, markName, markQuality, drawGroupNum);
+			drawGroupNum++;
+		}
+	}
+	if (goodInfo.title != -1) {
+		var markId = goodInfo.title.split("|")[0];
+		var markNum = goodInfo.title.split("|")[1];
+		var markName = game.configs.title[markId].name;
+		var markIcon = game.configs.title[markId].icon;
+		var markQuality = game.configs.title[markId].quality;
+		markIcon = "" + markIcon + "_default";
+		drawGrouReward(markIcon, markNum, markName, markQuality, drawGroupNum);
+		drawGroupNum++;
+	}
+	function drawGrouReward(drawIcon, drawNum, drawName,markQuality, drawPlace) {
+		qyengine.instance_create(-299 + 185 * drawPlace, -111, "grou_activity_rewardInfo_cell", {
+			"type": "grou_activity_rewardInfo_cell",
+			"id": 'grou_activity_rewardInfo_cell' + drawPlace,
+			"zIndex": 5,
+			"scene": 'main_scene',
+			"layer": 'layer_headerfeet'
+		});
+		qyengine.guardId("grou_activity_rewardInfo").appendChild("grou_activity_rewardInfo_cell" + drawPlace, -299 + 20 * drawPlace, -111);
+		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['obj_activity_rewardInfoIcon'].changeSprite(drawIcon);
+		//var markKuangColor=[];
+		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['obj_通用_道具框_橙_activity_reward_Info'].changeSprite("obj_packageSmallFrame_A"+(Number(markQuality)-1));
+		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['txt_activity_reward_InfoTxt_0'].text = drawNum;
+		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['txt_activity_reward_InfoTxt'].text = drawName;
+	}
+
+
+
+
+	qyengine.instance_create(360, 600, "grou_activity_rewardInfo", {
+		"type": "grou_activity_rewardInfo",
+		"id": 'grou_activity_rewardInfo',
+		"zIndex": 5,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+	qyengine.guardId("grou_activity_rewardInfo").dispatchMessage({
+		"type": 'message',
+		"message": "drawRewardGood",
+		"argument0": self.vars_.markIndex
+	});
+
+
+
+qyengine.getInstancesByType("grou_activityLuckyWheel").length
+
+
+if(qyengine.getInstancesByType("grou_activityLuckyWheel").length==0){
+	return;
+}
 
 
 
