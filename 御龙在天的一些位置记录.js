@@ -4420,159 +4420,46 @@ if (repeatTime === 0) {
 
 
 
-
-
-
-
-
-
-
-
-
-	/*
-		程序员:王号
-		功能: 弹出物品详情框
-		参数:goodId 物品ID
-	*/
-
-	var _goodId = Number(goodId);
-
-	if (!_goodId) {
-		console.log("数据出错！");
-		return;
+	if (qyengine.getInstancesByType("grou_packagePopUp_Box").length > 0) {
+		self.changeSprite("obj_通用_小按钮_01_pwang_A2");
 	}
-	var quColour = ["#ffffff", "#00ff15", "#0011ff", "#ff00dd", "#a35700"];
-	//弹框
-	var pos = getConfig('UIConfig', 'grou_shop_goodDetail', 'position').split(',');
-	var zIndex = getConfig('UIConfig', 'grou_shop_goodDetail', 'zIndex');
-	var layer = getConfig('UIConfig', 'grou_shop_goodDetail', 'layer');
 
-	if (z_index) {
-		zIndex = z_index;
-	}
-	//返回格子的的品质底图
-	function ReturnGridQuality(quality) {
-		return "role_quality_" + quality + "_default";
-	}
-	qyengine.instance_create(pos[0], pos[1], 'grou_shop_goodDetail', { "id": 'grou_shop_goodDetail', "zIndex": zIndex, "layer": layer });
-	console.log("物品详情框！");
-	var markIcon = 0;
-	var markName = 0;
-	var markQuality = 0;
-	//pwang 增加
-	if (game.configs.item[_goodId]) {
-		markIcon = game.configs.item[_goodId].icon;
-		markName = game.configs.item[_goodId].name;
-		markQuality = game.configs.item[_goodId].quality;
+
+	//   获得:100<img src='/pwangrd_qiyun/yulongzaitianH5_三期/assets/image/common/commonImg/通用_银子.png'></img>
+	txt_saleRewardCoin.text = "获得:" + 1000 + "<img src='/pwangrd_qiyun/yulongzaitianH5_三期/assets/image/common/commonImg/通用_银子.png'></img>"
+
+	var saleCoinNum = getConfig("item", current_scene['nowSaleButton'].vars_.Id, "sale");
+	qyengine.guardId("txt_saleRewardCoin").text = "获得:" + saleCoinNum + "<img src='/pwangrd_qiyun/yulongzaitianH5_三期/assets/image/common/commonImg/通用_银子.png'></img>";
+
+
+	qyengine.guardId("txt_saleRewardCoin").setText("获得:" + getConfig("item", current_scene['nowSaleButton'].vars_.Id, "sale"));
+
+
+	grou_packagePopUp_Box_setMax
+
+	var saleCoinNum = getConfig("item", current_scene['nowSaleButton'].vars_.Id, "sale");
+	saleCoinNum = Number(saleCoinNum) * current_scene['nowSaleNum'];
+	qyengine.guardId("txt_saleRewardCoin").text = "获得:" + saleCoinNum + "<img src='/pwangrd_qiyun/yulongzaitianH5_三期/assets/image/common/commonImg/通用_银子.png'></img>";
+
+
+
+	grou_fusion.vars_.onRespNoExitEquip = data;
+
+
+	if (grou_fusion.vars_.onRespNoExitEquip[0].length === 0) {
+		current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
 	} else {
-		markIcon = game.configs.title[_goodId].icon;
-		markName = game.configs.title[_goodId].name;
-		markQuality = game.configs.title[_goodId].quality;
-	}
-	grou_shop_goodDetail.objects.obj_shop_goodDetail_Icon_wh.changeSprite('obj_' + markIcon + '_default');
-	grou_shop_goodDetail.objects.txt_shop_goodsDetailName.setText(markName);
-	grou_shop_goodDetail.objects.txt_shop_goodsDetailName.setFontColor(quColour[markQuality - 1]);
-	//obj_通用_道具框_橙_shop_goodDetail_wh_1_1
-
-	grou_shop_goodDetail.objects.obj_通用_道具框_橙_shop_goodDetail_wh_1_1.changeSprite(ReturnGridQuality(markQuality));
-	var decStr = 0;
-	if (game.configs.item) {
-		decStr = game.configs.item[_goodId].dec;
-	} else {
-		decStr = game.configs.title[_goodId].dec;
-	}
-	//var decStr = game.configs.item[_goodId].dec;
-	//首先要判断这个文本有没|
-	if (decStr.indexOf("|") > 0) {
-		var decStrArr = decStr.split("|");
-		decStr = "";
-		for (var i = 0; i < decStrArr.length; i++) {
-			decStr = decStr + decStrArr[i] + "\n";
-
-		}
-
-	}
-	grou_shop_goodDetail.objects.txt_shop_equipment_des_wh.setText(decStr);
-
-
-
-	popGoodDetailInfoUI
-
-	touchId
-
-	current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.touchId, 5);
-
-
-	//--------------
-
-
-	grou_activity_rewardInfo_cell(-120, -99)
-
-	//绘制物品
-	var goodInfo = game.configs.luckywheel_score[event.argument0];
-	var drawGroupNum = 0;
-	if (goodInfo.item != -1) {
-		for (item in goodInfo.item.split(";")) {
-			var markId = goodInfo.item.split(";")[item].split("|")[0];
-			var markNum = goodInfo.item.split(";")[item].split("|")[1];
-			var markName = game.configs.item[markId].name;
-			var markIcon = game.configs.item[markId].icon;
-			var markQuality = game.configs.item[markId].quality;
-			markIcon = "obj_" + markIcon + "_default";
-			drawGrouReward(markIcon, markNum, markName, markQuality, drawGroupNum);
-			drawGroupNum++;
-		}
-	}
-	if (goodInfo.title != -1) {
-		var markId = goodInfo.title.split("|")[0];
-		var markNum = goodInfo.title.split("|")[1];
-		var markName = game.configs.title[markId].name;
-		var markIcon = game.configs.title[markId].icon;
-		var markQuality = game.configs.title[markId].quality;
-		markIcon = "" + markIcon + "_default";
-		drawGrouReward(markIcon, markNum, markName, markQuality, drawGroupNum);
-		drawGroupNum++;
-	}
-	function drawGrouReward(drawIcon, drawNum, drawName,markQuality, drawPlace) {
-		qyengine.instance_create(-299 + 185 * drawPlace, -111, "grou_activity_rewardInfo_cell", {
-			"type": "grou_activity_rewardInfo_cell",
-			"id": 'grou_activity_rewardInfo_cell' + drawPlace,
-			"zIndex": 5,
-			"scene": 'main_scene',
-			"layer": 'layer_headerfeet'
-		});
-		qyengine.guardId("grou_activity_rewardInfo").appendChild("grou_activity_rewardInfo_cell" + drawPlace, -299 + 20 * drawPlace, -111);
-		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['obj_activity_rewardInfoIcon'].changeSprite(drawIcon);
-		//var markKuangColor=[];
-		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['obj_通用_道具框_橙_activity_reward_Info'].changeSprite("obj_packageSmallFrame_A"+(Number(markQuality)-1));
-		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['txt_activity_reward_InfoTxt_0'].text = drawNum;
-		qyengine.guardId("grou_activity_rewardInfo_cell" + drawPlace).objects['txt_activity_reward_InfoTxt'].text = drawName;
+		KBEngine.app.player().baseCall("reqBackpackEquipInfo");
 	}
 
 
 
+	game.vars_.linShi = game.vars_.fusionData.slice(0);
 
-	qyengine.instance_create(360, 600, "grou_activity_rewardInfo", {
-		"type": "grou_activity_rewardInfo",
-		"id": 'grou_activity_rewardInfo',
-		"zIndex": 5,
-		"scene": 'main_scene',
-		"layer": 'layer_headerfeet'
-	});
-	qyengine.guardId("grou_activity_rewardInfo").dispatchMessage({
-		"type": 'message',
-		"message": "drawRewardGood",
-		"argument0": self.vars_.markIndex
-	});
+	game.vars_.fusionData.splice(0, 1);
+	game.vars_.fusionData.push(game.vars_.linShi[0]);
 
 
-
-qyengine.getInstancesByType("grou_activityLuckyWheel").length
-
-
-if(qyengine.getInstancesByType("grou_activityLuckyWheel").length==0){
-	return;
-}
 
 
 
