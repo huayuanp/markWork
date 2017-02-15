@@ -235,7 +235,8 @@ $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
 
 /*
 yulongzaitianH5_pre_lxjt   新增加的
-
+//chrome调试地址
+chrome://inspect/#devices
 
 geng957/yulong_xinshouyindao    替换  longxiaojiutian_xinshouyindao*/
 //创建封号提示

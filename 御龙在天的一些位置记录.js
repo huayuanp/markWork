@@ -4461,6 +4461,212 @@ if (repeatTime === 0) {
 
 
 
+	grou_treasuryMainUI.objects['obj_国库_框框背景图'].hide();
 
+
+	obj_国库_换一辆
+	obj_国库_换一辆文字_military
+	grou_militaryMain.objects['obj_国库_换一辆文字_military'].changeSprite("obj_国库_最高品质文字_military_default");
+
+
+	grou_militaryMain.objects['obj_国库_换一辆文字_military'].setHSL && grou_militaryMain.objects['obj_国库_换一辆文字_military'].setHSL(0, -100, 0);
+	self.currentSprite.style.font = "normal 26px kaiti";
+	/*
+	2017/2/10   修正问题~~~
+	1,修正家族成员列表大头像
+	2,国库修正
+	*/
+
+
+
+	if (Number(data[2]) == 1) {
+		current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+		grou_offLineReward.destroy();
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, '领取成功!');
+		current_game.scripts['al_scr_' + "guide_sendinformation"].call(this, undefined, this);
+		if (KBEngine.app.player().firstcharge == 1 && KBEngine.app.player().getreward == 1) {
+			//NoticeMainPanel.show();
+		} else {
+			if (KBEngine.app.player().step && KBEngine.app.player().step.split(",")[0] >= 10) {
+				game.scripts["al_scr_" + 'createRewardFirst'] && game.scripts["al_scr_" + 'createRewardFirst'].call(this, undefined, this);
+			}
+		}
+		return;
+	}
+	game.vars_.offLineRewardMuch = data[0];
+	game.vars_.offLineRewardNew = data;
+
+
+
+	//批量熔炼最新
+	self.vars_.alreadySelect = false;
+	self.vars_.nowEquipNum = 0;
+	//obj_对勾框_熔炼主界面_allFusion 松开事件
+	if (self.vars_.alreadySelect) {
+		self.vars_.alreadySelect = false;
+		qyengine.guardId("obj_注册登录_对勾_1_" + self.vars_.color).destroy();
+	} else {
+		self.vars_.alreadySelect = true;
+		qyengine.instance_create(-37, 50, "obj_注册登录_对勾_1", {
+			"type": "obj_注册登录_对勾_1",
+			"id": 'obj_注册登录_对勾_1_' + self.vars_.color,
+			"zIndex": 5,
+			"scene": 'main_scene',
+			"layer": 'layer_headerfeet'
+		});
+		grou_fusionAll.appendChild("obj_注册登录_对勾_1_" + self.vars_.color, self.x, self, y);
+	}
+	//判断是否有选中的
+	if (!judgeIsHaveEquip()) {
+		current_game.scripts['al_scr_' + 'createCommonFlutterTxt'].call(this, undefined, this, "没有可以熔炼的装备!");
+		return;
+	}
+	//点击进行批量熔炼
+	for (var i = 0; i < 5; i++) {
+		if (qyengine.guardId("obj_对勾框_熔炼主界面_allFusion_" + i).vars_.alreadySelect && qyengine.guardId("obj_对勾框_熔炼主界面_allFusion_" + i).vars_.nowEquipNum) {
+			sendFusion(i);
+		}
+	}
+	function judgeIsHaveEquip() {
+		for (var j = 0; j < 5; j++) {
+			if (qyengine.guardId("obj_对勾框_熔炼主界面_allFusion_" + j).vars_.alreadySelect && qyengine.guardId("obj_对勾框_熔炼主界面_allFusion_" + j).vars_.nowEquipNum) {
+				return true;
+			}
+		}
+		return false;
+	}
+	function sendFusion(markColor) {
+		var markUUid = [];
+		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+		if (grou_fusion.vars_.isOpenEquipMaxGearScore) {
+			for (var i = 0; i < game.vars_.userInfo.packageInfo.length; i++) {
+				if (game.vars_.userInfo.packageInfo.packEquip[i].isUnOpenEquip) {
+					markUUid.push(game.vars_.userInfo.packageInfo.packEquip[i].uuid);
+				}
+			}
+			//grou_fusionAll.vars_.markLastFusionColor = self.vars_.color;
+			KBEngine.app.player().baseCall('reqBatchSmeltEquip', /*self.vars_.color*/markColor, markUUid);
+		} else {
+			//grou_fusionAll.vars_.markLastFusionColor = self.vars_.color;
+			KBEngine.app.player().baseCall('reqBatchSmeltEquip', /*self.vars_.color*/markColor, []);
+		}
+	}
+
+
+
+	//批量熔炼的初始化
+
+	//批量熔炼的显示
+	var markColorNum = [0, 0, 0, 0, 0];
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+		if (game.vars_.userInfo.packageInfo.packEquip[i].data === 1 || (grou_fusion.vars_.isOpenEquipMaxGearScore && game.vars_.userInfo.packageInfo.packEquip[i].isUnOpenEquip)) {
+			continue;
+		}
+		var nowEquipQuality = game.vars_.userInfo.packageInfo.packEquip[i].quality;
+		markColorNum[nowEquipQuality]++;
+	}
+	//var markNeedShowText = ['白色装备', '绿色装备', '蓝色装备', '紫色装备', '橙色装备'];
+	for (var j = 0; j < markColorNum.length; j++) {
+		grou_fusionAll.objects['txt_fusionAll_byColor_' + j].text = "" + markColorNum[j] + "件";
+		//标记每种可以熔炼的数量
+		grou_fusionAll.objects['obj_对勾框_熔炼主界面_allFusion_' + j].vars_.nowEquipNum = markColorNum[j];
+	}
+	//最高分装备的保留与否
+	if (grou_fusion.vars_.isOpenEquipMaxGearScore) {
+		grou_fusionAll.objects['obj_注册登录_对勾_all'].show();
+	} else {
+		grou_fusionAll.objects['obj_注册登录_对勾_all'].hide();
+	}
+
+
+
+
+
+
+
+
+
+	var needChangeSpriteColor = ["obj_通用_道具框_白", "obj_通用_道具框_绿", "obj_通用_道具框_蓝", "obj_通用_道具框_紫", "obj_通用_道具框_橙"];
+	self.changeSprite(needChangeSpriteColor[self.vars_.color] + "_default");
+
+
+
+	if (qyengine.getInstancesByType("grou_fusionAll").length != 0) {
+		var linShi = game.vars_.fusionData.length > 9 ? 9 : game.vars_.fusionData.length;
+		console.log("-----------------------------linShi", linShi);
+		for (var markIndex = 0; markIndex < linShi; markIndex++) {
+			qyengine.instance_create(qyengine.guardId("obj_道具框_" + markIndex).x + grou_fusion.x, qyengine.guardId("obj_道具框_" + markIndex).y + grou_fusion.y, "obj_fusionEffect", {
+				"type": "obj_fusionEffect",
+				"id": 'obj_fusionEffect_' + markIndex,
+				"zIndex": 10,
+				"scene": 'main_scene',
+				"layer": 'layer_headerfeet'
+			});
+		}
+	}
+
+
+	window.createGameRole && window.createGameRole(game.vars_.userInfo.serverName, game.vars_.userInfo.serverName, game.vars_.userInfo.uid, game.vars_.userInfo.nick);
+
+
+	//滚轴容器跳转到指定的行和列
+	qyengine.guardId("scro_1").scrollerTo && qyengine.guardId("scro_1").scrollerTo(1 - 1, 2 - 1);
+
+
+
+
+	var _pos = [150, 640];
+
+	if (pos) {
+		_pos = pos;
+	}
+
+	if (game.vars_.userInfo.showMessageListNum > 0 && !txt_commonFlutter0.destroyed_) {
+		_pos[1] = qyengine.guardId('txt_commonFlutter' + (game.vars_.userInfo.showMessageListNum - 1)).getPosition().y + 60;
+	}
+	var needScale=false;
+	if (data && Number(data) == 1) {
+		qyengine.instance_create(_pos[0] + 200, _pos[1] + 20, 'obj_飘字框_auto', {
+			"type": 'obj_飘字框_auto',
+			"id": 'obj_飘字框_auto' + game.vars_.userInfo.showMessageListNum,
+			"zIndex": 999,
+			"layer": 'layer_headerfeet',
+			"scene": current_scene.classId,
+			"autoDirection": "start"
+		});
+	} else {		
+		qyengine.instance_create(_pos[0] + 200, _pos[1] + 20, 'obj_飘字框_auto', {
+			"type": 'obj_飘字框_auto',
+			"id": 'obj_飘字框_auto_follow',
+			"zIndex": 999,
+			"layer": 'layer_headerfeet',
+			"scene": current_scene.classId,
+			"autoDirection": "start"
+		});
+		needScale= true;
+	}
+	qyengine.instance_create(_pos[0], _pos[1], 'txt_commonFlutter', {
+		"type": 'txt_commonFlutter',
+		"id": 'txt_commonFlutter' + game.vars_.userInfo.showMessageListNum,
+		"zIndex": 999,
+		"layer": 'layer_headerfeet',
+		"scene": current_scene.classId,
+		"autoDirection": "start"
+	});
+	console.log("txt_commonFlutter + game.vars_.userInfo.showMessageListNum", qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).realWidth());
+	qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).setText(contents);
+
+	game.vars_.userInfo.showMessageListNum++;
+
+
+
+
+	qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).realWidth()
+
+
+	if (needScale&&qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).text.length > 8) {
+		var plusNum = Number(qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).text.length - 8);
+		qyengine.guardId("obj_飘字框_auto_follow").setScale(1 + 0.08 * plusNum, 1);
+	}
 
 
