@@ -4738,7 +4738,7 @@ if (repeatTime === 0) {
 	grou_selectCountry.objects["obj_选择势力_麟宇_selectCountry"].changeSprite(mainRole[countryID]);
 	current_scene.vars_.nationId = countryID;
 
-
+	
 
 	qyengine.instance_create(108, 0, "grou_selectCountry", {
 		"type": "grou_selectCountry",
