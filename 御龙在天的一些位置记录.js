@@ -4609,64 +4609,174 @@ if (repeatTime === 0) {
 	window.createGameRole && window.createGameRole(game.vars_.userInfo.serverName, game.vars_.userInfo.serverName, game.vars_.userInfo.uid, game.vars_.userInfo.nick);
 
 
-	//滚轴容器跳转到指定的行和列
-	qyengine.guardId("scro_1").scrollerTo && qyengine.guardId("scro_1").scrollerTo(1 - 1, 2 - 1);
-
-
-
-
-	var _pos = [150, 640];
-
-	if (pos) {
-		_pos = pos;
-	}
-
-	if (game.vars_.userInfo.showMessageListNum > 0 && !txt_commonFlutter0.destroyed_) {
-		_pos[1] = qyengine.guardId('txt_commonFlutter' + (game.vars_.userInfo.showMessageListNum - 1)).getPosition().y + 60;
-	}
-	var needScale=false;
-	if (data && Number(data) == 1) {
-		qyengine.instance_create(_pos[0] + 200, _pos[1] + 20, 'obj_飘字框_auto', {
-			"type": 'obj_飘字框_auto',
-			"id": 'obj_飘字框_auto' + game.vars_.userInfo.showMessageListNum,
-			"zIndex": 999,
-			"layer": 'layer_headerfeet',
-			"scene": current_scene.classId,
-			"autoDirection": "start"
+	//创建家族战的奖励
+	var markId = self.id.split("_")[self.id.split("_").length - 1];
+	var markJiBie = grou_factionLastRanklistReward.vars_.nowRewardJiBie;
+	var markNowTab = grou_factionLastRanklistReward.vars_.tabId;
+	for (var i = 0; i < current_scene.vars_.factionFightRewardData[markJiBie][markNowTab][markId].length; i++) {
+		//创建实例
+		qyengine.guardId(self.objects['scro_factionFightRewardItem'].id + '').addOneInstance('grou_factionFightRewardItemSmall', 0, i, {
+			"way": 'objectName',
+			"type": 'grou_factionFightRewardItemSmall',
+			"id": 'grou_factionFightRewardItemSmall' + i,
+			"autoAdd": "",
+			"y": 0,
+			"x": i,
+			"center": "",
+			"px": -37,
+			"py": 50,
+			"allowMultiple": 'true'
 		});
-	} else {		
-		qyengine.instance_create(_pos[0] + 200, _pos[1] + 20, 'obj_飘字框_auto', {
-			"type": 'obj_飘字框_auto',
-			"id": 'obj_飘字框_auto_follow',
-			"zIndex": 999,
-			"layer": 'layer_headerfeet',
-			"scene": current_scene.classId,
-			"autoDirection": "start"
-		});
-		needScale= true;
+		var markGetInfo = current_game.scripts["al_scr_" + "backIcon"] && current_game.scripts["al_scr_" + "backIcon"].call(this, undefined, this, Number(current_scene.vars_.factionFightRewardData[markJiBie][markNowTab][markId][i][0]));
+		qyengine.guardId("grou_factionFightRewardItemSmall" + i).objects["obj_factionFightRewardEquipIcon"].changeSprite("obj_" + markGetInfo.icon + "_default");
+		qyengine.guardId("grou_factionFightRewardItemSmall" + i).objects["txt_fationFightReward_2"].text = "" + Number(current_scene.vars_.factionFightRewardData[markJiBie][markNowTab][markId][i][1]);
+		qyengine.guardId("grou_factionFightRewardItemSmall" + i).objects["txt_fationFightReward_1"].text = "" + markGetInfo.name;
 	}
-	qyengine.instance_create(_pos[0], _pos[1], 'txt_commonFlutter', {
-		"type": 'txt_commonFlutter',
-		"id": 'txt_commonFlutter' + game.vars_.userInfo.showMessageListNum,
-		"zIndex": 999,
-		"layer": 'layer_headerfeet',
-		"scene": current_scene.classId,
-		"autoDirection": "start"
+	//新的家族战奖励-层滚轴
+	var markJiBie = grou_factionLastRanklistReward.vars_.nowRewardJiBie;
+	var markNowTab = grou_factionLastRanklistReward.vars_.tabId;
+	for (var i = 0; i < current_scene.vars_.factionFightRewardData[markJiBie][markNowTab].length; i++) {
+		game.configs.config_fightReward[i + 1] = {
+			id: i + 1,
+			scroId: "rewardBig_" + i
+		};
+	}
+	qyengine.guardId("scro_factionFightReward").refreshRelations();
+
+	//二层滚轴的创建事件
+	var markJiBie = grou_factionLastRanklistReward.vars_.nowRewardJiBie;
+	var markNowTab = grou_factionLastRanklistReward.vars_.tabId;
+	var whichObj = (self.id).split("_")[1];
+	whichObj = Number(whichObj);
+	for (var i = 0; i < current_scene.vars_.factionFightRewardData[markJiBie][markNowTab][whichObj].length; i++) {
+		var itemId = current_scene.vars_.factionFightRewardData[markJiBie][markNowTab][whichObj][i][0];
+		var itemInfo = current_game.scripts['al_scr_' + "backIcon"] && current_game.scripts['al_scr_' + "backIcon"].call(this, undefined, this, Number(itemId));
+		if (!itemInfo.quality) {
+			itemInfo.quality = 0;
+		}
+		game.configs.config_fightRewardSmall[i + 1] = {
+			id: i + 1,
+			name: itemInfo.name,
+			color: itemInfo.quality,
+			icon: itemInfo.icon,
+			num: current_scene.vars_.factionFightRewardData[markJiBie][markNowTab][whichObj][i][1]
+		};
+	}
+	self.refreshRelations();
+
+
+	self.changeSprite("obj_" + self.vars_.icon + "_default");
+	self.changeSprite("obj_obj_packageSmallFrameClone_A" + self.vars_.color)
+		(Number(self.vars_.color) - 1)
+
+
+	if (game.configs.title[Number(self.vars_.icon)]) {
+		self.changeSprite("" + self.vars_.icon + "_default");
+	} else {
+		self.changeSprite("obj_" + self.vars_.icon + "_default");
+	}
+
+
+	byIdInfo.icon = "obj_" + byIdInfo.icon + "_default";
+	//选择角色的时候,初始化界面  剑仙男、符魔师女、魂元师男   professionID  sexID
+
+
+
+	self.changeSprite(self.classId + "_A0");
+
+
+
+
+
+
+
+	if (Number(event.argument0) === Number(self.vars_.professionID)) {
+		self.changeSprite(self.classId + "_A1");
+	} else {
+		self.changeSprite(self.classId + "_A0");
+	}
+
+
+	if (Number(event.argument0) == 1) {
+		if (Number(self.vars_.sexID)) {
+			self.changeSprite(self.classId + "_A0");
+		} else {
+			self.changeSprite(self.classId + "_A1");
+		}
+	} else {
+		if (Number(self.vars_.sexID)) {
+			self.changeSprite(self.classId + "_A1");
+		} else {
+			self.changeSprite(self.classId + "_A0");
+		}
+	}
+	//性别上面的点击事件
+	self.changeSprite(self.classId + "A1");
+	if (self.vars_.sexID) {   //男
+		qyengine.guardId("obj_创建角色_头像框未选中_createScene_1").changeSprite(self.classId + "_A0");
+	} else {	                //女
+		qyengine.guardId("obj_创建角色_头像框未选中_createScene_0").changeSprite(self.classId + "_A0");
+	}
+
+
+	(457 - 313)
+
+	qyengine.guardId("obj_创建角色_头像框选中2_createScene").y = 313;
+	qyengine.guardId("obj_创建角色_头像框选中2_createScene").y = 457;
+	qyengine.guardId("obj_创建角色_霸刀3_createScene").
+		//(354, 145)(533, 210)
+
+		//	self.x + 8  self.y + 4
+		qyengine.guardId("obj_选择势力_发光_selectCountry").setPosition(self.x + 8, self.y + 4);
+	current_game.scripts['al_scr_' + "selectCountryShow"].call(this, undefined, this, self.vars_.countryID);
+	//选择势力组合UI的创建事件  countryID
+
+	var countryWord = ["obj_选择势力_秦宫_selectCountry", "obj_选择势力_溟组_selectCountry", "obj_选择势力_赤焰帝国_selectCountry"];
+	grou_selectCountry.objects['obj_选择势力_溟组_selectCountry'].changeSprite("" + countryWord[countryID] + "_default");
+	grou_selectCountry.objects["txt_selectCountryDec"].text = game.configs.country[countryID + 1].dec;
+	var mainRole = ["obj_选择势力_秦石_selectCountry", "obj_选择势力_闫龙魔尊_selectCountry", "obj_选择势力_麟宇_selectCountry"];
+	grou_selectCountry.objects["obj_选择势力_麟宇_selectCountry"].changeSprite(mainRole[countryID]);
+	current_scene.vars_.nationId = countryID;
+
+
+
+	qyengine.instance_create(108, 0, "grou_selectCountry", {
+		"type": "grou_selectCountry",
+		"id": 'grou_selectCountry',
+		"zIndex": 5,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
 	});
-	console.log("txt_commonFlutter + game.vars_.userInfo.showMessageListNum", qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).realWidth());
-	qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).setText(contents);
-
-	game.vars_.userInfo.showMessageListNum++;
 
 
+	current_scene.vars_.professionID = self.vars_.professionID;
+	current_scene.vars_.sexID = self.vars_.sexID;
 
 
-	qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).realWidth()
 
 
-	if (needScale&&qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).text.length > 8) {
-		var plusNum = Number(qyengine.guardId('txt_commonFlutter' + game.vars_.userInfo.showMessageListNum).text.length - 8);
-		qyengine.guardId("obj_飘字框_auto_follow").setScale(1 + 0.08 * plusNum, 1);
+	//发送请求创建角色
+	if(current_scene.vars_.professionID===2){
+
+	}else if(current_scene.vars_.professionID===1){
+
+	}else{
+
 	}
+	current_game.scripts['scr_kbe_sendMessage']('reqCreateRole', [parseInt(current_scene.vars_.roleID), inpu_roleName.getValue(), parseInt(current_scene.vars_.nationId)], false);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
