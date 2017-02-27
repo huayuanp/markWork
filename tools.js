@@ -259,28 +259,11 @@ if (qyengine.getInstancesByType("grou_gameIsOff").length == 0) {
 }
 
 
-//loginFailCallback  onLoginBaseappFailed
-al_scr_layer_headerfeet
-if (Number(data[0]) == 19) {
-	current_game.scripts['al_scr_' + "onRespResult0"].call(this, undefined, this);
-	return;
-}
-
-
-//destroyGameIsOff
-if (qyengine.getInstancesByType("grou_gameIsOff").length > 0) {
-	grou_gameIsOff.destroy();
-}
-
-
-current_game.scripts['al_scr_' + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
-
-if (qyengine.getInstancesByType("grou_gameIsOff") > 0) {
-	return;
-}
+/*
+vs的快捷键
+回退上一个光标操作： Ctrl+U
+*/
 
 
 
-//ylzt1_foes--------longxiaojiutian_foes 
-//yulong_role--- longxiaojiutian_role
-//yulongzaitianH5_国库---yulongzaitianH5_国库_lxjt
+
