@@ -76,6 +76,8 @@ qyengine.guardId('scro_equip').addOneInstance('grou_packageEquipItem', Math.floo
 });
 //调用动作序列的代码
 current_game.scripts["al_scr_" + "CreateGrou_guide"] && current_game.scripts["al_scr_" + "CreateGrou_guide"].call(this, undefined, this);
+//自适应左对齐或者右对齐的偏移量
+current_scene.screenAdaptation
 //回到王号的主界面上时都会相应的 调用
 mainGrouUIReturnBtnLogic
 
@@ -136,7 +138,8 @@ qyengine.guardId("grou_redPointMore85").dispatchMessage({
 	"message": 'sendMessageData',
 	"argument0": self.vars_.fightPlayerProperty.uid
 });
-
+//发送消息给标签
+qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'dada' }); }, 'tag_RedPointBttn');
 //滚轴容器刷新
 scro_1.refreshRelations();
 //获取对象绑定的文本的实例
@@ -188,6 +191,9 @@ qyremote.remove("deployed", qyengine.userId + "/" + $.currentProj);
 qyremote.deployProj(qyengine.userId + "/" + $.currentProj);
 //刷新页面
 location.reload();
+//跟随移动
+heroObj.vars_.objNameTxt.setFollowObj(heroObj.id, -heroObj.vars_.objNameTxt.currentSprite.realWidth * 0.5,
+	-heroObj.height * 0.2 * heroObj.scaleY - heroObj.vars_.objNameTxt.currentSprite.realHeight, "both");
 //消除延迟
 qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 //删除滚轴容器的单元格

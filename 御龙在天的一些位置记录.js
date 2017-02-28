@@ -3389,8 +3389,167 @@ if (repeatTime === 0) {
 	qyengine.guardId("grou_activityInTestCell" + i).objects['']
 
 
+	grou_treasuryMainUI.y = Number(grou_treasuryMainUI.y) + 5;
+
+
+	(current_scene.width / 5) * 2 - 110 / 2 + 38 - 7 - 7 - ((current_scene.screenAdaptation && current_scene.screenAdaptation.x) || 0);
+
+	/*
+	修正若干在iphone6 plus上的自适应的问题~~~
+	修正点击首充的叉号会报错的问题~~~
+	稍微修正了主界面的两个加号的点击的区域~~~
+	主界面上的切换按钮连续点击会产生问题,已经解决~~~
+	在有多个伙伴的时候，主城和主界面的伙伴昵称都同时只显示在第一个人物身上~~~
+	玩家申请进入家族，组长无法拒绝玩家进入家族已解决
+	*/
+	setTimeout(function () {
+		var markPos = 0;
+		if ((current_scene.screenAdaptation && current_scene.screenAdaptation.x)) {
+			markPos = current_scene.screenAdaptation.x;
+		}
+		self.x -= markPos;
+
+	}, 10);
+
+
+	if (self.vars_.needMove) {
+		setTimeout(function () {
+			var markPos = 0;
+			if ((current_scene.screenAdaptation && current_scene.screenAdaptation.x)) {
+				markPos = current_scene.screenAdaptation.x;
+			}
+			self.x -= markPos;
+
+		}, 10);
+	}
 
 
 
+
+
+	qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'unTouch' }); }, 'tag_moveToPosTwo');
+	qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'unTouch' }); }, 'tag_moveToPos');
+
+
+	qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'cancelTouch' }); }, 'tag_moveToPosTwo');
+	qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'cancelTouch' }); }, 'tag_moveToPos');
+	self.shieldEvent && self.shieldEvent(["mousedown", "mouseup"], 10000000);
+
+
+
+
+
+
+	self.setScale(1, 1);
+	self.vars_.isTouch = false;
+	self.shieldEvent && self.shieldEvent(["mousedown", "mouseup"], 10000000);
+	setTimeout(function () {
+		self.cancelShieldEvent && self.cancelShieldEvent(["mousedown", "mouseup"]);
+		qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'unTouch' }); }, 'tag_moveToPosTwo');
+		qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'unTouch' }); }, 'tag_moveToPos');
+	}, 950);
+	if (self.vars_.nowStatus == "战斗") {
+		current_scene.dispatchMessage({
+			"type": "message",
+			"message": "someButtonMoveToPosTwo"
+		});
+	} else {
+		current_scene.dispatchMessage({
+			"type": "message",
+			"message": "someButtonMoveToPos"
+		});
+	}
+
+
+
+	/***********************************************************************
+	* 判断一个字符串是否为空字符串
+	*/
+
+	if (isBlank(qyengine.guardId("inpu_factionAnnounce").getValue())) {
+		qyengine.instance_create(0, 0, "txt_remind", {
+			"type": "txt_remind",
+			"id": "txt_remind",
+			"layer": "layer_headerfeet"
+		});
+		qyengine.guardId("txt_remind").text = "输入不合法!"
+		return;
+	}
+	function isBlank(szStr) {
+		if (szStr.length < 1) {
+			return true;
+		}
+		for (i = 0; i < szStr.length; i++) {
+			if (szStr.substring(i, i + 1) != ' ') {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	var str = qyengine.guardId("inpu_factionAnnounce").getValue().indexOf("&nbsp;");
+	if (str >= 0) {
+		qyengine.instance_create(0, 0, "txt_remind", {
+			"type": "txt_remind",
+			"id": "txt_remind",
+			"layer": "layer_headerfeet"
+		});
+		qyengine.guardId("txt_remind").text = "输入不合法!"
+		return;
+	}
+	//判断字符串中是否存在空格
+	function isKong(szStr) {
+		//trim方法为上面去掉字符串首尾空格的方法，不是系统方法
+		//var str = trim(szStr);
+		if (strlen(str) > 0) {
+			if (str.indexOf(' ') >= 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	/***
+	 * 1,进入商城会刷新链接的问题已经解决;
+	 * 2,家族里面的公告可以输入空格发布后显示乱码的问题已经修复;
+	 * 3,解决创建家族的时候，家族名可以为多个空格;
+	 * 4,家族宝库中的等级描述修改;
+	 * 5,玩家在家族的职位在成员列表中显示正常，详情中全部显示族长,已经修复;
+	 * 6,修正在主城中点开聊天，后点击返回，点击地图，人物无法移动
+	 * 7,修正自动挑战上面的文字的自适应的问题;
+	 * 8,现在主城中的玩家的其它角色统一不显示昵称等;
+	 * 9,国库激励中助威酒的消耗和拥有数量调整~~~
+	 */
+	KBEngine.app.player().baseCall("reqTestAddGuildsLevel", 6);
+
+
+
+
+	if (self.vars_.isTouch && self.vars_.canTouch) {
+		self.vars_.isTouch = false;
+		if (self.vars_.isFree == 1) {  //第一个按钮
+			//判断金子是否足够
+			if (game.vars_.userInfo.gold < 50&&grou_activityLuckyWheel.objects['obj_通用_金子_advaced_one'].isVisible) {
+				current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "金子不足,请去充值!");
+				return;
+			}
+			self.vars_.canTouch = false;
+			current_scene.vars_.turnType = 1;
+			KBEngine.app.player().baseCall("reqActivityFive", 1);
+		} else {			//第二个按钮
+			//判断金子是否足够
+			if (game.vars_.userInfo.gold < 500) {
+				current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "金子不足,请去充值!");
+				return;
+			}
+			self.vars_.canTouch = false;
+			current_scene.vars_.turnType = 10;
+			KBEngine.app.player().baseCall("reqActivityFive", 10);
+		}
+	}
+
+
+
+
+grou_activityLuckyWheel.objects['obj_通用_金子_advaced_one'].isVisible
 
 
