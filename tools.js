@@ -39,6 +39,8 @@ qyengine.guardId("txt_pkSecret_" + secretLocation).stopTimeline();
 game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
 	window.clearTimeout(hd);
 })
+//跳转场景
+qyengine.different_scene('sce_1');
 //添加对象到滚轴容器
 qyengine.guardId('scro_equip')._batchCreate = true
 qyengine.guardId('scro_equip').addOneInstance('grou_packageEquipItem', Math.floor(repeatTime / 4) + 1 - 1, (repeatTime % 4) + 1 - 1, {
@@ -138,6 +140,13 @@ qyengine.guardId("grou_redPointMore85").dispatchMessage({
 	"message": 'sendMessageData',
 	"argument0": self.vars_.fightPlayerProperty.uid
 });
+//发送消息给对象
+qyengine.forEach(function () {
+	this.dispatchMessage({
+		"type": 'message',
+		"message": 'haha'
+	});
+}, 'obj_1');
 //发送消息给标签
 qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "message": 'dada' }); }, 'tag_RedPointBttn');
 //滚轴容器刷新

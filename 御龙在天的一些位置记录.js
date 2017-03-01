@@ -3522,34 +3522,29 @@ if (repeatTime === 0) {
 	KBEngine.app.player().baseCall("reqTestAddGuildsLevel", 6);
 
 
-
-
-	if (self.vars_.isTouch && self.vars_.canTouch) {
-		self.vars_.isTouch = false;
-		if (self.vars_.isFree == 1) {  //第一个按钮
-			//判断金子是否足够
-			if (game.vars_.userInfo.gold < 50&&grou_activityLuckyWheel.objects['obj_通用_金子_advaced_one'].isVisible) {
-				current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "金子不足,请去充值!");
-				return;
-			}
-			self.vars_.canTouch = false;
-			current_scene.vars_.turnType = 1;
-			KBEngine.app.player().baseCall("reqActivityFive", 1);
-		} else {			//第二个按钮
-			//判断金子是否足够
-			if (game.vars_.userInfo.gold < 500) {
-				current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "金子不足,请去充值!");
-				return;
-			}
-			self.vars_.canTouch = false;
-			current_scene.vars_.turnType = 10;
-			KBEngine.app.player().baseCall("reqActivityFive", 10);
-		}
-	}
+	/**
+	 * 1,修正国库军需押镖中替换资源更改逻辑留下的部分的问题(最高品质的时候点击会报错,领取押镖奖励后,显示不正常);
+	 * 2,点击领取离线收益,再点击叉掉首充会出现叉不掉的情况,已经修复;
+	 * 3,物品详情界面获得银币后缺少单位(文本中插入图片合并后路径已经完全不一样导致丢失,已经尝试修正)
+	 * 4,尝试修正点击背包内的物品有时候会无反应的问题;
+	 * 5,注册角色的时候，昵称可以为多个空格小细节修正
+	 * 6,跳转至主城后，应退出本次摸金大战
+	 */
+	var xxx = "'" + grou_head.objects['obj_战斗_银子'].currentSprite.fill_ + "'"
+	txt_saleRewardCoin.text = "获得:" + saleCoinNum + "<img src=" + xxx + "></img>";
 
 
 
+	var xxx = "'" + grou_head.objects['obj_战斗_银子'].currentSprite.fill_ + "'"
+	txt_saleRewardCoin.text = "获得:5000<img src=" + xxx + "></img>";
 
-grou_activityLuckyWheel.objects['obj_通用_金子_advaced_one'].isVisible
+
+
+	current_scene.classId == "main_scene" ? 161 : (161 + 100)
+
+	KBEngine.app.player().baseCall("reqGoldBattleForceOpen")
+
+
+qyengine.getInstancesByType("feelGoldUI").length>0&&qyengine.getInstancesByType("feelGoldUI")[0].destroy();
 
 
