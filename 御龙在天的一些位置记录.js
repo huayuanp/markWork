@@ -3545,6 +3545,292 @@ if (repeatTime === 0) {
 	KBEngine.app.player().baseCall("reqGoldBattleForceOpen")
 
 
-qyengine.getInstancesByType("feelGoldUI").length>0&&qyengine.getInstancesByType("feelGoldUI")[0].destroy();
+	qyengine.getInstancesByType("feelGoldUI").length > 0 && qyengine.getInstancesByType("feelGoldUI")[0].destroy();
 
+
+
+	//判断字符串中是否存在空格
+	var str = qyengine.guardId("inpu_roleName").getValue();
+	function isKong(str) {
+		//trim方法为上面去掉字符串首尾空格的方法，不是系统方法
+		//var str = trim(szStr);
+		if (str.indexOf(' ') >= 0) {
+			return true;
+		}
+		return false;
+	}
+	if (isKong(str) >= 0) {
+		qyengine.instance_create(0, 0, "txt_remind", {
+			"type": "txt_remind",
+			"id": "txt_remind",
+			"layer": "layer_headerfeet"
+		});
+		qyengine.guardId("txt_remind").text = "输入不合法!"
+		return;
+	}
+	/**
+	 * 目前绝世邪君需要服务端及时处理的问题
+	 * 1,主界面上的整个任务功能;
+	 * 2,活动服务端需要移入,另,需补齐缺少的两个红点;
+	 * 3,跨服家族战的部分内网和测试反馈部分不相符,需要联合调试修改;
+	 * 4,祈福需要服务端挪;
+	 * 5,牵涉到boss的需要服务端查看测试组的反馈;
+	 * 6,最新的vip特权也需要沈伟那边加接口
+	 * 
+	 */
+	//新的家族战奖励-层滚轴
+	var markJiBie = grou_factionFightMain.vars_.nowRewardJiBie;
+	var markNowTab = grou_factionFightMain.vars_.tabId;
+	for (var i = 0; i < current_scene.vars_.factionFightRewardData[markJiBie][markNowTab].length; i++) {
+		game.configs.config_fightReward[i + 1] = {
+			id: i + 1,
+			scroId: "rewardBig_" + i
+		};
+	}
+	qyengine.guardId("scro_factionFightReward").refreshRelations();
+
+
+	//grou_vipGift的创建事件
+	if (scro_giftVipTitle.isVisible) {
+		scro_giftVipTitle.cells = [];
+		scro_giftVipTitle.currentSprite.moving_.removeChildren();
+		scro_giftVipTitle.removeAll();
+	}
+	for (i = 1; i <= configDataLength('vip_gift'); i++) {
+		game.configs.config_giftTitle[i] = {
+			id: i,
+			index: i,
+			titleId: i
+		};
+	}
+	qyengine.guardId("scro_giftVipTitle").refreshRelations();
+
+
+	//创建每日福利和超值礼包的动作序列
+	//清理滚轴
+	var scro_Obj = ["scro_giftReward", "scro_giftRewardDay"];
+	for (scro_item in scro_Obj) {
+		qyengine.guardId(scro_Obj[scro_Obj]).cells = [];
+		qyengine.guardId(scro_Obj[scro_Obj]).currentSprite.moving_.removeChildren();
+		qyengine.guardId(scro_Obj[scro_Obj]).removeAll();
+	}
+	game.configs.config_giftRewardItemDay = {};
+	game.configs.config_giftRewardItem = {};
+	var vip_giftObj = game.configs.vip_gift[viplevel];
+	grou_vipGift.objects['txt_initPrice'].text = vip_giftObj.price;
+	grou_vipGift.objects['txt_gift_nowPrice'].text = vip_giftObj.price_off;
+	var disCountPrice = (vip_giftObj.price_off) / (vip_giftObj.price);
+	disCountPrice = Number(disCountPrice.toFixed(2));
+	disCountPrice = disCountPrice * 100;
+	grou_vipGift.objects['txt_gift_discount'].text = "" + disCountPrice + "%";
+	var dayReward = vip_giftObj.gift;
+	for (item in dayReward.split(";")) {
+		var dayRewardItem = dayReward.split(";")[item];
+		var dayRewardItemId = dayRewardItem.split("|")[0];
+		var dayRewardItemNum = dayRewardItem.split("|")[1];
+		var dayRewardItemInfo = backColorAndName(dayRewardItemId);
+		try {
+			var dayRewardItemColor = dayRewardItemInfo.color;
+			var dayRewardItemName = dayRewardItemInfo.name;
+		} catch (error) {
+			console.error("error---", error.message);
+		}
+		game.configs.config_giftRewardItemDay[item + 1] = {
+			id: item + 1,
+			num: Number(dayRewardItemNum),
+			icon: dayRewardItemInfo.icon,
+			color: Number(dayRewardItemColor),
+			name: dayRewardItemName,
+			itemId: Number(dayRewardItemId)
+		};
+	}
+	qyengine.guardId('scro_giftRewardDay').refreshRelations();
+	//超值礼包
+	var mark_giftReward_length = 0;
+	var deserverItem = vip_giftObj.item;
+	var deserverBox = vip_giftObj.box;
+	var deserverTitle = vip_giftObj.title;
+	var markNotEmptyArr = [deserverItem, deserverBox, deserverTitle];
+	for (var j = 1; j <= markNotEmptyArr.length; j++) {
+		if (markNotEmptyArr[j] != -1) {
+			for (cell in markNotEmptyArr[j].split(";")) {
+				mark_giftReward_length++;
+				var deserverItemIdAndNum = markNotEmptyArr[j].split(";")[cell];
+				var deserverItemId = deserverItemIdAndNum.split("|")[0];
+				var deserverItemNum = deserverItemIdAndNum.split("|")[1];
+				deserverItemInfo = backColorAndName(deserverItemId);
+				game.configs.config_giftRewardItem[mark_giftReward_length] = {
+					id: mark_giftReward_length,
+					num: Number(deserverItemNum),
+					icon: deserverItemInfo.icon,
+					color: Number(deserverItemInfo.color),
+					name: deserverItemInfo.name,
+					itemId: Number(deserverItemId)
+				};
+			}
+		}
+	}
+	/*
+	if (vip_giftObj.item != -1) {
+	}
+	*/
+	if (vip_giftObj.equipment != -1) {
+		var deserverEquip = vip_giftObj.equipment;
+		for (equip in deserverEquip.split(';')) {
+			mark_giftReward_length++;
+			var deserverEquipIdAndQuality = deserverEquip.split(';')[cell];
+			var deserverEquipId = deserverEquip.split(';')[cell].split('|')[0];
+			var deserverEquipQuality = deserverEquip.split(';')[cell].split('|')[1];
+			var deserverEquipName = game.configs.equipment[deserverEquipId].name;
+			var deserverEquipIcon = "obj_" + game.configs.equipment[deserverEquipId].icon + "_default";
+			game.configs.config_giftRewardItem[mark_giftReward_length] = {
+				id: mark_giftReward_length,
+				num: 1,
+				icon: deserverEquipIcon,
+				color: Number(deserverEquipQuality),
+				name: deserverEquipName,
+				itemId: Number(deserverEquipId)
+			};
+		}
+	}
+	qyengine.guardId('scro_giftReward').refreshRelations();
+	function backColorAndName(itemId) {
+		var itemInfo = {};
+		if (game.configs.item[itemId]) {
+			itemInfo.color = game.configs.item[itemId].quality;
+			itemInfo.name = game.configs.item[itemId].name;
+			itemInfo.icon = "obj_" + game.configs.item[itemId].icon + "_default";
+		} else if (game.configs.box[itemId]) {
+			itemInfo.color = game.configs.box[itemId].quality;
+			itemInfo.name = game.configs.box[itemId].name;
+			itemInfo.icon = "obj_" + game.configs.box[itemId].icon + "_default";
+		} else if (game.configs.title[itemId]) {
+			itemInfo.color = game.configs.title[itemId].quality;
+			itemInfo.name = game.configs.title[itemId].name;
+			itemInfo.icon = "" + game.configs.title[itemId].icon + "_default";
+		}
+		return itemInfo;
+	}
+
+
+
+
+
+
+	self.vars_.lastTab = 0;
+	self.vars_.nowTab = 0;
+	//改变Tab
+	qyengine.forEach(function () {
+		this, dispatchMessage({
+			"type": "message",
+			"message": "changeGiftTab",
+			"argument0": 1
+		});
+	}, "obj_特权_选择框_01_gift");
+	//收到消息改变Tab
+	if (self.vars_.titleId == event.argument0) {
+		self.changeSprite("" + self.classId + "_A1");
+		grou_vipGift.vars_.nowTab = self.vars_.titleId;
+
+		/*
+		if (grou_vipGift.vars_.lastTab) {
+			qyengine.forEach(function () {
+				this, dispatchMessage({
+					"type": "message",
+					"message": "changeGiftTabBlack",
+					"argument0": grou_vipGift.vars_.lastTab
+				});
+			}, "obj_特权_选择框_01_gift");
+
+		}
+		*/
+	}
+
+
+
+
+
+	self.changeSprite(self.vars_.icon);
+	self.changeSprite("obj_packageSmallFrame_A" + (self.vars_.color - 1));
+
+	qyengine.getInstancesByType("grou_vipGift").length > 0 && grou_vipGift.destroy();
+
+	self.vars_.vipDec = false;
+	//隐藏和显示Vip礼包
+	var vipGatherObjArr = ["obj_特权_大VIP_gift_1", "txt_bigVip_gift_1", "obj_特权_超值礼包_gift", "scro_giftReward", "obj_特权_数字图_gift",
+		"txt_gift_discount", "txt_initPrice", "obj_VIP特权_花纹_gift", "obj_特权_红横杠_gift", "obj_通用_金子_gift", "txt_gift_nowPrice", "obj_特权_未达成_gift_0"];
+	if (grou_vipGift.objects['obj_特权_查看特权_01_gift'].vars_.vipDec) {  //隐藏vip礼包
+		for (cell in vipGatherObjArr) {
+			grou_grou_vipGift.objects[vipGatherObjArr[cell]].hide();
+		}
+	} else {   //显示Vip礼包
+		for (cell in vipGatherObjArr) {
+			grou_grou_vipGift.objects[vipGatherObjArr[cell]].show();
+		}
+	}
+
+	//grou_vipDec的坐标(-262,353)
+	//点击查看特权的按钮
+	if (self.vars_.vipDec) {
+		self.vars_.vipDec = false;
+		grou_vipGift.objects['obj_特权_查看特权_03_gift'].changeSprite("obj_特权_查看特权_03_gift_default");
+		qyengine.getInstancesByType("grou_vipDec").length > 0 && grou_vipDec.destroy();
+	} else {
+		self.vars_.vipDec = true;
+		grou_vipGift.objects['obj_特权_查看特权_03_gift'].changeSprite("obj_特权_返回_03_gift_default");
+		qyengine.instance_create(0, 0, "grou_vipDec", {
+			"type": "grou_vipDec",
+			"id": "grou_vipDec",
+			"zIndex": 5,
+			"layer": "layer_headerfeet"
+		});
+		grou_vipGift.appendChild("grou_vipDec", -262, 353);
+		current_game.scripts['al_scr_' + "actionlist_lookVipDec"].call(this, undefined, this);
+	}
+	current_game.scripts['al_scr_' + "actionlist_hideVipDec"].call(this, undefined, this);
+	//创建vipDec界面
+	var markVipInfo = game.configs.vip_gift[grou_vipGift.vars_.nowTab];
+	grou_vipDec.objects['txt_giftVipDec_0'].text = "累计充值" + "<font  color='#ffba02'>" + markVipInfo.price + "</font>" + "金子即可享受以下特权:";
+	grou_vipDec.objects['txt_giftVipDec_2'].text = markVipInfo.dec;
+
+
+	grou_vipGift.objects['obj_特权_查看特权_01_gift'].dispatchMessage({
+		"type": "message",
+		"message": "hideVipDec"
+	});
+
+
+
+
+
+
+
+
+
+	qyengine.instance_create(360, 37, "grou_vipGift", {
+		"type": "grou_vipGift",
+		"id": "grou_vipGift",
+		"zIndex": 5,
+		"layer": "layer_headerfeet",
+		"scene": "main_scene"
+	});
+
+	try {
+
+	} catch (error) {
+
+	}
+
+	//	-252 395
+	/**
+	 * 1，拓展了查看商城的物品的详情,使其适配更多的界面
+	 */
+
+	current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.titleId, 5, Number(self.vars_.color) - 1);
+	//计算现在的vip以及vip的进度条
+	grou_vipGift.objects['txt_bigVip_gift'].text = KBEngine.app.player().vip;
+    
+
+
+current_game.scripts['al_scr_'+"actionlist_calNowVipAndProgress"].call(this,undefined,this);
 
