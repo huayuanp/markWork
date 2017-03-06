@@ -3823,14 +3823,168 @@ if (repeatTime === 0) {
 
 	//	-252 395
 	/**
-	 * 1，拓展了查看商城的物品的详情,使其适配更多的界面
+	 * 2017/3/6
+	 * 1,拓展了查看商城的物品的详情,使其适配更多的界面
+	 * 2,修正特权的进度条的显示问题;
+	 * 3,现在在特权界面切换的时候,根据最新的策划案进度条是动态的了;
+	 * 4,研究螃蟹村策划案
+	 * 5,国库中的军需达人文字的修改;
+	 * 6,背包扩容到500格，之后再扩容，提示-1金币扩容4个格子已经修正;
+	 * 7,国库中的国家名称显示全部修正;
 	 */
 
 	current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.titleId, 5, Number(self.vars_.color) - 1);
 	//计算现在的vip以及vip的进度条
 	grou_vipGift.objects['txt_bigVip_gift'].text = KBEngine.app.player().vip;
-    
 
 
-current_game.scripts['al_scr_'+"actionlist_calNowVipAndProgress"].call(this,undefined,this);
+
+	current_game.scripts['al_scr_' + "actionlist_calNowVipAndProgress"].call(this, undefined, this);
+	qyengine.getInstancesByType("grou_recharge_MainUI_wh").length
+
+
+
+
+
+
+
+
+
+
+	//--------------充值界面服务端的回调
+	var needrmb = 0;
+	console.log("已购买金额:" + data[0]);
+	console.log("充值界面数据:", data);
+	var needrmb;
+	var curRmb = data[0];
+	//for (var i = 2; i <= configDataLength("vip"); ++i) {
+	//needrmb = getConfig("vip", i, "rmb");
+	//if (curRmb < needrmb) {
+	//txt_recharge_gold_wh.setText(needrmb - curRmb);
+	//txt_recharge_gold_progress_wh.setText(curRmb + "/" + needrmb);
+	//break;
+	//}
+	//}
+	//新更改的
+	if (getConfig("vip", game.vars_.userInfo.vip + 2, "rmb")) {
+		needrmb = Number(getConfig("vip", game.vars_.userInfo.vip + 2, "rmb"));
+		txt_recharge_gold_wh.setText(needrmb - curRmb);
+	}
+	txt_recharge_gold_progress_wh.setText(curRmb + "/" + needrmb);
+
+	if ((curRmb / needrmb) == 0) {
+		obj_recharge_gold_progress_wh.hide();
+	}
+	else {
+		obj_recharge_gold_progress_wh.show();
+		obj_recharge_gold_progress_wh.setScale(curRmb / needrmb, 1);
+	}
+
+	txt_VIP_recharge.setText(game.vars_.userInfo.vip);
+	txt_VIP_recharge_next.setText((game.vars_.userInfo.vip + 1));
+
+	//scro_recharge_progress.width =  parseInt((curRmb/ needrmb)*427);
+
+	qyengine.guardId('grou_recharge_MainUI_wh').show();
+
+	var cellID = 1;
+	for (var cell in game.configs.recharge) {
+		cellID += 1;
+
+		if (!data[2][cellID - 2]) {
+			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.changeSprite("obj_充值_首充_default");
+			/*
+			if (data[1] == 0 && cellID <= 4) {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name + "x3  首充送" + game.configs.recharge[cell].gift + "金子");
+			}
+			else {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh.setText(game.configs.recharge[cell].name + " 首充送" + game.configs.recharge[cell].gift + "金子");
+			}
+			*/
+		}
+		else {
+
+			if (game.configs.recharge[cell].firstGift != -1) {
+				//qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon_panel.hide();
+				//qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.hide();
+			}
+			if (cellID >= 4 && cellID <= 5) {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.changeSprite("obj_充值_推荐_default");
+			} else if (cellID >= 6 && cellID <= 7) {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.changeSprite("obj_充值_热卖_default");
+			} else {
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon_panel.hide();
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.obj_recharge_typeIcon.hide();
+				qyengine.guardId('grou_recharge_cell_wh' + cellID).objects['obj_充值_首充'].hide();
+			}
+			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh_2.setText(game.configs.recharge[cell].baseGold);
+			qyengine.guardId('grou_recharge_cell_wh' + cellID).objects.txt_recharge_cell_desc_wh_1.setText(Number(game.configs.recharge[cell].gift));
+		}
+	}
+
+
+
+	//判断是否只有特权无充值
+	if (qyengine.getInstancesByType("grou_vipGift").length > 0) {
+		current_game.scripts["al_scr_" + "actionlist_calNowVipAndProgress"].call(this, undefined, this, data);
+		return;
+	}
+
+
+
+	//计算现在的vip以及vip的进度条  grou_vipGift
+	grou_vipGift.objects['txt_bigVip_gift'].text = KBEngine.app.player().vip;
+	if (!tabsGreater) {
+		var curRmb = data[0];
+	} else {
+		var curRmb = grou_vipGift.objects['txt_giftProgressNum'].text.split("/")[0];
+		curRmb = Number(curRmb);
+	}
+	var needRmb;
+	if (game.configs.vip[game.vars_.userInfo.vip + 2].rmb) {
+		if (!tabsGreater) {
+			needRmb = game.configs.vip[game.vars_.userInfo.vip + 2].rmb;
+		} else {
+			needRmb = game.configs.vip[grou_vipGift.vars_.nowTab + 2].rmb;
+		}
+		needRmb = Number(needRmb);
+		grou_vipGift.objects['txt_smallVip_gift_gold'].text = needRmb - curRmb;
+		if (!tabsGreater) {
+			grou_vipGift.objects['txt_smallVip_gift_vip'].text = game.vars_.userInfo.vip + 1;
+		} else {
+			grou_vipGift.objects['txt_smallVip_gift_vip'].text = grou_vipGift.vars_.nowTab;
+		}
+
+	}
+	grou_vipGift.objects['txt_giftProgressNum'].text = "" + curRmb + "/" + needRmb;
+	if (curRmb / needRmb == 0) {
+		grou_vipGift.objects['obj_特权_条_gift'].hide();
+	} else {
+		grou_vipGift.objects['obj_特权_条_gift'].show();
+		grou_vipGift.objects['obj_特权_条_gift'].setScale(curRmb / needRmb, 1);
+	}
+
+
+	if (game.vars_.userInfo.vip < self.vars_.titleId) {
+		current_game.scripts['al_scr_' + "actionlist_calNowVipAndProgress"].call(this, undefined, this, undefined, self.vars_.titleId);
+	}
+
+	if (grou_vipGift.vars_.nowTab == self.vars_.titleId) {
+		return;
+	}
+
+
+
+
+
+	if (game.configs.bag_add[game.vars_.expansion].gold == -1) {
+		grou_packCapacityFrame.objects['cont_packCapacityFrame'].objects['obj_packCapacityFrame'].text = "背包已经不能扩充了";
+	} else {
+		var nowCapConsume = game.configs.bag_add[game.vars_.expansion].gold;
+		grou_packCapacityFrame.objects['cont_packCapacityFrame'].objects['obj_packCapacityFrame'].text = '是否花费' + game.configs.bag_add[game.vars_.expansion].gold + '金子扩充4格背包?';
+	}
+
+
+
+	grou_treasuryMainUI.objects['obj_国库_国库大文字'].changeSprite("" + grou_treasuryMainUI.objects['obj_国库_国库大文字'].classId + "_A" + game.vars_.userInfo.country);
 
