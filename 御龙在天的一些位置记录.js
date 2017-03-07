@@ -3831,6 +3831,8 @@ if (repeatTime === 0) {
 	 * 5,国库中的军需达人文字的修改;
 	 * 6,背包扩容到500格，之后再扩容，提示-1金币扩容4个格子已经修正;
 	 * 7,国库中的国家名称显示全部修正;
+	 * 2017/3/7
+	 * 1,螃蟹村主界面的UI以及部分效果ok
 	 */
 
 	current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.titleId, 5, Number(self.vars_.color) - 1);
@@ -3987,4 +3989,81 @@ if (repeatTime === 0) {
 
 
 	grou_treasuryMainUI.objects['obj_国库_国库大文字'].changeSprite("" + grou_treasuryMainUI.objects['obj_国库_国库大文字'].classId + "_A" + game.vars_.userInfo.country);
+
+
+	//螃蟹主界面三个大按钮的初始化
+	if (self.id == "grou_crabPoolButton_1") {  //好友蟹池
+		self.objects["obj_Btn_Main_PublicPond_mainScene_1"].changeSprite("obj_Btn_Main_FriendsPond_mainScene_default");
+		self.objects["obj_Label_Main_Explain_3_mainScene_1"].changeSprite("obj_Label_Main_Explain_2_mainScene_default");
+	} else if (self.id == "grou_crabPoolButton_2") { //我的蟹池
+		self.objects["obj_Btn_Main_PublicPond_mainScene_2"].changeSprite("obj_Btn_Main_MyPond_mainScene_default");
+		self.objects["obj_Label_Main_Explain_3_mainScene_2"].changeSprite("obj_Label_Main_Explain_1_mainScene_default");
+	}
+
+	//按钮的点击事件
+	qyengine.forEach(function () {
+		this.dispatchMessage({
+			"type": "message",
+			"message": "graduallyHide"
+		});
+	}, "grou_crabPoolButton");
+	var tempArr = ["grou_head", "grou_bottomButton", "grou_myCrabPoolWeather"];
+	for (cell in tempArr) {
+		qyengine.guardId(tempArr[cell]).dispatchMessage({
+			"type": "message",
+			"message": "moveToPlace"
+		});
+	}
+	if (self.vars_.buttonId == 2) {//我的xie
+		console.log("continue......");
+	} else {
+		console.log("continue......");
+	}
+
+	self.moveTo(self.x, self.y - 150, 200, 1);
+
+	/**
+	 * 总共又多少行:scro_myCrabInfoScroll.cells.length / scro_myCrabInfoScroll.columns 
+	 * scro_myCrabInfoScroll.currentSprite.measureLimits();
+	 * scro_myCrabInfoScroll.currentSprite.high
+	 * scro_myCrabInfoScroll.currentSprite.low
+	 * Math.abs(scro_myCrabInfoScroll.currentSprite.low - scro_myCrabInfoScroll.currentSprite.high)
+	 * scro_myCrabInfoScroll.currentSprite.moving_.position.x
+	 * scro_myCrabInfoScroll.currentSprite.moving_.position.y
+	 */
+
+
+	//天气的滚轴的创建事件
+	qyengine.guardId("scro_myCrabInfoScroll").cells = [];
+	qyengine.guardId("scro_myCrabInfoScroll").currentSprite.moving_.removeChildren();
+	qyengine.guardId("scro_myCrabInfoScroll").removeAll();
+	for (var i = 0; i < 10; i++) {
+		var txt = "池塘的等级  " + i + "级";
+		game.configs.config_myCrabInfoScroll[i + 1] = {
+			"id": i + 1,
+			"type": i + 1,
+			"dec": txt
+		}
+	}
+	qyengine.guardId("scro_myCrabInfoScroll").refreshRelations();
+	self.vars_.nowHang = 0;
+
+
+	//weatherAutoScroll动作序列
+	qyengine.guardId("scro_myCrabInfoScroll").vars_.markScrollerTime = setTimeout(function () {
+		var nowHang = scro_myCrabInfoScroll.vars_.nowHang;
+		var allHangNum = scro_myCrabInfoScroll.cells.length / scro_myCrabInfoScroll.columns;
+		if (nowHang + 1 > allHangNum - 1) {
+			qyengine.guardId("scro_myCrabInfoScroll").scrollerTo && qyengine.guardId("scro_myCrabInfoScroll").scrollerTo(0, 0);
+			nowHang = 0;
+		} else {
+			qyengine.guardId("scro_myCrabInfoScroll").scrollerTo && qyengine.guardId("scro_myCrabInfoScroll").scrollerTo(nowHang + 1, 0);
+			nowHang++;
+		}
+	}, 5000);
+
+	current_game.scripts['al_scr_' + "weatherAutoScroll"].call(this, undefined, this);
+
+
+	clearTimeout(self.vars_.markScrollerTime);
 

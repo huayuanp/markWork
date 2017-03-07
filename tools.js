@@ -163,7 +163,7 @@ qyengine.guardId('txt_pkRoleNick').setFontColor('#f7ad0d');
 self.currentSprite.style.font = "normal 25px kaiti";
 //设置字体的描边
 self.currentSprite.style.font = "normal 800 25px/1.1 serif";
-self.setStroke("#000000", 4);
+self.setStroke("#030d8d", 4);
 //唯一标识符的对象  .classId
 
 //清空滚轴
@@ -230,6 +230,8 @@ qyengine.callAfter(function () {
 	.bind(this), current_scene, 600);
 //判断是否是合并的版本
 window.adapt
+//主动断点
+debugger;
 //查看对象的图片所在的路径
 selectRole_photo_10001.currentSprite.fill_
 //-------清除场景中的角色
