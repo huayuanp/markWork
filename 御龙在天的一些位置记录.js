@@ -3839,6 +3839,7 @@ if (repeatTime === 0) {
 	 * 3,螃蟹村的商城(部分)
 	 * 2017/3/9
 	 * 1,龙啸九天和服务端对分享
+	 * 4,商城的购买物品
 	 */
 
 
@@ -4020,6 +4021,7 @@ if (repeatTime === 0) {
 		if (Number(data[0]) == 3 && Number(data[1]) == 30) {
 			if (shareButton.vars_.redPoint) {
 				qyengine.guardId(shareButton.id + "_redPoint").destroy();
+				shareButton.vars_.redPoint = false;
 			}
 		} else {
 			if (!shareButton.vars_.redPoint) {
@@ -4034,5 +4036,105 @@ if (repeatTime === 0) {
 			}
 		}
 	}
+
+
+
+
+
+
+
+	qyengine.instance_create(0, 0, 'grou_buyItem', {
+		"type": 'grou_buyItem',
+		"id": 'grou_buyItem',
+		"zIndex": 5,
+		"layer": "scene_pop",
+		"scene": "sce_mainScene"
+	});
+	grou_buyItem.vars_itemId = self.vars_.itemId;
+	current_game.scripts['al_scr_' + "init_grou_buyItem"].call(this, undefined, this, 1);
+	//商店购买界面的初始化
+	var lastShowNum = grou_buyItem.objects['txt_buyItemNum'].text;
+	var nowShowBuy = Number(lastShowNum) + addNum;
+	grou_buyItem.objects['txt_buyItemPrice_0'].text = 0;  //当前已经拥有的个数
+	var itemInfo = game.configs.shop[grou_buyItem.vars_itemId];
+	grou_buyItem.vars_.costGold = Number(itemInfo.price) * nowShowBuy;
+	grou_buyItem.objects['txt_buyItemPrice_1'].text = grou_buyItem.vars_.costGold;
+	//确认购买的点击事件
+	if (game.vars_.userInfo.gold < grou_buyItem.vars_.costGold) {
+		current_game.scripts['al_scr_' + "createCommonPop"].call(this, undefined, this, [true, "obj_Font_Store_Words_8"], [false, ""], null);
+	} else {
+
+	}
+
+
+
+
+
+
+
+	//创建公共的commonPop-----grouName,[true,obj_Font_Store_Words_8],[false,""],"action"
+	qyengine.instance_create(0, 0, 'grou_commonPop', {
+		"type": 'grou_commonPop',
+		"id": 'grou_commonPop',
+		"zIndex": 5,
+		"layer": "scene_pop",
+		"scene": "sce_mainScene"
+	});
+	if (picData[0]) {
+		grou_commonPop.objects['obj_Font_Store_Words_8'].show();
+		grou_commonPop.objects['txt_commonPopTxt'].hide();
+		grou_commonPop.objects['obj_Font_Store_Words_8'].changeSprite(picData[1] + "_default");
+	}
+	if (txtData[0]) {
+		grou_commonPop.objects['obj_Font_Store_Words_8'].hide();
+		grou_commonPop.objects['txt_commonPopTxt'].show();
+		grou_commonPop.objects['txt_commonPopTxt'].text = txtData[1];
+	}
+	grou_commonPop.objects['obj_Btn_Share_YellowBtn_3_shop'].vars_.actionName = actionName;
+
+
+
+
+
+
+	var nowSelectNum = Number(grou_buyItem.objects['txt_buyItemNum'].text);
+	if (self.vars_.isLeft && nowSelectNum <= 1) {
+		return;
+	}
+	var addNum = self.vars_.isLeft ? -1 : 1;
+	current_game.scripts['al_scr_' + "init_grou_buyItem"].call(this, undefined, this, addNum);
+
+
+
+
+
+	var nowSelectNum = Number(grou_buyItem.objects['txt_buyItemNum'].text);
+	if (self.vars_.isLeft && nowSelectNum <= 10) {
+		return;
+	}
+	var addNum = self.vars_.isLeft ? -10 : 10;
+	current_game.scripts['al_scr_' + "init_grou_buyItem"].call(this, undefined, this, addNum);
+
+
+
+
+
+
+	//创建物品信息界面
+	if (qyengine.getInstancesByType("grou_itemInfo").length > 0) {
+		return;
+	}
+	qyengine.instance_create(0, 0, 'grou_itemInfo', {
+		"type": 'grou_itemInfo',
+		"id": 'grou_itemInfo',
+		"zIndex": 5,
+		"layer": "scene_pop",
+		"scene": "sce_mainScene"
+	});
+	var itemInfo = game.configs.shop[itemId];
+	txt_itemInfoDec.text = itemInfo.describtion;
+	grou_itemInfo.objects['txt_itemNum_info_1'].text = itemInfo.price;
+	grou_itemInfo.objects['txt_itemNum_info_0'].text = 0;
+	qyengine.guardId("obj_PVEicon_shareButton").hide();
 
 

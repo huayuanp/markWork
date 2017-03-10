@@ -234,6 +234,8 @@ window.adapt
 debugger;
 //查看对象的图片所在的路径
 selectRole_photo_10001.currentSprite.fill_
+//查看对象的资源路径
+qyengine.guardType("obj_icon_lxjt_default").defaultOpt.fill
 //-------清除场景中的角色
 current_game.scripts['al_scr_' + "sceneBattleVarInit"].call(this, undefined, this);
 current_game.scripts['al_scr_' + "createMainUIRole"].call(this, undefined, this);
@@ -284,3 +286,4 @@ vs的快捷键
 
 
 
+//
