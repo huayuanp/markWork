@@ -3847,10 +3847,85 @@ if (repeatTime === 0) {
 	 * 2017/3/14
 	 * 1,修正新的离线收益界面的两个的bug
 	 * 2,对于用户中出现的一个位置偏移的问题做了容错
+	 * 3,我的蟹池部分
+	 * 4,增加了两个渠道的分享
 	 */
 
 
 
 
+
+
+
+	//判断是否需要分享
+	if (window.isShare && window.isShare()) {   //new_game
+		var quDaoName = qyengine._getQueryString("td_channelid");
+		if (game.configs.config_weiXinShare[quDaoName]) {
+			grou_gameShare.objects['txt_shareWeiXin_name'].text = game.configs.config_weiXinShare[quDaoName].name;
+			grou_gameShare.objects['obj_icon_gamemei'].changeSprite(game.configs.config_weiXinShare[quDaoName].icon + "_default");
+		} else {
+			grou_gameShare.objects['obj_icon_gamemei'].changeSprite("obj_icon_gamemei_default");
+			grou_gameShare.objects['txt_shareWeiXin_name'].text = "游戏魅";
+		}
+	} else {
+		grou_gameShare.objects['obj_icon_gamemei'].changeSprite("obj_icon_gamemei_default");
+		grou_gameShare.objects['txt_shareWeiXin_name'].text = "游戏魅";
+	}
+
+
+
+
+	//#dbb004
+
+
+	qyengine.instance_create(0, 0, 'txt_remind', {
+		"type": 'txt_remind',
+		"id": 'txt_remind',
+		"layer": 'layer_headerfeet',
+		"scene": 'main_scene'
+	});
+	qyengine.guardId('txt_remind').setFontColor('#dbb004');
+	txt_remind.y += 50;
+
+
+	//我的蟹池界面的坐标
+	/*
+	grou_pondHead(-2, -2)
+	grou_pondFeet(1,592)
+	grou_pondManagement(617,126)
+	grou_pondRight(108,535)
+	*/
+	qyengine.instance_create(0, 0, 'txt_remind', {
+		"type": 'txt_remind',
+		"id": 'txt_remind',
+		"layer": 'layer_headerfeet',
+		"scene": 'main_scene'
+	});
+
+
+
+	var needCreateObjArr = ["grou_pondHead", "grou_pondFeet", "grou_pondRight"];
+	var needCreateObjPos = [[-2, -2], [1, 592], [108, 535]];
+	for (item in needCreateObjArr) {
+		createCrabPondGroup(needCreateObjArr[item], "scene_button", needCreateObjPos[item]);
+	}
+	function createCrabPondGroup(createObj, createLayer, createPos) {
+		qyengine.instance_create(createPos[0], createPos[1], createObj, {
+			"type": createObj,
+			"id": createObj,
+			"zIndex": 5,
+			"layer": 'scene_button',
+			"scene": 'main_scene'
+		});
+	}
+
+	grou_pondHead.y -= 120;
+	grou_pondFeet.y += 140;
+	grou_pondRight.x += 120;
+
+
+
+	//创建蟹池信息界面
+	qyengine.getInstancesByType("grou_myPondInfo").length > 0 && qyengine.getInstancesByType("grou_myPondInfo")[0].destroy();
 
 
