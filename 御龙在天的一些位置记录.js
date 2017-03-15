@@ -3849,6 +3849,8 @@ if (repeatTime === 0) {
 	 * 2,对于用户中出现的一个位置偏移的问题做了容错
 	 * 3,我的蟹池部分
 	 * 4,增加了两个渠道的分享
+	 * 2017/3/15
+	 * 1,继续我的蟹池部分
 	 */
 
 
@@ -3926,6 +3928,70 @@ if (repeatTime === 0) {
 
 
 	//创建蟹池信息界面
-	qyengine.getInstancesByType("grou_myPondInfo").length > 0 && qyengine.getInstancesByType("grou_myPondInfo")[0].destroy();
+	qyengine.getInstancesByType("grou_useCrabYoung").length > 0 && qyengine.getInstancesByType("grou_useCrabYoung")[0].destroy();
 
+	/**
+	 * scro_shop 5 435 210 278
+	 * grou_shopItem (-7,1)
+	 * 两个itemId 一个icon
+	 */
+	qyengine.getInstancesByType("grou_useCrabYoung").length == 0 && qyengine.instance_create(0, 0, grou_useCrabYoung, {
+		"type": grou_useCrabYoung,
+		"id": grou_useCrabYoung,
+		"zIndex": 5,
+		"layer": 'scene_button',
+		"scene": 'main_scene'
+	});
+	qyengine.guardId("scro_shop").cells = [];
+	qyengine.guardId("scro_shop").currentSprite.moving_.removeChildren();
+	qyengine.guardId("scro_shop").removeAll();
+	game.configs.config_useYongCrab = {};
+	//var nowTab = nowTab;
+	var index = 0;
+	for (cell in game.configs.shop) {
+		var cellInfo = game.configs.shop[cell];
+		if (cellInfo.type == 1) {
+			index++;
+			var itemId = cell;
+			var name = cellInfo.name;
+			var price = cellInfo.price;
+			var icon = "";
+			var canUse = judgeIsCanUse(cell) ? 1 : 0;
+			game.configs.config_useYongCrab[index] = {
+				id: index,
+				name: name,
+				price: price,
+				itemId: cell,
+				icon: icon,
+				num: 0,
+				canUse: canUse
+			};
+		}
+	}
+	function judgeIsCanUse(id) {
+		/**
+		 * 后期补全
+		 */
+		return false;
+	}
+	qyengine.guardId('scro_shop').refreshRelations();
+
+
+
+
+	current_game.scripts['al_scr_' + "createUseYoungCrab"].call(this, undefined, this);
+
+
+
+	if (self.id == "txt_pondInfoNowEffect") {
+		self.currentSprite.style.font = "normal 800 28px/1.1 serif";
+	} else {
+		self.currentSprite.style.font = "normal 800 23px/1.1 serif";
+	}
+
+
+
+
+
+	grou_shopItem(-7, -1)
 
