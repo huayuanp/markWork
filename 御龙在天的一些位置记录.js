@@ -3851,6 +3851,18 @@ if (repeatTime === 0) {
 	 * 4,增加了两个渠道的分享
 	 * 2017/3/15
 	 * 1,继续我的蟹池部分
+	 * 2017/3/16
+	 * 1,龙啸九天活动红点的及时更新;
+	 * 1，公测特权：
+		“领取奖励”四个字调整成灰色的
+		2，累计消耗未达成文字显示
+		3，等级礼包：已领取下方按钮顶上
+		4，积分转轮：强化结束之后的展示效果
+		5，排序：积分转轮、累计消耗、王者争霸、累计充值、等级礼包
+		6，默认展示第一个活动，点击右侧按钮展示下一个活动
+		7,钥匙不够的情况下右边至少显示开一个箱子需要的钥匙数目，这样更好点
+		8,修正离线界面的Vip的领取的字偶尔位置偏移的问题~~~
+		9,现在是不足够开启一个宝箱也是显示能够开启一个宝箱所需要的钥匙
 	 */
 
 
@@ -3990,8 +4002,103 @@ if (repeatTime === 0) {
 	}
 
 
+	/*
+	1,公测特权在不可领取的情况下,除了按钮是灰色的现在文字也需要改成灰色?
+	2,累计消耗中现在是灰色按钮+未达成的组合?
+	*/
+	//通过设置饱和度使其变灰
+	this.setHSL && this.setHSL(0, -100, 0);
+
+
+	//	obj_活动_未达成
+
+	current_game.scripts['al_scr_' + "calAnimationRewardGood"].call(this, undefined, this, needMovePlace);
 
 
 
-	grou_shopItem(-7, -1)
+	grou_activity_main_new.vars_.nowAtTab < 5 ? grou_activity_main_new.vars_.nowAtTab + 1 : grou_activity_main_new.vars_.nowAtTab;
+	var needMoveActivity = grou_activity_main_new.vars_.nowAtTab < 5 ? grou_activity_main_new.vars_.nowAtTab + 1 : grou_activity_main_new.vars_.nowAtTab;
+
+
+
+
+	grou_offLineReward.objects['txt_offLineVipRemind'].x -= 89;
+
+
+
+
+
+
+	qyengine.guardId('txt_PorpUpWord').setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "name"));
+	qyengine.guardId("txt_saleGoodDec").setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "dec"));
+	qyengine.guardId('txt_equipNeedLevel').hide();
+	qyengine.guardId('txt_packagePopUpBoxWord').setText('请选择数量');
+	qyengine.guardId('txt_saleRewardCoin').hide();
+	qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects['obj_equipImage'].changeSprite("obj_" + game.configs.box[current_scene['nowSaleButton'].vars_.Id].icon + '_default');
+	//使用或者开启宝箱界面的元素的一些初始化
+	var showLinShi = ['txt_openBoxCostWord', 'obj_openBoxCost', 'txt_openBoxCostName', 'txt_openBoxHaveGoodNum', 'txt_openBoxCostGoodNum'];
+	for (var i = 0; i < showLinShi.length; i++) {
+		qyengine.guardId(showLinShi[i]).show();
+	}
+	//qyengine.guardId('txt_openBoxCostGoodNum').setText('1');
+	openBoxOpera(current_scene['nowSaleButton'].vars_.Id);
+	function openBoxOpera(markId) {
+		for (var i = 0; i < game.vars_.userInfo.packageInfo.packBox.length; i++) {
+			if (markId == game.vars_.userInfo.packageInfo.packBox[i].id) {
+				if (Number(game.vars_.userInfo.packageInfo.packBox[i].type) == 2) {
+					qyengine.guardId('obj_装备出售_使用按钮').changeSprite('obj_装备出售_使用按钮_A1');
+					var costGoodNum = Number(game.vars_.userInfo.packageInfo.packBox[i].cost.split(':')[1]);
+					var costGoodType = Number(game.vars_.userInfo.packageInfo.packBox[i].cost.split(':')[0]);
+					current_scene['nowSaleButton'].vars_.costId = costGoodType;
+					qyengine.guardId('txt_openBoxCostGoodNum').setText('' + costGoodNum);
+					qyengine.guardId('obj_openBoxCost').changeSprite('obj_' + game.configs.item[costGoodType].icon + '_default');	 //消耗的物品的icon
+					qyengine.guardId('obj_openBoxCost').setScale(0.6, 0.6);
+					qyengine.guardId('txt_openBoxCostName').setText(game.configs.item[costGoodType].name);	 //消耗的物品的name
+					qyengine.guardId('txt_openBoxHaveGoodNum').setText(calNowHaveCostGood(costGoodType) + '/'); //拥有本物品的数量
+					current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum = calNowHaveCostGood(costGoodType);   //记录拥有本物品的数量
+					qyengine.guardId('grou_packagePopUp_Box').dispatchMessage({
+						"type": 'message',
+						"message": "使用或开启",
+						"argument0": 0
+					});
+				} else {
+					qyengine.guardId('obj_装备出售_使用按钮').changeSprite('obj_装备出售_使用按钮_A0');
+					var hideLinShi = ['txt_openBoxCostWord', 'obj_openBoxCost', 'txt_openBoxCostName', 'txt_openBoxHaveGoodNum', 'txt_openBoxCostGoodNum'];
+					for (var j = 0; j < hideLinShi.length; j++) {
+						qyengine.guardId(hideLinShi[j]).hide();
+					}
+					qyengine.guardId('grou_packagePopUp_Box').dispatchMessage({
+						"type": 'message',
+						"message": "使用或开启",
+						"argument0": 1
+					});
+				}
+				return;
+			}
+		}
+	}
+	//计算需要消耗的物品的数量
+	function calNowHaveCostGood(costId) {
+		for (var i = 0; i < game.vars_.userInfo.packageInfo.packGood.length; i++) {
+			if (Number(game.vars_.userInfo.packageInfo.packGood[i].id) == Number(costId)) {
+				return Number(game.vars_.userInfo.packageInfo.packGood[i].num);
+			}
+		}
+		return 0;
+	}
+
+
+
+
+
+
+
+
+
+
+
+	grou_activityMain_new.vars_.markContinueData
+	积分转轮、累计消耗、王者争霸、累计充值、等级礼包
+	公测特权 累计消耗 等级礼包 王者争霸 积分转轮 累计充值
+
 
