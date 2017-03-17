@@ -4096,9 +4096,45 @@ if (repeatTime === 0) {
 
 
 
+	/**
+	 * 	grou_activityMain_new.vars_.markContinueData
+		积分转轮、累计消耗、王者争霸、累计充值、等级礼包 公测特权
+		公测特权 累计消耗 等级礼包 王者争霸 积分转轮 累计充值
+	 */
 
-	grou_activityMain_new.vars_.markContinueData
-	积分转轮、累计消耗、王者争霸、累计充值、等级礼包
-	公测特权 累计消耗 等级礼包 王者争霸 积分转轮 累计充值
+
+
+	//createFeed界面
+	qyengine.getInstancesByType("grou_feed").length == 0 && qyengine.instance_create(0, 0, "grou_feed", {
+		"type": "grou_feed",
+		"id": "grou_feed",
+		"zIndex": 5,
+		"layer": "scene_pop",
+		"scene": "sce_mainScene"
+	});
+	var index = 0;
+	for (cell in game.configs.shop) {
+		if (game.configs.shop[cell].type == 2) {
+			qyengine.instance_create(0, 0, "grou_feedItem", {
+				"type": "grou_feedItem",
+				"id": "grou_feedItem_" + cell,
+				"zIndex": 5,
+				"layer": "scene_pop",
+				"scene": "sce_mainScene"
+			});
+			scro_feedGood.appendChild("grou_feedItem_" + cell, -7, 1, 0, index, false, true);
+			qyengine.guardId("grou_feedItem_" + cell).objects['txt_feedItemName'].name = game.configs.shop[cell].name;
+			var icon = game.configs.shop[cell].icon;
+			qyengine.guardId("grou_feedItem_" + cell).objects['obj_shopItemIcon_feed'].changeSprite("obj_" + icon + "_default");
+			qyengine.guardId("grou_feedItem_" + cell).objects['txt_shopBuyNeedGold_feed'].text = game.configs.shop[cell].price;
+			qyengine.guardId("grou_feedItem_" + cell).objects['obj_Frame_Store_GoldNumber_1_feed'].vars_.itemId = cell;
+			qyengine.guardId("grou_feedItem_" + cell).objects['obj_Frame_Share_PropFrame'].vars_.itemId = cell;
+			qyengine.guardId("grou_feedItem_" + cell).objects['obj_Frame_Store_GoldNumber_1_feed'].vars_.needBuy = true;
+			/**
+			 * 判断显示使用还是显示几个以便点击进行购买
+			 */
+			index++;
+		}
+	}
 
 
