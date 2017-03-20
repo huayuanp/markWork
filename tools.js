@@ -230,10 +230,16 @@ qyengine.callAfter(function () {
 	.bind(this), current_scene, 600);
 //判断是否是合并的版本
 window.adapt
+//找出对象的"父类"/所在的组合UI
+obj_Btn_Share_Square_pond_1.currentSprite.parent.qyobj.id
 //主动断点
 debugger;
+//紫色的颜色值
+//#ff306f
 //查看对象的图片所在的路径
 selectRole_photo_10001.currentSprite.fill_
+//查看对象的全局坐标
+obj_Btn_Share_Square_pond_1.currentSprite.getGlobalPosition()
 //查看对象的资源路径
 qyengine.guardType("obj_icon_lxjt_default").defaultOpt.fill
 //-------清除场景中的角色

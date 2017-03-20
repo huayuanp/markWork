@@ -4103,38 +4103,83 @@ if (repeatTime === 0) {
 	 */
 
 
+	grou_waterQualityItem(-2, 9)
 
-	//createFeed界面
-	qyengine.getInstancesByType("grou_feed").length == 0 && qyengine.instance_create(0, 0, "grou_feed", {
-		"type": "grou_feed",
-		"id": "grou_feed",
+
+	//创建水质界面
+	qyengine.getInstancesByType("grou_waterQuality").length === 0 && qyengine.instance_create(0, 0, "grou_waterQuality", {
+		"type": "grou_waterQuality",
+		"id": "grou_waterQuality",
 		"zIndex": 5,
-		"layer": "scene_pop",
+		"layer": "scene_button",
 		"scene": "sce_mainScene"
 	});
 	var index = 0;
-	for (cell in game.configs.shop) {
-		if (game.configs.shop[cell].type == 2) {
-			qyengine.instance_create(0, 0, "grou_feedItem", {
-				"type": "grou_feedItem",
-				"id": "grou_feedItem_" + cell,
-				"zIndex": 5,
-				"layer": "scene_pop",
-				"scene": "sce_mainScene"
-			});
-			scro_feedGood.appendChild("grou_feedItem_" + cell, -7, 1, 0, index, false, true);
-			qyengine.guardId("grou_feedItem_" + cell).objects['txt_feedItemName'].name = game.configs.shop[cell].name;
-			var icon = game.configs.shop[cell].icon;
-			qyengine.guardId("grou_feedItem_" + cell).objects['obj_shopItemIcon_feed'].changeSprite("obj_" + icon + "_default");
-			qyengine.guardId("grou_feedItem_" + cell).objects['txt_shopBuyNeedGold_feed'].text = game.configs.shop[cell].price;
-			qyengine.guardId("grou_feedItem_" + cell).objects['obj_Frame_Store_GoldNumber_1_feed'].vars_.itemId = cell;
-			qyengine.guardId("grou_feedItem_" + cell).objects['obj_Frame_Share_PropFrame'].vars_.itemId = cell;
-			qyengine.guardId("grou_feedItem_" + cell).objects['obj_Frame_Store_GoldNumber_1_feed'].vars_.needBuy = true;
-			/**
-			 * 判断显示使用还是显示几个以便点击进行购买
-			 */
-			index++;
+	for (cell in game.configs.water_tool) {
+		qyengine.instance_create(-2, 9, "grou_waterQualityItem", {
+			"type": "grou_waterQualityItem",
+			"id": "grou_waterQualityItem_" + cell,
+			"zIndex": 5,
+			"layer": "scene_button",
+			"scene": "sce_mainScene"
+		});
+		//从服务器拿到数据的话这里面是需要进行判断的~~~~~~
+		var waterItemInfo = game.configs.shop[cell];
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemName_water"].text = waterItemInfo.name;
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_buyGold_water"].text = waterItemInfo.price;
+		var markItemIdArr = ["obj_Frame_Share_PropFrame_water", "obj_Btn_Pond_I", "obj_Btn_Pond_Use_2_water", "obj_Btn_Pond_Use_water"]
+		for (arrItem in markItemIdArr) {
+			qyengine.guardId("grou_waterQualityItem_" + cell).objects[markItemIdArr[arrItem]].vars_.itemId = cell;
 		}
+		scro_water.appendChild("grou_waterQualityItem_" + cell, -2, 9, 0, index, false, true)
+		index++;
 	}
 
+
+
+	current_game.scripts['al_scr_' + "createWater"].call(this, undefined, this);
+
+	//创建治疗界面
+	qyengine.getInstancesByType("grou_waterQuality").length === 0 && qyengine.instance_create(0, 0, "grou_waterQuality", {
+		"type": "grou_waterQuality",
+		"id": "grou_waterQuality",
+		"zIndex": 5,
+		"layer": "scene_button",
+		"scene": "sce_mainScene"
+	});
+	grou_waterQuality.objects["obj_Label_Pond_WaterQuality"].changeSprite("obj_Label_Pond_MedicalCare_default");
+	grou_waterQuality.objects["obj_Icon_Pond_WaterQuality"].changeSprite("obj_Icon_Pond_MedicalCare_default");
+	var index = 0;
+	for (cell in game.configs.disease_medic) {
+		qyengine.instance_create(-2, 9, "grou_waterQualityItem", {
+			"type": "grou_waterQualityItem",
+			"id": "grou_waterQualityItem_" + cell,
+			"zIndex": 5,
+			"layer": "scene_button",
+			"scene": "sce_mainScene"
+		});
+		//从服务器拿到数据的话这里面是需要进行判断的~~~~~~
+		var waterItemInfo = game.configs.disease_medic[cell];
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemName_water"].text = waterItemInfo.name;
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_buyGold_water"].text = waterItemInfo.price;
+		var continueTime = window.get_time_text(waterItemInfo.time).split(":")[0];
+		var plusNum = 0;   //剩余数量
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemNum_water"].text = continueTime + "小时   " + plusNum + "个";
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["obj_Iconl_Pond_Time"].show();
+		var markItemIdArr = ["obj_Frame_Share_PropFrame_water", "obj_Btn_Pond_I", "obj_Btn_Pond_Use_2_water", "obj_Btn_Pond_Use_water"]
+		for (arrItem in markItemIdArr) {
+			qyengine.guardId("grou_waterQualityItem_" + cell).objects[markItemIdArr[arrItem]].vars_.itemId = cell;
+		}
+		scro_water.appendChild("grou_waterQualityItem_" + cell, -2, 9, 0, index, false, true)
+		index++;
+	}
+
+
+
+
+	current_game.scripts['al_scr_' + "createDoctor"].call(this, undefined, this);
+
+
+
+	//18133693805
 
