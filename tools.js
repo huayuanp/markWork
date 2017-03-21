@@ -292,4 +292,5 @@ vs的快捷键
 
 
 
-//
+//QyRpc.regist("asdhfjdjshfjsdhfj", "dgdgdtdy", "1", "", "", function(){console.log(arguments)})    
+//QyRpc.login("asdhfjdjshfjsdhfj", "dgdgdtdy", function(){console.log(arguments)})

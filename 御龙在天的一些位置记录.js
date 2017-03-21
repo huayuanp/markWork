@@ -3863,6 +3863,8 @@ if (repeatTime === 0) {
 		7,钥匙不够的情况下右边至少显示开一个箱子需要的钥匙数目，这样更好点
 		8,修正离线界面的Vip的领取的字偶尔位置偏移的问题~~~
 		9,现在是不足够开启一个宝箱也是显示能够开启一个宝箱所需要的钥匙
+	   2017/3/21
+	   1,服务选择界面的更改
 	 */
 
 
@@ -4089,13 +4091,6 @@ if (repeatTime === 0) {
 
 
 
-
-
-
-
-
-
-
 	/**
 	 * 	grou_activityMain_new.vars_.markContinueData
 		积分转轮、累计消耗、王者争霸、累计充值、等级礼包 公测特权
@@ -4103,83 +4098,61 @@ if (repeatTime === 0) {
 	 */
 
 
-	grou_waterQualityItem(-2, 9)
-
-
-	//创建水质界面
-	qyengine.getInstancesByType("grou_waterQuality").length === 0 && qyengine.instance_create(0, 0, "grou_waterQuality", {
-		"type": "grou_waterQuality",
-		"id": "grou_waterQuality",
-		"zIndex": 5,
-		"layer": "scene_button",
-		"scene": "sce_mainScene"
-	});
-	var index = 0;
-	for (cell in game.configs.water_tool) {
-		qyengine.instance_create(-2, 9, "grou_waterQualityItem", {
-			"type": "grou_waterQualityItem",
-			"id": "grou_waterQualityItem_" + cell,
-			"zIndex": 5,
-			"layer": "scene_button",
-			"scene": "sce_mainScene"
-		});
-		//从服务器拿到数据的话这里面是需要进行判断的~~~~~~
-		var waterItemInfo = game.configs.shop[cell];
-		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemName_water"].text = waterItemInfo.name;
-		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_buyGold_water"].text = waterItemInfo.price;
-		var markItemIdArr = ["obj_Frame_Share_PropFrame_water", "obj_Btn_Pond_I", "obj_Btn_Pond_Use_2_water", "obj_Btn_Pond_Use_water"]
-		for (arrItem in markItemIdArr) {
-			qyengine.guardId("grou_waterQualityItem_" + cell).objects[markItemIdArr[arrItem]].vars_.itemId = cell;
-		}
-		scro_water.appendChild("grou_waterQualityItem_" + cell, -2, 9, 0, index, false, true)
-		index++;
-	}
-
-
-
-	current_game.scripts['al_scr_' + "createWater"].call(this, undefined, this);
-
-	//创建治疗界面
-	qyengine.getInstancesByType("grou_waterQuality").length === 0 && qyengine.instance_create(0, 0, "grou_waterQuality", {
-		"type": "grou_waterQuality",
-		"id": "grou_waterQuality",
-		"zIndex": 5,
-		"layer": "scene_button",
-		"scene": "sce_mainScene"
-	});
-	grou_waterQuality.objects["obj_Label_Pond_WaterQuality"].changeSprite("obj_Label_Pond_MedicalCare_default");
-	grou_waterQuality.objects["obj_Icon_Pond_WaterQuality"].changeSprite("obj_Icon_Pond_MedicalCare_default");
-	var index = 0;
-	for (cell in game.configs.disease_medic) {
-		qyengine.instance_create(-2, 9, "grou_waterQualityItem", {
-			"type": "grou_waterQualityItem",
-			"id": "grou_waterQualityItem_" + cell,
-			"zIndex": 5,
-			"layer": "scene_button",
-			"scene": "sce_mainScene"
-		});
-		//从服务器拿到数据的话这里面是需要进行判断的~~~~~~
-		var waterItemInfo = game.configs.disease_medic[cell];
-		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemName_water"].text = waterItemInfo.name;
-		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_buyGold_water"].text = waterItemInfo.price;
-		var continueTime = window.get_time_text(waterItemInfo.time).split(":")[0];
-		var plusNum = 0;   //剩余数量
-		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemNum_water"].text = continueTime + "小时   " + plusNum + "个";
-		qyengine.guardId("grou_waterQualityItem_" + cell).objects["obj_Iconl_Pond_Time"].show();
-		var markItemIdArr = ["obj_Frame_Share_PropFrame_water", "obj_Btn_Pond_I", "obj_Btn_Pond_Use_2_water", "obj_Btn_Pond_Use_water"]
-		for (arrItem in markItemIdArr) {
-			qyengine.guardId("grou_waterQualityItem_" + cell).objects[markItemIdArr[arrItem]].vars_.itemId = cell;
-		}
-		scro_water.appendChild("grou_waterQualityItem_" + cell, -2, 9, 0, index, false, true)
-		index++;
-	}
-
-
-
-
-	current_game.scripts['al_scr_' + "createDoctor"].call(this, undefined, this);
-
-
 
 	//18133693805
+
+
+
+
+	//obj_Btn_Pond_Use_water    obj_Font_Pond_Use_feed
+
+	/**
+	 * 进入主界面需要的数据(玩家的userInfo:,)
+	 */
+
+
+	current_game.scripts['al_scr_' + "actionlist_loginSuccessCall"].call(this, undefined, this, arguments);
+
+
+	QyRpc.login("asdhfjdjshfjsdhfj", "dgdgdtdy", function () {
+		current_game.scripts['al_scr_' + "actionlist_loginSuccessCall"].call(this, undefined, this, arguments);
+	});
+
+
+	console.log(data[2]);
+	game.vars_.userInfo = data[2];
+	//主界面上的一些数据的初始化
+	grou_head.objects['txt_name_mainScene'].text = game.vars_.userInfo.name;
+	grou_head.objects['txt_vip_mainScene'].text = game.vars_.userInfo.over_vip_time;
+	grou_head.objects['txt_buyCrabGold'].text = game.vars_.userInfo.money;
+	grou_head.objects['txt_buyCrabGold'].text = game.vars_.userInfo.real;
+
+
+
+	QyRpc.get_my_crab("90001", function () {
+		console.log(arguments);
+	});
+
+
+
+	current_game.scripts['al_scr_' + "createShop"].call(this, undefined, this);
+
+
+
+	current_scene.vars_.needOpenTab ? current_scene.vars_.needOpenTab : 1
+	current_scene.vars_.needOpenTab = 6;
+	current_game.scripts['al_scr_' + "createShop"].call(this, undefined, this);
+
+
+
+	var allGroupArr = ["grou_commonPop", "grou_buyItem"];
+	for (cell in allGroupArr) {
+		qyengine.getInstancesByType(allGroupArr[cell]).length > 0 && qyengine.getInstancesByType(allGroupArr[cell])[0].destroy();
+	}
+
+
+
+
+
+
 
