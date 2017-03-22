@@ -35,6 +35,14 @@ KBEngine.app.player().baseCall('reqTestAddGoods', 40001, 10);
 KBEngine.app.player().baseCall('reqTestAddLevelAndVipAndGoldAndSilver', 1, 20, 10000, 1000)
 //停止唯一标识符的时间轴
 qyengine.guardId("txt_pkSecret_" + secretLocation).stopTimeline();
+//开始场景的时间轴
+current_scene.startTimeline();
+//设置场景的时间轴
+current_scene.setTimeline('tm_1', {
+	"position": 0,
+	"start": false,
+	"loop": true
+});
 //清除场景的延迟事件
 game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
 	window.clearTimeout(hd);
@@ -292,5 +300,4 @@ vs的快捷键
 
 
 
-//QyRpc.regist("asdhfjdjshfjsdhfj", "dgdgdtdy", "1", "", "", function(){console.log(arguments)})    
-//QyRpc.login("asdhfjdjshfjsdhfj", "dgdgdtdy", function(){console.log(arguments)})
+
