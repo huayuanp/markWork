@@ -4119,26 +4119,17 @@ if (repeatTime === 0) {
 	});
 
 
-	console.log(data[2]);
-	game.vars_.userInfo = data[2];
-	//主界面上的一些数据的初始化
-	grou_head.objects['txt_name_mainScene'].text = game.vars_.userInfo.name;
-	grou_head.objects['txt_vip_mainScene'].text = game.vars_.userInfo.over_vip_time;
-	grou_head.objects['txt_buyCrabGold'].text = game.vars_.userInfo.money;
-	grou_head.objects['txt_buyCrabGold'].text = game.vars_.userInfo.real;
 
 
 
-	QyRpc.get_my_crab(function () {
-		game.vars_.userInfo.my_crab = arguments[2].info;
-		current_game.scripts['al_scr_' + "updateMycrabShow"] && current_game.scripts['al_scr_' + "updateMycrabShow"].call(this, undefined, this);
-	});
+
+
 
 	//判断是否在蟹池界面
 	qyengine.getInstancesByType("grou_pondManagement").length > 0 && updateShow();
 	function updateShow() {
 		//显示每种蟹的种类
-		grou_pondHead.objects['txt_pondHead_level'].text="LV."+game.vars_.userInfo.pool_level;
+		grou_pondHead.objects['txt_pondHead_level'].text = "LV." + game.vars_.userInfo.pool_level;
 		showCrabNumLeft();
 		showPoolCapacity();
 		if (game.vars_.userInfo.my_crab.length <= 5) {
@@ -4198,20 +4189,18 @@ if (repeatTime === 0) {
 
 
 
-	//每过60秒
-	for (cell in game.vars_.userInfo.my_crab) {
-		var level = game.vars_.userInfo.my_crab[cell].level;
-		var lastKey = Object.keys(game.configs.crab_grow)[Object.keys(game.configs.crab_grow).length - 1];
-		if (Number(level) == Number(lastKey)) {
-			continue;
-		}
-		game.vars_.userInfo.my_crab[cell].hp += 60;
-		var updateHp = game.configs.crab_grow[level];
-		if (game.vars_.userInfo.my_crab[cell].hp >= updateHp) {
-			game.vars_.userInfo.my_crab[cell].level++;
-			game.vars_.userInfo.my_crab[cell].hp = game.vars_.userInfo.my_crab[cell].hp - updateHp;
-		}
-	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
