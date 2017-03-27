@@ -3865,6 +3865,17 @@ if (repeatTime === 0) {
 		9,现在是不足够开启一个宝箱也是显示能够开启一个宝箱所需要的钥匙
 	   2017/3/21
 	   1,服务选择界面的更改
+
+
+	/**2017/3/24
+	 * 1,特权   在vip3页签上超值礼包的显示问题和点击查看详情的问题~~~~;
+	 * 2,部分物品名称过长换行的问题;
+	 * 3,部分页签查看特权界面残留上一个界面的一个文字问题；
+	 * 4,修正查看特权界面的标题理解错误的问题;
+	 * 5,下面福利领取的修正;
+	 * 6,再充值可成为字体大小的修正;
+	 * 7,大转盘新增加的宝箱获得后显示undefined的问题;
+	 */
 	 */
 
 
@@ -4119,72 +4130,92 @@ if (repeatTime === 0) {
 	});
 
 
+	KBEngine.app.player().baseCall("reqClickVIPGift");
 
 
 
 
 
-
-	//判断是否在蟹池界面
-	qyengine.getInstancesByType("grou_pondManagement").length > 0 && updateShow();
-	function updateShow() {
-		//显示每种蟹的种类
-		grou_pondHead.objects['txt_pondHead_level'].text = "LV." + game.vars_.userInfo.pool_level;
-		showCrabNumLeft();
-		showPoolCapacity();
-		if (game.vars_.userInfo.my_crab.length <= 5) {
-			for (cell in game.vars_.userInfo.my_crab) {
-				qyengine.instance_create(0, 0, "obj_crabImage", {
-					"type": "obj_crabImage",
-					"id": "obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id,
-					"zIndex": 5,
-					"layer": "scene_bottom",
-					"scene": "sce_mainScene"
-				});
-				qyengine.guardId("obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id).vars_.crabInfo = game.vars_.userInfo.my_crab[cell];
-			}
-		} else {
-			var poolLevel = game.vars_.userInfo.pool_level;
-			var needShowCrabNum = poolLevel <= 2 ? 5 : game.configs.pool_simcrab[poolLevel];
-			needShowCrabNum = Number(poolLevel);
-			for (var i = 1; i <= needShowCrabNum; i++) {
-				qyengine.instance_create(0, 0, "obj_crabImage", {
-					"type": "obj_crabImage",
-					"id": "obj_crabImage_" + game.vars_.userInfo.my_crab[i].id,
-					"zIndex": 5,
-					"layer": "scene_bottom",
-					"scene": "sce_mainScene"
-				});
-				qyengine.guardId("obj_crabImage_" + game.vars_.userInfo.my_crab[i].id).vars_.crabInfo = game.vars_.userInfo.my_crab[i];
+	grou_vipGift.objects['obj_特权_未达成_gift_0'].vars_.isAlreadyBuy = false;
+	grou_vipGift.objects['obj_特权_未达成_gift_0'].vars_.canBuy = false;
+	grou_vipGift.objects['obj_特权_未达成_gift'].vars_.canReward = false;
+	grou_vipGift.objects['obj_特权_购买_03_gift'].hide();
+	grou_vipGift.objects['obj_特权_领取_03_gift'].hide();
+	grou_vipGift.objects['obj_特权_未达成_gift_0'].changeSprite("obj_特权_未达成_gift_default");
+	grou_vipGift.objects['obj_特权_未达成_gift'].changeSprite("obj_特权_未达成_gift_default");
+	if (game.vars_.userInfo.vip >= grou_vipGift.vars_.nowTab) {//达到条件
+		grou_vipGift.objects['obj_特权_未达成_gift_0'].changeSprite('obj_特权_充值_01_gift_reward_default');
+		grou_vipGift.objects['obj_特权_购买_03_gift'].show();
+		if (isAlready()) {   //达到条件已经领取
+			grou_vipGift.objects['obj_特权_未达成_gift_0'].vars_.isAlreadyBuy = true;
+			grou_vipGift.objects['obj_特权_购买_03_gift'].changeSprite("obj_特权_已购买_03_gift_default");
+		} else {	//达到条件未领取
+			grou_vipGift.objects['obj_特权_未达成_gift_0'].vars_.canBuy = true;
+			grou_vipGift.objects['obj_特权_购买_03_gift'].changeSprite("obj_特权_购买_03_gift_default");
+		}
+		//每日福利
+		grou_vipGift.objects['obj_特权_未达成_gift'].changeSprite('obj_特权_充值_01_gift_reward_default');
+		grou_vipGift.objects['obj_特权_领取_03_gift'].show();
+		if (game.vars_.userInfo.vip == grou_vipGift.vars_.nowTab) {
+			if (grou_vipGift.vars_.vipGift[1] == 1) {
+				grou_vipGift.objects['obj_特权_领取_03_gift'].changeSprite("obj_特权_已领取_03_gift_default");
+			} else {
+				grou_vipGift.objects['obj_特权_领取_03_gift'].changeSprite("obj_特权_领取_03_gift_default");
+				grou_vipGift.objects['obj_特权_未达成_gift'].vars_.canReward = true;
 			}
 		}
 	}
-	function showPoolCapacity() {
-		var poolLevel = game.vars_.userInfo.pool_level;
-		var poolCapacity = game.configs.poolUpgrade[poolLevel].capacity;
-		grou_pondHead.objects["txt_pondHead_capacity"].text = "容量: " + game.vars_.userInfo.my_crab.length + "/" + poolCapacity;
-	}
-	function showCrabNumLeft() {
-		var carbTypeNum = [0, 0, 0, 0, 0, 0];
-		var index = 0;
-		for (cell in game.vars_.userInfo.my_crab) {
-			var arrPos = backCrabLevel(game.vars_.userInfo.my_crab[cell].level);
-			carbTypeNum[arrPos]++;
-			index++;
-		}
-		for (temp in carbTypeNum) {
-			grou_pondFeet.objects["txt_pondCrabDecNum_" + temp].text = "幼蟹 " + carbTypeNum[temp];
-		}
-	}
-	//返回螃蟹的等级
-	function backCrabLevel(level) {
-		var index = 0;
-		for (temp in Object.keys(game.configs.crab_grow)) {
-			if (Number(level) == Number(Object.keys(game.configs.crab_grow)[temp])) {
-				return temp;
+
+	function isAlready() {
+		for (cell in grou_vipGift.vars_.vipGift[0]) {
+			if (grou_vipGift.vars_.vipGift[0][cell] == grou_vipGift.vars_.nowTab) {
+				return true;
 			}
 		}
-		return index;
+		return false;
+	}
+
+
+
+
+
+	//购买特权礼包或领取特权福利
+	if (self.vars_.imageType == 1) {
+		if (self.vars_.canReward) {
+			KBEngine.app.player().baseCall("reqBuyVIPItem", grou_vipGift.vars_.nowTab);
+		}
+	} else {
+		if (self.vars_.canBuy) {
+			KBEngine.app.player().baseCall("reqClickGetVIPGift");
+		}
+	}
+
+
+
+	var showTxt = game.configs.config_getGiftAndBuyGiftRepTxt[data].txt;
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, showTxt);
+
+
+	var needGold = grou_vipGift.objects['txt_gift_nowPrice'].text;
+	needGold = Number(needGold);
+	if (game.vars_.userInfo.gold < needGold) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "金子不足");
+		return;
+	}
+
+
+
+
+	current_game.scripts['updateCanRewardButton'].call(this, undefined, this);
+
+
+	qyengine.guardId("obj_特权_购买_03_gift").vars_.needShow = qyengine.guardId("obj_特权_购买_03_gift").isVisible;
+
+
+	if (qyengine.guardId("obj_特权_购买_03_gift").vars_.needShow) {
+		qyengine.guardId("obj_特权_购买_03_gift").show();
+	} else {
+		qyengine.guardId("obj_特权_购买_03_gift").hide();
 	}
 
 
@@ -4192,6 +4223,27 @@ if (repeatTime === 0) {
 
 
 
+	var colorArr = ["#ffffff", "#11f92c", "#3d98ff", "#f661f1", "#ffbe41"];
+	if (!current_scene.vars_.currentPkDropInfo) {
+		current_scene.vars_.currentPkDropInfo = [];
+	}
+	if (!current_scene.vars_.dropInfoColorArr) {
+		current_scene.vars_.dropInfoColorArr = [];
+	}
+	current_scene.vars_.currentPkDropInfo.push([97001, 10]);
+	current_scene.vars_.dropInfoColorArr.push([0, colorArr[2]]);
+	current_game.scripts["al_scr_" + "createPKDropGoodsTxt"].call(this, undefined, this);
+
+
+
+	//螃蟹村还剩下的模块
+	/**
+	 * 1,仓库
+	 * 2,兑换
+	 * 3,5个活动
+	 * 4,好友
+	 * 
+	 */
 
 
 
@@ -4199,15 +4251,113 @@ if (repeatTime === 0) {
 
 
 
+	//创建水质界面
+	qyengine.getInstancesByType("grou_waterQuality").length === 0 && qyengine.instance_create(0, 0, "grou_waterQuality", {
+		"type": "grou_waterQuality",
+		"id": "grou_waterQuality",
+		"zIndex": 5,
+		"layer": "scene_button",
+		"scene": "sce_mainScene"
+	});
+	var index = 0;
+	for (cell in game.configs.water_tool) {
+		qyengine.instance_create(-2, 9, "grou_waterQualityItem", {
+			"type": "grou_waterQualityItem",
+			"id": "grou_waterQualityItem_" + cell,
+			"zIndex": 5,
+			"layer": "scene_button",
+			"scene": "sce_mainScene"
+		});
+		//从服务器拿到数据的话这里面是需要进行判断的~~~~~~
+		var waterItemInfo = game.configs.shop[cell];
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemName_water"].text = waterItemInfo.name;
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects['grou_unUseBuy'].objects["txt_buyGold_water"].text = waterItemInfo.price;
+		var markItemIdArr = ["obj_Frame_Share_PropFrame_water", "obj_Btn_Pond_I", "obj_Btn_Pond_Use_2_water", "obj_Btn_Pond_Use_water"]
+		for (arrItem in markItemIdArr) {
+			if (arrItem == 2) {
+				qyengine.guardId("grou_waterQualityItem_" + cell).objects['grou_unUseBuy'].objects[markItemIdArr[arrItem]].vars_.itemId = cell;
+			} else {
+				try {
+					qyengine.guardId("grou_waterQualityItem_" + cell).objects[markItemIdArr[arrItem]].vars_.itemId = cell;
+				} catch (error) {
+					console.log(error.message);
+				}
+			}
+		}
+		scro_water.appendChild("grou_waterQualityItem_" + cell, -2, 9, 0, index, false, true)
+		index++;
+	}
 
 
 
 
+	var posX = 0;
+	var posY = 0;
+	if (pos) {
+		posX = pos[0];
+		posY = pos[1];
+	}
+	qyengine.instance_create(posX, posY, "grou_crabGoldAddAndShow", {
+		"type": "grou_crabGoldAddAndShow",
+		"id": "grou_crabGoldAddAndShow",
+		"zIndex": 5,
+		"layer": "scene_button",
+		"scene": "sce_mainScene"
+	});
+	if (appendGroup) {
+		qyengine.guardId(appendGroup).appendChild("grou_crabGoldAddAndShow", posX, posY);
+	}
+
+
+	current_game.scripts['al_scr_' + "createCrabGold"].call(this, undefined, this, "grou_waterQuality", [740, 126]);
+
+
+	/**
+	 * 
+	 */
+
+	//创建治疗界面
+	qyengine.getInstancesByType("grou_waterQuality").length === 0 && qyengine.instance_create(0, 0, "grou_waterQuality", {
+		"type": "grou_waterQuality",
+		"id": "grou_waterQuality",
+		"zIndex": 5,
+		"layer": "scene_button",
+		"scene": "sce_mainScene"
+	});
+	grou_waterQuality.objects["obj_Label_Pond_WaterQuality"].changeSprite("obj_Label_Pond_MedicalCare_default");
+	grou_waterQuality.objects["obj_Icon_Pond_WaterQuality"].changeSprite("obj_Icon_Pond_MedicalCare_default");
+	var index = 0;
+	for (cell in game.configs.disease_medic) {
+		qyengine.instance_create(-2, 9, "grou_waterQualityItem", {
+			"type": "grou_waterQualityItem",
+			"id": "grou_waterQualityItem_" + cell,
+			"zIndex": 5,
+			"layer": "scene_button",
+			"scene": "sce_mainScene"
+		});
+		//从服务器拿到数据的话这里面是需要进行判断的~~~~~~
+		var waterItemInfo = game.configs.disease_medic[cell];
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemName_water"].text = waterItemInfo.name;
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects['grou_unUseBuy'].objects["txt_buyGold_water"].text = waterItemInfo.price;
+		var continueTime = window.get_time_text(waterItemInfo.time).split(":")[0];
+		var plusNum = 0;   //剩余数量
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["txt_itemNum_water"].text = continueTime + "小时   " + plusNum + "个";
+		qyengine.guardId("grou_waterQualityItem_" + cell).objects["obj_Iconl_Pond_Time"].show();
+		var markItemIdArr = ["obj_Frame_Share_PropFrame_water", "obj_Btn_Pond_I", "obj_Btn_Pond_Use_2_water", "obj_Btn_Pond_Use_water"]
+		for (arrItem in markItemIdArr) {
+			if (arrItem == 2) {
+				qyengine.guardId("grou_waterQualityItem_" + cell).objects['grou_unUseBuy'].objects[markItemIdArr[arrItem]].vars_.itemId = cell;
+			} else {
+				qyengine.guardId("grou_waterQualityItem_" + cell).objects[markItemIdArr[arrItem]].vars_.itemId = cell;
+			}
+		}
+		scro_water.appendChild("grou_waterQualityItem_" + cell, -2, 9, 0, index, false, true)
+		index++;
+	}
 
 
 
 
-
-
+qyengine.guardId("").appendChild("",x,y,0,0,false,true);
 
 
