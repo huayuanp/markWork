@@ -3875,8 +3875,11 @@ if (repeatTime === 0) {
 	 * 5,下面福利领取的修正;
 	 * 6,再充值可成为字体大小的修正;
 	 * 7,大转盘新增加的宝箱获得后显示undefined的问题;
+	 * 2017/3/28
+	 * 1,新用户登陆的改变
+	 * 2,活动箭头逻辑的循环
 	 */
-	 */
+
 
 
 
@@ -4356,8 +4359,130 @@ if (repeatTime === 0) {
 	}
 
 
+	self.vars_.markTime = 0;
+	//抢购倒计时
+	self.vars_.markTime--;
+	grou_activityLimitTime.objects['txt_limitTime'].text = window.get_time_text(self.vars_.markTime);
 
 
-qyengine.guardId("").appendChild("",x,y,0,0,false,true);
+
+
+
+	KBEngine.app.player().baseCall("reqClickActivitySeven")
+
+
+	//显示折扣的更新事件
+	grou_activityLimitTime.objects['txt_inTestTime_title'].text = current_game.scripts['al_scr_' + "rechangeActivityTime"].call(this, undefined, this);
+	var isOver;   //是否过期
+	var activity_gift = game.configs.activity_gift;
+	for (item in activity_gift) {
+		var name = activity_gift[item].name;
+		var num = activity_gift[item].limit;
+		var alreadyNum = calAlreadyNum(item);
+		var nowNum = Number(num) - Number(alreadyNum);
+		var titleTxt = name + "（剩余" + nowNum + "）个";
+		var vip = Number(activity_gift[item].viplevel);
+		var initPrice = activity_gift[item].price;
+		var price = activity_gift[item].gold;
+		var buyStatus = judgeBuStatus(item, Number(num), Number(alreadyNum), vip);
+		game.configs.config_limitTime[item] = {
+			"id": item,
+			"name": titleTxt,
+			"initPrice": initPrice,
+			"price": price,
+			"vip": vip,
+			"itemId": item,
+			"num": num,
+			"buyStatus": buyStatus
+		}
+
+	}
+	scro_activityInTest.refreshRelations();
+	function judgeBuStatus(item, canBuyNum, alreadyBuyNum, needVip) {
+		if (canBuyNum <= alreadyBuyNum) {  //已售完
+			return 2;
+		} else {
+			if (game.vars_.userInfo.vip < needVip) {  //vip不够
+				return 3;
+			}
+		}
+		return 1;
+	}
+	function calAlreadyNum(item) {
+		if (data[0].length) {
+			for (cell in data[0]) {
+				if (data[0][cell].id == item) {
+					return data[0][cell].num;
+				}
+			}
+		}
+		return 0;
+	}
+	//scro_activityLimitTime_cell的创建事件
+	var markItemInfo = game.configs.activity_gift[self.id];
+	var index = 0;
+	if (markItemInfo.item != -1) {
+		var markItem = markItemInfo.item;
+		for (item in markItem.split(";")) {
+			var idAndNum = markItem.split(";")[item];
+			var info = game.configs.item[idAndNum[0]];
+			var itemId = info.id;
+			var itemIcon = info.icon;
+			var itemQuality = info.quality;
+			qyengine.instance_create(0, 0, "grou_limitTime_item_cell", {
+				"id": "grou_limitTime_item_cell_" + index,
+				"zIndex": 5,
+				"layer": "layer_headerfeet",
+				"scene": "main_scene"
+			});
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['obj_通用_道具框_绿_activityIntest_0'].vars_.itemId = itemId;
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['txt_activityGoodsNum_0'].text = idAndNum;
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['obj_activityInTestIcon_0'].changeSprite("obj_" + itemIcon + "_default");
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['obj_通用_道具框_绿_activityIntest_0'].changeSprite("obj_packageSmallFrame_A" + (Number(itemQuality) - 1));
+			self.appendChild("grou_limitTime_item_cell_" + index, -47, 0, 0, index, false, true);
+			index++;
+		}
+	}
+	if (markItemInfo.title != -1) {
+		var markTitle = markItemInfo.title;
+		for (cell in markTitle.split(';')) {
+			var idAndNum = markTitle.split(';')[cell];
+			var titleId = idAndNum[0];
+			var titleNum = idAndNum[1];
+			var titleInfo = game.configs.title[titleId];
+			var titleQuality = titleInfo.quality;
+			var titleIcon = titleInfo.icon;
+			qyengine.instance_create(0, 0, "grou_limitTime_item_cell", {
+				"id": "grou_limitTime_item_cell_" + index,
+				"zIndex": 5,
+				"layer": "layer_headerfeet",
+				"scene": "main_scene"
+			});
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['obj_通用_道具框_绿_activityIntest_0'].vars_.itemId = titleId;
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['txt_activityGoodsNum_0'].text = titleNum;
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['obj_activityInTestIcon_0'].changeSprite("" + titleIcon + "_default");
+			qyengine.guardId("grou_limitTime_item_cell_" + index).objects['obj_通用_道具框_绿_activityIntest_0'].changeSprite("obj_packageSmallFrame_A" + (Number(titleQuality) - 1));
+			self.appendChild("grou_limitTime_item_cell_" + index, -47, 0, 0, index, false, true);
+			index++;
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	game.configs.activity[7].over  //活动结束的时间
 
 
