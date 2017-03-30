@@ -3876,8 +3876,11 @@ if (repeatTime === 0) {
 	 * 6,再充值可成为字体大小的修正;
 	 * 7,大转盘新增加的宝箱获得后显示undefined的问题;
 	 * 2017/3/28
-	 * 1,新用户登陆的改变
+	 * 1,//XXXXXXXXXXX新用户登陆的改变
 	 * 2,活动箭头逻辑的循环
+	 * 3,新的折扣购买的活动带额添加
+	 * 2017/3/29
+	 * 1,处理角色翅膀中的一些逻辑等
 	 */
 
 
@@ -4388,7 +4391,7 @@ if (repeatTime === 0) {
 		game.configs.config_limitTime[item] = {
 			"id": item,
 			"name": titleTxt,
-			"initPrice": initPrice,
+			"initPrice": "原价：" + initPrice,
 			"price": price,
 			"vip": vip,
 			"itemId": item,
@@ -4469,6 +4472,62 @@ if (repeatTime === 0) {
 
 
 
+	//折扣购买的活动点击弹出详情
+	if (qyengine.getInstancesByType("grou_activityLimitTime").length > 0) {
+		current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.itemId, 5);
+		return;
+	}
+
+
+	self.vars_.mouseX = mouseX;
+
+
+	if (Math.abs(self.vars_.mouseX - mouseX) >= 25) {
+		return;
+	}
+	/**
+	 * 1,在原价的价格前面增加"价格"
+		2,ViP和数字增加空格
+		3,剩余0个，0放到括号内部
+		4,打折后的价格后面略微有被切修正
+		5,增加了所有物品的详情介绍
+	
+	 */
+
+
+	//我的蟹池返回主界面
+	var pondMoveObjArr = ["grou_pondHead", "grou_pondFeet", "grou_pondRight"];
+	pondMoveObjArr.forEach(function (v) {
+		qyengine.guardId(v).dispatchMessage({
+			"type": "message",
+			"message": "moveToInit"
+		});
+	});
+
+
+	var needMoveArr = ["grou_bottomButton", "grou_head", "grou_myCrabPoolWeather"];
+	for (arr_cell in needMoveArr) {
+		qyengine.guardId(needMoveArr[arr_cell]).dispatchMessage({
+			"type": "message",
+			"message": "moveToInit"
+		});
+	}
+	setTimeout(function () {
+		qyengine.forEach(function () {
+			this.show();
+		}, "grou_crabPoolButton");
+		grou_myCrabPoolWeather.show();
+	}, 750);
+
+
+
+
+
+	if (self.vars_.needDestroy) {
+		self.destroy();
+	} else {
+		current_game.scripts['al_scr_' + "updateMycrabShow"].call(this, undefined, this);
+	}
 
 
 
@@ -4477,12 +4536,163 @@ if (repeatTime === 0) {
 
 
 
+	current_game.scripts['al_scr_' + "createCommonToast"].call(this, undefined, this);
+
+
+	//判断是否在蟹池界面
+	qyengine.getInstancesByType("grou_pondManagement").length > 0 && updateShow();
+	function updateShow() {
+		//显示每种蟹的种类
+		grou_pondHead.objects['txt_pondHead_level'].text = "LV." + game.vars_.userInfo.pool_level;
+		showCrabNumLeft();
+		showPoolCapacity();
+		if (game.vars_.userInfo.my_crab.length <= 5) {
+			for (cell in game.vars_.userInfo.my_crab) {
+				qyengine.instance_create(0, 0, "obj_crabImage", {
+					"type": "obj_crabImage",
+					"id": "obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id,
+					"zIndex": 5,
+					"layer": "scene_bottom",
+					"scene": "sce_mainScene"
+				});
+				var markObj = qyengine.guardId("obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id);
+				var pos = calCrabPos(markObj);
+				markObj.setPosition(pos.x, pos.y);
+				qyengine.guardId("obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id).vars_.crabInfo = game.vars_.userInfo.my_crab[cell];
+			}
+		} else {
+			var poolLevel = game.vars_.userInfo.pool_level;
+			var needShowCrabNum = poolLevel <= 2 ? 5 : game.configs.pool_simcrab[poolLevel];
+			needShowCrabNum = Number(poolLevel);
+			for (var i = 1; i <= needShowCrabNum; i++) {
+				qyengine.instance_create(0, 0, "obj_crabImage", {
+					"type": "obj_crabImage",
+					"id": "obj_crabImage_" + game.vars_.userInfo.my_crab[i].id,
+					"zIndex": 5,
+					"layer": "scene_bottom",
+					"scene": "sce_mainScene"
+				});
+				var markObj = qyengine.guardId("obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id);
+				var pos = calCrabPos(markObj);
+				markObj.setPosition(pos.x, pos.y);
+				qyengine.guardId("obj_crabImage_" + game.vars_.userInfo.my_crab[i].id).vars_.crabInfo = game.vars_.userInfo.my_crab[i];
+			}
+		}
+	}
+	function showPoolCapacity() {
+		var poolLevel = game.vars_.userInfo.pool_level;
+		var poolCapacity = game.configs.poolUpgrade[poolLevel].capacity;
+		grou_pondHead.objects["txt_pondHead_capacity"].text = "容量: " + game.vars_.userInfo.my_crab.length + "/" + poolCapacity;
+	}
+	function showCrabNumLeft() {
+		var carbTypeNum = [0, 0, 0, 0, 0, 0];
+		var index = 0;
+		for (cell in game.vars_.userInfo.my_crab) {
+			var arrPos = backCrabLevel(game.vars_.userInfo.my_crab[cell].level);
+			carbTypeNum[arrPos]++;
+			index++;
+		}
+		for (temp in carbTypeNum) {
+			grou_pondFeet.objects["txt_pondCrabDecNum_" + temp].text = "幼蟹 " + carbTypeNum[temp];
+		}
+	}
+	//返回螃蟹的等级
+	function backCrabLevel(level) {
+		var index = 0;
+		for (temp in Object.keys(game.configs.crab_grow)) {
+			if (Number(level) == Number(Object.keys(game.configs.crab_grow)[temp])) {
+				return temp;
+			}
+		}
+		return index;
+	}
+	function calCrabPos(possObj) {
+		var pos = {};
+		var xRandom = random(0, 1);
+		pos.x = xRandom == 1 ? random_range(760, current_scene.width - possObj.width / 2) : random_range(self.width / 2, 530);
+		pos.y = random_range(possObj.width / 2, current_scene.height - 100);
+		return pos;
+	}
+	//螃蟹的活动区域
+	//x:(self.with/2,530)||(760,current_scene.width-self.width/2)  
+	//y:(self.width/2,current_scene.height-100)
+
+
+	/**
+	 * 1,current_scene.var_.markHungerRandomTime=random
+	 */
 
 
 
 
 
 
-	game.configs.activity[7].over  //活动结束的时间
+
+	//createFeed界面
+	qyengine.getInstancesByType("grou_feed").length == 0 && qyengine.instance_create(0, 0, "grou_feed", {
+		"type": "grou_feed",
+		"id": "grou_feed",
+		"zIndex": 5,
+		"layer": "scene_pop",
+		"scene": "sce_mainScene"
+	});
+	var index = 0;
+	for (cell in game.configs.shop) {
+		if (game.configs.shop[cell].type == 2) {
+			qyengine.instance_create(0, 0, "grou_feedItem", {
+				"type": "grou_feedItem",
+				"id": "grou_feedItem_" + cell,
+				"zIndex": 5,
+				"layer": "scene_pop",
+				"scene": "sce_mainScene"
+			});
+			var markItemObj = qyengine.guardId("grou_feedItem_" + cell);
+			scro_feedGood.appendChild("grou_feedItem_" + cell, -7, 1, 0, index, false, true);
+			markItemObj.objects['txt_feedItemName'].text = game.configs.shop[cell].name;
+			var icon = game.configs.shop[cell].icon;
+			markItemObj.objects['obj_shopItemIcon_feed'].changeSprite("obj_" + icon + "_default");
+
+			var isHaveNum = backItemNum(cell);
+			if (isHaveNum) {   //有蟹苗的情况
+				var needHide = ["obj_Icon_Share_Gold_feed", "txt_shopBuyNeedGold_feed"];
+				for (_cell in needHide) {
+					markItemObj.objects[needHide[_cell]].hide();
+				}
+				markItemObj.objects['obj_Font_Pond_Use_feed'].show();
+				markItemObj.objects['obj_Frame_Store_GoldNumber_1_feed'].changeSprite("obj_Btn_Pond_Use_feed_default");
+				markItemObj.objects["txt_feedItemNum"].text = isHaveNum;
+			} else {
+				markItemObj.objects["txt_feedItemNum"].hide();
+				markItemObj.objects['obj_Frame_Store_GoldNumber_1_feed'].vars_.needBuy = true;
+			}
+			markItemObj.objects['txt_shopBuyNeedGold_feed'].text = game.configs.shop[cell].price;
+			markItemObj.objects['obj_Frame_Store_GoldNumber_1_feed'].vars_.itemId = cell;
+			markItemObj.objects['obj_Frame_Share_PropFrame'].vars_.itemId = cell;
+			/**
+			 * 判断显示使用还是显示几个以便点击进行购买
+			 */
+			index++;
+		}
+	}
+	function backItemNum(cellId) {
+		for (item in game.vars_.userInfo.my_prop) {
+			if (game.vars_.userInfo.my_prop[item].sid == cellId) {
+				return game.vars_.userInfo.my_prop[item].num;
+			}
+		}
+		return 0;
+	}
+
+
+
+
+
+
+	if (self.vars_.needBuy) {
+		qyengine.getInstancesByType("grou_feed").length > 0 && qyengine.getInstancesByType("grou_feed")[0].destroy();
+		current_scene.vars_.needOpenTab = 2;
+		current_game.scripts['al_scr_' + "createShop"].call(this, undefined, this);
+	}
+
 
 
