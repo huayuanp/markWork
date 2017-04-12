@@ -226,6 +226,8 @@ qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
 this.moveTo(691, 859, 'time', 1000);
 //移动至,按速度
 qyengine.guardId("obj_3").moveTo(100 + qyengine.guardId("obj_3").x, qyengine.guardId("obj_3").y, 200, 1);
+//游戏中资源的路径
+//http://zuoyouxi.gamemei.com/geng957/longxiaojiutian_role/assets/image/role/wing/wings_1.png
 //关闭cache
 grou_fight.currentSprite.cacheAsBitmap = false
 //合并链接存在
@@ -246,6 +248,8 @@ debugger;
 //#ff306f
 //查看对象的图片所在的路径
 selectRole_photo_10001.currentSprite.fill_
+//阻止事件往下传递
+(event.event || event.originalEvent || event).stopPropagation && (event.event || event.originalEvent || event).stopPropagation();
 //查看对象的全局坐标
 obj_Btn_Share_Square_pond_1.currentSprite.getGlobalPosition()
 //查看对象的资源路径
