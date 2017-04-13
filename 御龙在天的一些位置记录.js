@@ -3891,9 +3891,16 @@ if (repeatTime === 0) {
 	 * 
 	 * 
 	 */
-
 	//主界面的任务
+
 	var dataId = data[0].missionid;
+	if (dataId == -1) {
+		qyengine.getInstancesByType('grou_battle_task').length > 0 && qyengine.getInstancesByType('grou_battle_task')[0].destroy();
+		return;
+	}
+	if (qyengine.getInstancesByType("grou_battle_task") == 0) {
+		return;
+	}
 	grou_battle_task.objects['obj_战斗_领取框_task'].vars_.missionId = dataId;
 	grou_battle_task.objects['obj_战斗_领取框_task'].vars_.missionType = data[0].type;
 	var dataInfo = game.configs.mission_main[dataId];
@@ -3901,16 +3908,18 @@ if (repeatTime === 0) {
 	var awardGoods = calMissionAward(dataInfo);
 	var awardText = "";
 	for (item in awardGoods) {
-		awardText = awardText.text + "" + awardGoods[item][0] + "×" + awardGoods[item][1];
+		awardText = awardText + "" + awardGoods[item][0] + "×" + awardGoods[item][1];
 	}
 	//奖励的物品或者金子的显示
 	grou_battle_task.objects['txt_battle_taskAward'].text = awardText;
 	if (dataId == data[0].curprogress) {  //说明可以领取
 		grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite(grou_battle_task.objects['obj_战斗_领取框_task'].classId + "_A0");
-		grou_battle_task.objects['obj_战斗_领取框_task'].canAward = false;
+		grou_battle_task.objects['obj_战斗_领取框_task'].canAward = true;
+		grou_battle_task.objects['obj_战斗_奖励大框_task'].changeSprite("obj_主城任务_底框_task_sprite0");
 	} else {
 		grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite(grou_battle_task.objects['obj_战斗_领取框_task'].classId + "_A1");
 		grou_battle_task.objects['obj_战斗_领取框_task'].canAward = false;
+		grou_battle_task.objects['obj_战斗_奖励大框_task'].changeSprite("obj_主城任务_底框_task_default");
 	}
 	function calMissionAward(dataInfo) {
 		var _awardArray = [];
@@ -3930,7 +3939,7 @@ if (repeatTime === 0) {
 			var itemTypeAll = dataInfo.equipment.split(";");
 			for (cell in itemTypeAll) {
 				var equipmentId = itemTypeAll[cell].split('|')[0];
-				var equipmentNum = itemTypeAll[cell].split('|')[0];
+				var equipmentNum = itemTypeAll[cell].split('|')[2];
 				var equipmentName = game.configs.equipment[equipmentId].name;
 				_awardArray.push([equipmentName, equipmentNum]);
 			}
@@ -3975,8 +3984,30 @@ if (repeatTime === 0) {
 	grou_battle_task.objects['obj_战斗_领取框_task'].cancelShieldEvent(["mousedown", "mouseup"]);
 	if (data == 1) {
 		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "领取成功!");
+		//awardSuccessCal();
 	} else {
 		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "领取失败!");
+	}
+	function awardSuccessCal() {
+		var nowTaskId = grou_battle_task.objects['obj_战斗_领取框_task'].vars_.missionId;
+		var nextTaskId = game.configs.mission_main[nowTaskId].next;
+		//判断是不是已经领取了最后的任务
+		if (Number(nextTaskId) == -1) {
+			qyengine.getInstancesByType('grou_battle_task').length > 0 && qyengine.getInstancesByType('grou_battle_task')[0].destroy();
+			return;
+		}
+		var nextTaskInfo = game.configs.mission_main[nextTaskId];
+		var _arr = [],
+			nextTaskIdType = nextTaskInfo.type,
+			nextTaskCondition = nextTaskInfo.condition,
+			curprogress = -1;
+		//curprogress-1,missionid,progress,type
+
+		if (Number(nextTaskIdType) == 1 && game.vars_.userInfo.level >= Number(nextTaskCondition)) {  //等级条件任务
+			curprogress = Number(nextTaskId);
+		}
+		_arr = [{ 'curprogress': curprogress, 'missionid': Number(nextTaskId), 'progress': -1, 'type': nextTaskIdType }];
+		current_game.scripts['al_scr_' + "onRespMainMission"].call(this, undefined, this, _arr);
 	}
 
 
@@ -3988,27 +4019,6 @@ if (repeatTime === 0) {
 	} else {
 		current_scene.vars_.markMissionType = null;
 	}
-
-
-
-
-
-	//grou_dazao.vars_.curScene
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
