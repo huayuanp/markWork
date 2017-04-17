@@ -301,8 +301,10 @@ if (qyengine.getInstancesByType("grou_gameIsOff").length == 0) {
 vs的快捷键
 回退上一个光标操作： Ctrl+U
 */
+//https://www.evernote.com/secure/SecuritySettings.action
+//password：zuishuaipeng321
 
-
+//whack737@yahoo.com   
 
 
 

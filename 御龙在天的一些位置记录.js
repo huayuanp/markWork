@@ -3893,134 +3893,95 @@ if (repeatTime === 0) {
 	 */
 	//主界面的任务
 
-	var dataId = data[0].missionid;
-	if (dataId == -1) {
-		qyengine.getInstancesByType('grou_battle_task').length > 0 && qyengine.getInstancesByType('grou_battle_task')[0].destroy();
+	/**
+	 * 二期首充_人物:"assets/qy1737.png"
+	 * 御龙在天_人物1:"assets/qy1953.png"
+	 * 御龙在天_人物2:"assets/qy1954.png"
+	 *  引导_人 "assets/qy1714.png"
+	 *  活动_人物1     "assets/qy2012.png"
+	 */
+
+	//automaticBattle
+
+
+	if (qyengine.getInstancesByType(name).length > 0) {
+
+		var uiObj = qyengine.guardId(name);
+
+		if (uiObj.objects["txt_missionId"] && window.current_scene) {
+
+			uiObj.objects["txt_missionId"].text = current_scene.vars_.currentLevel;
+
+			uiObj.objects["txt_missionName"].text = getConfig("battle", current_scene.vars_.currentLevel, "name");
+
+			uiObj.objects["txt_missionName"].setFontSize(23);
+
+		}
+	}
+
+
+	//点击里面的提示
+	if (current_scene.vars_.currentLevel >= 450) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "已通关所有的关卡无法开启自动挑战");
 		return;
 	}
-	if (qyengine.getInstancesByType("grou_battle_task") == 0) {
-		return;
-	}
-	grou_battle_task.objects['obj_战斗_领取框_task'].vars_.missionId = dataId;
-	grou_battle_task.objects['obj_战斗_领取框_task'].vars_.missionType = data[0].type;
-	var dataInfo = game.configs.mission_main[dataId];
-	grou_battle_task.objects['txt_battle_taskTitle'].text = dataInfo.name;
-	var awardGoods = calMissionAward(dataInfo);
-	var awardText = "";
-	for (item in awardGoods) {
-		awardText = awardText + "" + awardGoods[item][0] + "×" + awardGoods[item][1];
-	}
-	//奖励的物品或者金子的显示
-	grou_battle_task.objects['txt_battle_taskAward'].text = awardText;
-	if (dataId == data[0].curprogress) {  //说明可以领取
-		grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite(grou_battle_task.objects['obj_战斗_领取框_task'].classId + "_A0");
-		grou_battle_task.objects['obj_战斗_领取框_task'].canAward = true;
-		grou_battle_task.objects['obj_战斗_奖励大框_task'].changeSprite("obj_主城任务_底框_task_sprite0");
-	} else {
-		grou_battle_task.objects['obj_战斗_领取框_task'].changeSprite(grou_battle_task.objects['obj_战斗_领取框_task'].classId + "_A1");
-		grou_battle_task.objects['obj_战斗_领取框_task'].canAward = false;
-		grou_battle_task.objects['obj_战斗_奖励大框_task'].changeSprite("obj_主城任务_底框_task_default");
-	}
-	function calMissionAward(dataInfo) {
-		var _awardArray = [];
-		if (dataInfo.silver != -1) {
-			_awardArray.push(['银子', dataInfo.silver]);
-		}
-		if (dataInfo.gold != -1) {
-			_awardArray.push(['金子', dataInfo.gold]);
-		}
-		if (dataInfo.item != -1) {
-			var itemId = dataInfo.item.split('|')[0];
-			var itemNum = dataInfo.item.split('|')[1];
-			var itemName = game.configs.item[itemId].name;
-			_awardArray.push([itemName, itemNum]);
-		}
-		if (dataInfo.equipment != -1) {
-			var itemTypeAll = dataInfo.equipment.split(";");
-			for (cell in itemTypeAll) {
-				var equipmentId = itemTypeAll[cell].split('|')[0];
-				var equipmentNum = itemTypeAll[cell].split('|')[2];
-				var equipmentName = game.configs.equipment[equipmentId].name;
-				_awardArray.push([equipmentName, equipmentNum]);
+
+	setTimeout(function () {
+		if (current_scene.vars_.currentLevel >= 450) {
+			if (game.vars_.userInfo.pveAutoFightBoss == 1) {
+				current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "已通关所有的关卡,系统为您关闭自动挑战");
+				game.vars_.userInfo.pveAutoFightBoss = 0;
+				KBEngine.app.player().baseCall("reqSetAutoFightBoss");
 			}
 		}
-		return _awardArray;
+	}, 100);
+
+	current_game.scripts['al_scr_' + "shutAutoBoss"].call(this, undefined, this);
+	//10 12 14
+
+
+
+	game.vars_.userInfo.silver
+
+
+	grou_fight.objects["txt_multikill"].text = "连杀:  " + (KBEngine.app.player().pveCurTime - 1) + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
+	grou_fight.objects["txt_multikill"].text = "连杀:  " + getConfig("battle", KBEngine.app.player().gateways, "troops") + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
+
+
+
+
+	if (current_scene.vars_.currentLevel >= 450) {
+		grou_fight.objects["txt_multikill"].text = "连杀:  " + (KBEngine.app.player().pveCurTime) + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
+	} else {
+		grou_fight.objects["txt_multikill"].text = "连杀:  " + (KBEngine.app.player().pveCurTime - 1) + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
 	}
-	//点击主界面任务上的领取按钮
-	if (self.vars_.canAward) {
-		this.shieldEvent && this.shieldEvent(['mousedown', 'mouseup'], 500000);
-		KBEngine.app.player().baseCall("reqGetMainMissionReward", self.vars_.missionId);
-	} else {  //前往
-		console.log("前往的类型:", self.vars_.missionType);
-		switch (self.vars_.missionType) {
-			case 1:
-				//提示:挂机战斗以提高等级
-				current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "挂机战斗以提高等级");
-				break;
-			case 2:
-				//未达成挑战条件
-				if (!grou_fight.objects['obj_战斗_诛灭BOSS'].isVisible) {
-					current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "未达成挑战条件");
-				} else {
-					var messageObj = game.configs.config_mainMissionType[id].messageObj;
-					qyengine.guardId(messageObj).dispatchMessage({
-						"type": "message",
-						"message": "missionMain",
-						"argument0": self.vars_.missionType
-					});
+
+
+	current_game.scripts['al_scr_' + "createWantStrong"].call(this, undefined, this);
+	//我要变强主界面的一些数据绑定
+
+	console.log(calStrongTypeLength());
+	function calStrongTypeLength() {
+		var _len = [];
+		for (cell in game.configs.strong) {
+			var strongInfo = game.configs.strong[cell];
+			if (_len.length = 0) {
+				_len.push(strongInfo.type);
+			} else {
+				if (!isHave_len(_len, strongInfo.type)) {
+					_len.push(strongInfo.type);
 				}
-				break;
-			default:
-				var messageObj = game.configs.config_mainMissionType[id].messageObj;
-				qyengine.guardId(messageObj).dispatchMessage({
-					"type": "message",
-					"message": "missionMain",
-					"argument0": self.vars_.missionType
-				});
-				break;
+			}
 		}
+		return _len;
 	}
-	//领取任务后的回调
-	grou_battle_task.objects['obj_战斗_领取框_task'].cancelShieldEvent(["mousedown", "mouseup"]);
-	if (data == 1) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "领取成功!");
-		//awardSuccessCal();
-	} else {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "领取失败!");
-	}
-	function awardSuccessCal() {
-		var nowTaskId = grou_battle_task.objects['obj_战斗_领取框_task'].vars_.missionId;
-		var nextTaskId = game.configs.mission_main[nowTaskId].next;
-		//判断是不是已经领取了最后的任务
-		if (Number(nextTaskId) == -1) {
-			qyengine.getInstancesByType('grou_battle_task').length > 0 && qyengine.getInstancesByType('grou_battle_task')[0].destroy();
-			return;
+	function isHave_len(_len, temp) {
+		for (i = 0; i < _len.length; i++) {
+			if (_len[i] == temp) {
+				return true;
+			}
 		}
-		var nextTaskInfo = game.configs.mission_main[nextTaskId];
-		var _arr = [],
-			nextTaskIdType = nextTaskInfo.type,
-			nextTaskCondition = nextTaskInfo.condition,
-			curprogress = -1;
-		//curprogress-1,missionid,progress,type
-
-		if (Number(nextTaskIdType) == 1 && game.vars_.userInfo.level >= Number(nextTaskCondition)) {  //等级条件任务
-			curprogress = Number(nextTaskId);
-		}
-		_arr = [{ 'curprogress': curprogress, 'missionid': Number(nextTaskId), 'progress': -1, 'type': nextTaskIdType }];
-		current_game.scripts['al_scr_' + "onRespMainMission"].call(this, undefined, this, _arr);
+		return false;
 	}
-
-
-
-	//#D4A547
-	//mainType 打造升星以及升宝石
-	if (event.argument0) {
-		current_scene.vars_.markMissionType = event.argument0;
-	} else {
-		current_scene.vars_.markMissionType = null;
-	}
-
-
-
 
 
