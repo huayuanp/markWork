@@ -180,6 +180,8 @@ if (scro_equip.isVisible) {
 	scro_equip.currentSprite.moving_.removeChildren();
 	scro_equip.removeAll();
 }
+//刷新数据绑定
+qyengine.guardId("scro_factionFightReward").refreshRelations();
 
 
 if (!this.addOneInstance("grou_factionFightRankListItem", repeatTime, 0, {
@@ -248,8 +250,8 @@ debugger;
 //#ff306f
 //查看对象的图片所在的路径
 selectRole_photo_10001.currentSprite.fill_
-//阻止事件往下传递
-(event.event || event.originalEvent || event).stopPropagation && (event.event || event.originalEvent || event).stopPropagation();
+	//阻止事件往下传递
+	(event.event || event.originalEvent || event).stopPropagation && (event.event || event.originalEvent || event).stopPropagation();
 //查看对象的全局坐标
 obj_Btn_Share_Square_pond_1.currentSprite.getGlobalPosition()
 //查看对象的资源路径

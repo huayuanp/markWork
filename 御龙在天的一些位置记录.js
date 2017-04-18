@@ -3960,6 +3960,16 @@ if (repeatTime === 0) {
 	current_game.scripts['al_scr_' + "createWantStrong"].call(this, undefined, this);
 	//我要变强主界面的一些数据绑定
 
+
+	var typeNameArr = ["我要战力", "我要装备", '我要打造', '我要升级', '我要资源', '玩家推荐'];
+	for (var i = 1; i <= calStrongTypeLength().length; i++) {
+		game.configs.config_iWantStrong[i] = {
+			"id": i,
+			"title": typeNameArr[i - 1],
+			'itemId': i
+		};
+	}
+	scro_wantStrong.refreshRelations();
 	console.log(calStrongTypeLength());
 	function calStrongTypeLength() {
 		var _len = [];
@@ -3983,5 +3993,233 @@ if (repeatTime === 0) {
 		}
 		return false;
 	}
+	//点击type
+	var _type = self.vars_.type,
+		index = 0;
+	for (cell in game.configs.strong) {
+		var strongInfo = game.configs.strong[cell];
+		if (Number(strongInfo.type) == _type) {
+			index++;
+			var name = strongInfo.name,
+				dec = strongInfo.dec;
+			game.configs.config_iWantStrong_second[index] = {
+				"id": index,
+				"name": name,
+				"dec": dec,
+				"itemId": cell
+			};
+		}
+	}
+	scro_wantStrong_second.refreshRelations();
+
+
+
+
+	//创建grou_wantStrongSecond
+	qyengine.getInstancesByType("grou_wantStrongSecond").length == 0 && qyengine.instance_create(-100, 0, "grou_wantStrongSecond", {
+		"type": "grou_wantStrongSecond",
+		"id": "grou_wantStrongSecond",
+		"zIndex": 5,
+		"layer": "layer_headerfeet",
+		"scene": "main_scene"
+	});
+
+	//消息
+	//wantStrong
+
+	//请求服务端的一些数据
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqStrengthen");
+
+
+	//收到回调
+	grou_wantStrong.vars_.isPerfect = { 3: data[0][0], 21: data[0][1], 28: data[0][1] };
+
+	//
+	if (self.vars_.itemId) {
+		var _strong = game.configs.strong[self.vars_.itemId];
+		var arriveToText = "<font  color='#36f0df'>" + "立即前往>>" + "</font>";
+		if (_strong.condition != -1) {  //需要条件才能完美 
+			if (game.vars_.userInfo.level < _strong.level) {
+				self.text = "" + "<font  color='#ff381d'>" + _strong.level + "级解锁" + "</font>";
+			} else {
+				switch (self.vars_.itemId) {
+					case 1:
+						if (game.vars_.userInfo.roles.length < 3) {
+							self.text = arriveToText;
+						} else {
+							self.text = "已完美";
+						}
+						break;
+					case 3:
+						if (grou_wantStrong.vars_.isPerfect[self.vars_.itemId]) {
+							self.text = "已完美";
+						} else {
+							self.text = arriveToText;
+						}
+						break;
+					case 16:
+						if (game.vars_.userInfo.vip >= 4) {
+							self.text = "已完美";
+						} else {
+							self.text = arriveToText;
+						}
+						break;
+					case 17:
+						if (game.vars_.userInfo.vip >= 5) {
+							self.text = "已完美";
+						} else {
+							self.text = arriveToText;
+						}
+					case 21:
+						if (grou_wantStrong.vars_.isPerfect[self.vars_.itemId]) {
+							self.text = "已完美";
+						} else {
+							self.text = arriveToText;
+						}
+						break;
+					case 27:
+						if (game.vars_.backFactionList) {
+							self.text = arriveToText;
+						} else {
+							self.text = "已完美";
+						}
+						break;
+					case 28:
+						if (grou_wantStrong.vars_.isPerfect[self.vars_.itemId]) {
+							self.text = "已完美";
+						} else {
+							self.text = arriveToText;
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		} else {   //只要达到条件即完美 
+			if (game.vars_.userInfo.level >= Number(_strong.level)) {
+				self.text = arriveToText;
+			} else {
+				self.text = "" + "<font  color='#ff381d'>" + _strong.level + "级解锁" + "</font>";
+			}
+		}
+	}
+
+	//立即前往或者完美的点击事件
+	if (self.vars_.itemId) {
+		if (self.text.indexOf("完美") > 0 || self.text.indexOf("立即前往") > 0) {
+			var msgObj = game.configs.config_strong_extra[self.vars_.itemId].messageObj;
+			if (self.vars_.itemId == 11) { //熔炼要进行特殊处理
+				qyengine.getInstancesByType("obj_PVEicon_熔炉")[0].dispatchMessage({
+					"type": "message",
+					"message": "wantStrong",
+					"argument0": self.vars_.itemId,
+					"argument1": "wantStrong"
+				});
+			} else {
+				qyengine.guardId(msgObj).dispatchMessage({
+					"type": "message",
+					"message": "wantStrong",
+					"argument0": self.vars_.itemId,
+				});
+			}
+		} else {
+			current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "对应功能尚未解锁");
+		}
+	}
+
+
+
+	//
+
+	var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
+	qyengine.guardId(msgObj).dispatchMessage({
+		"type": "message",
+		"message": "wantStrong",
+		"argument0": self.vars_.itemId
+	});
+
+
+	//
+	if (event.message == "wantStrong") {
+		current_scene.vars_.wantStrong = event.argument0;
+		setTimeout(function () {
+			var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
+			qyengine.guardId(msgObj).dispatchMessage({
+				"type": "message",
+				"message": "wantStrong",
+			});
+		}, 50);
+	}
+
+
+
+
+
+	//obj_副本下面
+	if (event.message == "wantStrong") {
+		current_scene.vars_.wantStrong = event.argument0;
+	}
+
+
+	//"obj_副本_底框"+repeatTime
+	if (current_scene.vars_.wantStrong == 6) {
+		qyengine.guardId("obj_副本_底框" + 0).dispatchMessage({
+			"type": "message",
+			"message": "wantStrong"
+		});
+		current_scene.vars_.wantStrong = null;
+	}
+
+
+
+
+
+
+
+
+
+	if (current_scene.vars_.wantStrong) {
+		setTimeout(function () {
+			var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
+			qyengine.guardId(msgObj).dispatchMessage({
+				"type": "message",
+				"message": "wantStrong",
+			});
+		}, 100);
+		current_scene.vars_.wantStrong = null;
+	}
+
+
+
+
+	if (event.message == "wantStrong") {
+		current_scene.vars_.wantStrong = event.argument0;
+	}
+
+
+
+
+	if (current_scene.vars_.wantStrong && game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong]) {
+		var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
+		qyengine.guardId(msgObj).dispatchMessage({
+			"type": "message",
+			"message": "wantStrong",
+		});
+		current_scene.vars_.wantStrong = null;
+	}
+
+
+
+	//铭刻
+	if (current_scene.vars_.wantStrong == 15) {  
+		setTimeout(function () {
+			qyengine.guardId(msgObj).dispatchMessage({
+				"type": "message",
+				"message": "wantStrong",
+			});
+		}, 100)
+	}
+
 
 
