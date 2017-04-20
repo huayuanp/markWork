@@ -3902,324 +3902,269 @@ if (repeatTime === 0) {
 	 */
 
 	//automaticBattle
+	/**
+	 * 坐标(407,522) (231,700) (585,700)
+	 */
 
 
-	if (qyengine.getInstancesByType(name).length > 0) {
-
-		var uiObj = qyengine.guardId(name);
-
-		if (uiObj.objects["txt_missionId"] && window.current_scene) {
-
-			uiObj.objects["txt_missionId"].text = current_scene.vars_.currentLevel;
-
-			uiObj.objects["txt_missionName"].text = getConfig("battle", current_scene.vars_.currentLevel, "name");
-
-			uiObj.objects["txt_missionName"].setFontSize(23);
-
-		}
-	}
-
-
-	//点击里面的提示
-	if (current_scene.vars_.currentLevel >= 450) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "已通关所有的关卡无法开启自动挑战");
+	if (qyengine.getInstancesByType("grou_composeGen").length > 0) {
 		return;
 	}
-
-	setTimeout(function () {
-		if (current_scene.vars_.currentLevel >= 450) {
-			if (game.vars_.userInfo.pveAutoFightBoss == 1) {
-				current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "已通关所有的关卡,系统为您关闭自动挑战");
-				game.vars_.userInfo.pveAutoFightBoss = 0;
-				KBEngine.app.player().baseCall("reqSetAutoFightBoss");
-			}
-		}
-	}, 100);
-
-	current_game.scripts['al_scr_' + "shutAutoBoss"].call(this, undefined, this);
-	//10 12 14
-
-
-
-	game.vars_.userInfo.silver
-
-
-	grou_fight.objects["txt_multikill"].text = "连杀:  " + (KBEngine.app.player().pveCurTime - 1) + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
-	grou_fight.objects["txt_multikill"].text = "连杀:  " + getConfig("battle", KBEngine.app.player().gateways, "troops") + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
-
-
-
-
-	if (current_scene.vars_.currentLevel >= 450) {
-		grou_fight.objects["txt_multikill"].text = "连杀:  " + (KBEngine.app.player().pveCurTime) + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
-	} else {
-		grou_fight.objects["txt_multikill"].text = "连杀:  " + (KBEngine.app.player().pveCurTime - 1) + "/" + getConfig("battle", KBEngine.app.player().gateways, "troops");
-	}
-
-
-	current_game.scripts['al_scr_' + "createWantStrong"].call(this, undefined, this);
-	//我要变强主界面的一些数据绑定
-
-
-	var typeNameArr = ["我要战力", "我要装备", '我要打造', '我要升级', '我要资源', '玩家推荐'];
-	for (var i = 1; i <= calStrongTypeLength().length; i++) {
-		game.configs.config_iWantStrong[i] = {
-			"id": i,
-			"title": typeNameArr[i - 1],
-			'itemId': i
-		};
-	}
-	scro_wantStrong.refreshRelations();
-	console.log(calStrongTypeLength());
-	function calStrongTypeLength() {
-		var _len = [];
-		for (cell in game.configs.strong) {
-			var strongInfo = game.configs.strong[cell];
-			if (_len.length = 0) {
-				_len.push(strongInfo.type);
-			} else {
-				if (!isHave_len(_len, strongInfo.type)) {
-					_len.push(strongInfo.type);
-				}
-			}
-		}
-		return _len;
-	}
-	function isHave_len(_len, temp) {
-		for (i = 0; i < _len.length; i++) {
-			if (_len[i] == temp) {
-				return true;
-			}
-		}
-		return false;
-	}
-	//点击type
-	var _type = self.vars_.type,
-		index = 0;
-	for (cell in game.configs.strong) {
-		var strongInfo = game.configs.strong[cell];
-		if (Number(strongInfo.type) == _type) {
-			index++;
-			var name = strongInfo.name,
-				dec = strongInfo.dec;
-			game.configs.config_iWantStrong_second[index] = {
-				"id": index,
-				"name": name,
-				"dec": dec,
-				"itemId": cell
-			};
-		}
-	}
-	scro_wantStrong_second.refreshRelations();
-
-
-
-
-	//创建grou_wantStrongSecond
-	qyengine.getInstancesByType("grou_wantStrongSecond").length == 0 && qyengine.instance_create(-100, 0, "grou_wantStrongSecond", {
-		"type": "grou_wantStrongSecond",
-		"id": "grou_wantStrongSecond",
+	qyengine.instance_create(-100, 0, "grou_composeGen", {
+		"type": "grou_composeGen",
+		"id": "grou_composeGen",
 		"zIndex": 5,
 		"layer": "layer_headerfeet",
 		"scene": "main_scene"
 	});
 
-	//消息
-	//wantStrong
-
-	//请求服务端的一些数据
-	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-	KBEngine.app.player().baseCall("reqStrengthen");
-
-
-	//收到回调
-	grou_wantStrong.vars_.isPerfect = { 3: data[0][0], 21: data[0][1], 28: data[0][1] };
-
-	//
-	if (self.vars_.itemId) {
-		var _strong = game.configs.strong[self.vars_.itemId];
-		var arriveToText = "<font  color='#36f0df'>" + "立即前往>>" + "</font>";
-		if (_strong.condition != -1) {  //需要条件才能完美 
-			if (game.vars_.userInfo.level < _strong.level) {
-				self.text = "" + "<font  color='#ff381d'>" + _strong.level + "级解锁" + "</font>";
-			} else {
-				switch (self.vars_.itemId) {
-					case 1:
-						if (game.vars_.userInfo.roles.length < 3) {
-							self.text = arriveToText;
-						} else {
-							self.text = "已完美";
-						}
-						break;
-					case 3:
-						if (grou_wantStrong.vars_.isPerfect[self.vars_.itemId]) {
-							self.text = "已完美";
-						} else {
-							self.text = arriveToText;
-						}
-						break;
-					case 16:
-						if (game.vars_.userInfo.vip >= 4) {
-							self.text = "已完美";
-						} else {
-							self.text = arriveToText;
-						}
-						break;
-					case 17:
-						if (game.vars_.userInfo.vip >= 5) {
-							self.text = "已完美";
-						} else {
-							self.text = arriveToText;
-						}
-					case 21:
-						if (grou_wantStrong.vars_.isPerfect[self.vars_.itemId]) {
-							self.text = "已完美";
-						} else {
-							self.text = arriveToText;
-						}
-						break;
-					case 27:
-						if (game.vars_.backFactionList) {
-							self.text = arriveToText;
-						} else {
-							self.text = "已完美";
-						}
-						break;
-					case 28:
-						if (grou_wantStrong.vars_.isPerfect[self.vars_.itemId]) {
-							self.text = "已完美";
-						} else {
-							self.text = arriveToText;
-						}
-						break;
-					default:
-						break;
-				}
-			}
-		} else {   //只要达到条件即完美 
-			if (game.vars_.userInfo.level >= Number(_strong.level)) {
-				self.text = arriveToText;
-			} else {
-				self.text = "" + "<font  color='#ff381d'>" + _strong.level + "级解锁" + "</font>";
-			}
+	//grou_composeGen的创建事件中执行
+	grou_composeGen.objects['txt_composeGoldAndSilverNum'].text = game.vars_.userInfo.silver;
+	grou_composeGen.objects['txt_composeGoldAndSilverNum_1'].text = game.vars_.userInfo.gold;
+	grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text = game.vars_.userInfo.silver;
+	grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = game.vars_.userInfo.gold;
+	var _needHide = ['txt_composeMax', 'txt_composeGoldAndSilverNum_2', 'txt_composeGoldAndSilverNum_3', 'obj_通用_银子_1', 'obj_通用_银子_2'];
+	for (item in _needHide) {
+		grou_composeGen.objects[_needHide[item]].hide();
+	}
+	for (var i = 0; i < 3; i++) {
+		qyengine.instance_create(0, 0, "grou_composeItem", {
+			"type": "grou_composeItem",
+			"id": "grou_composeItem" + i,
+			"zIndex": 5,
+			"layer": "layer_headerfeet",
+			"scene": "main_scene"
+		});
+		var markPos = [[407, 522], [231, 700], [585, 700]];
+		var markNeedHideObj = ['txt_composeItemName', 'txt_composeItemNum', 'obj_itemIcon_compose'];
+		grou_composeGen.appendChild("grou_composeItem" + i, markPos[i][0], markPos[i][1]);
+		for (cell in markNeedHideObj) {
+			qyengine.guardId("grou_composeItem" + i).objects[markNeedHideObj[cell]].hide();
 		}
 	}
 
-	//立即前往或者完美的点击事件
-	if (self.vars_.itemId) {
-		if (self.text.indexOf("完美") > 0 || self.text.indexOf("立即前往") > 0) {
-			var msgObj = game.configs.config_strong_extra[self.vars_.itemId].messageObj;
-			if (self.vars_.itemId == 11) { //熔炼要进行特殊处理
-				qyengine.getInstancesByType("obj_PVEicon_熔炉")[0].dispatchMessage({
-					"type": "message",
-					"message": "wantStrong",
-					"argument0": self.vars_.itemId,
-					"argument1": "wantStrong"
-				});
-			} else {
-				qyengine.guardId(msgObj).dispatchMessage({
-					"type": "message",
-					"message": "wantStrong",
-					"argument0": self.vars_.itemId,
-				});
-			}
+	//选择要淬炼的宝石类型
+	if (self.vars_.selectType == 3) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "即将开启，敬请期待!");
+	}
+	if (grou_composeGen.vars_.selectType == 0) {
+		self.changeSprite("obj_通用_按钮_01_composeType_sprite0");
+		grou_composeGen.vars_.selectType = self.vars_.selectType;
+		current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
+	} else {
+		if (grou_composeGen.vars_.selectType == self.vars_.selectType) {
+			return;
 		} else {
-			current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "对应功能尚未解锁");
+			var temp = grou_composeGen.vars_.selectType - 1;
+			grou_composeGen.objects['obj_通用_按钮_01_composeType_' + temp].changeSprite("obj_通用_按钮_01_composeType_default");
+			self.changeSprite("obj_通用_按钮_01_composeType_sprite0");
+			grou_composeGen.vars_.selectType = self.vars_.selectType;
+			current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this);
 		}
 	}
 
 
+	//changeComposeGenData动作序列
+	var _needShow = ['txt_composeMax', 'txt_composeGoldAndSilverNum_2', 'txt_composeGoldAndSilverNum_3', 'obj_通用_银子_1', 'obj_通用_金子_1'];
+	for (item in _needShow) {
+		grou_composeGen.objects[_needShow[item]].show();
+	}
+	for (var i = 0; i < 3; i++) {
+		var markNeedShowObj = ['txt_composeItemName', 'txt_composeItemNum', 'obj_itemIcon_compose'];
+		for (cell in markNeedShowObj) {
+			if (i == 0) {
+				qyengine.guardId("grou_composeItem" + i).objects["obj_itemIcon_compose"].show();
+			} else {
+				qyengine.guardId("grou_composeItem" + i).objects[markNeedShowObj[cell]].show();
+			}
+		}
+		calDataShow(i, data);
+	}
+	//合成需要的银子的数量
+	var oneSilver = Number(game.configs.compose[90302 + data - 1].silver);
+	grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text = oneSilver;
+	if (grou_composeGen.vars_.consumeArr1[1] / grou_composeGen.vars_.consumeArr1[0] < 1 || consumeArr0[1] / consumeArr0[0] < 1) {
+		grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = oneSilver;
+		grou_composeGen.objects['txt_composeMax'].text = "最多可合成0个";
+	} else {
+		var consumeArr1_max = Math.floor(grou_composeGen.vars_.consumeArr1[1] / grou_composeGen.vars_.consumeArr1[0]);
+		var consumeArr0_max = Math.floor(grou_composeGen.vars_.consumeArr0[1] / grou_composeGen.vars_.consumeArr0[0]);
+		if (consumeArr1_max > consumeArr0_max) {
+			grou_composeGen.objects['txt_composeMax'].text = "最多可合成" + consumeArr0_max + "个";
+			grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = oneSilver * consumeArr0_max;
+		} else {
+			grou_composeGen.objects['txt_composeMax'].text = "最多可合成" + consumeArr1_max + "个";
+			grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = oneSilver * consumeArr1_max;
+		}
+	}
+	function calDataShow(index, data) {
+		var composeItemId = 90302 + data - 1;
+		var consumeItemId = composeItemId - 1;
+		var composeItemInfo = game.configs.item[composeItemId];
+		var consumeItemInfo = game.configs.item[consumeItemId];
+		//合成所需信息
+		var composeInfo = game.configs.compose[composeItemId];
+		consumeArr0 = [];
+		consumeArr1 = [];
+		switch (index) {
+			case 0:
+				qyengine.guardId("grou_composeItem" + index).objects['obj_itemIcon_compose'].changeSprite("obj_" + composeItemInfo.icon + "_default");
+				var quality = Number(composeItemInfo.quality) - 1;
+				qyengine.guardId("grou_composeItem" + index).objects['obj_通用_道具框_compose'].changeSprite("obj_packageSmallFrame_A" + quality);
+				break;
+			case 1:
+				qyengine.guardId("grou_composeItem" + index).objects['obj_itemIcon_compose'].changeSprite("obj_" + consumeItemInfo.icon + "_default");
+				var quality = Number(consumeItemInfo.quality) - 1,
+					name = consumeItemInfo.name;
+				qyengine.guardId("grou_composeItem" + index).objects['obj_通用_道具框_compose'].changeSprite("obj_packageSmallFrame_A" + quality);
+				//名字+淬炼一个需要消耗的数量
+				var composeOneNum = composeInfo.item.split("|")[1];
+				composeOneNum = Number(composeOneNum);
+				qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemName'].text = "" + name + "×" + composeOneNum;
+				consumeArr0 = [composeOneNum, calBackItemNum(consumeItemId)];
+				grou_composeGen.vars_.consumeArr0 = consumeArr0;
+				if (consumeArr0[1] >= composeOneNum) {  //足够一个
+					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "" + consumeArr0[1];
+				} else {  //不够一个变成红色
+					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "<font  color='#fa0303'>" + consumeArr0[1] + "</font>";
+				}
+				break;
+			case 2:
+				//需要的合成符和数量
+				//qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemName'].text = ""+name+"×"+composeOneNum;
+				var composeFuId = Number(composeInfo.cost.split("|")[0]);
+				composeFuOneNum = Number(composeInfo.cost.split("|")[1]);
+				composeFuInfo = game.configs.item[composeFuId];
+				composeFuName = composeFuInfo.name;
+				composeFuIcon = composeFuInfo.icon;
+				quality = Number(composeFuInfo.quality) - 1;
+				qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemName'].text = "" + composeFuName + "×" + composeFuOneNum;
+				consumeArr1 = [composeFuOneNum, calBackItemNum(composeFuId)];
+				grou_composeGen.vars_.consumeArr1 = consumeArr1;
+				if (consumeArr1[1] >= composeFuOneNum) {
+					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "" + consumeArr1[1];
+				} else {  //不足一个设置红色
+					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "<font  color='#fa0303'>" + consumeArr1[1] + "</font>";
+				}
+				qyengine.guardId("grou_composeItem" + index).objects['obj_通用_道具框_compose'].changeSprite("obj_packageSmallFrame_A" + quality);
+				qyengine.guardId("grou_composeItem" + index).objects['obj_itemIcon_compose'].changeSprite("obj_" + composeFuIcon + "_default");
+				break;
+			default:
+				break;
+		}
+	}
+	function calBackItemNum(itemId) {
+		//game.vars_.userInfo.packageInfo.packGood[0].id
+		for (var i = 0; i < game.vars_.userInfo.packageInfo.packGood.length; i++) {
+			if (game.vars_.userInfo.packageInfo.packGood[i].id == itemId) {
+				return game.vars_.userInfo.packageInfo.packGood[i].num;
+			}
+		}
+		return 0;
+	}
 
-	//
-
-	var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
-	qyengine.guardId(msgObj).dispatchMessage({
-		"type": "message",
-		"message": "wantStrong",
-		"argument0": self.vars_.itemId
-	});
 
 
-	//
-	if (event.message == "wantStrong") {
-		current_scene.vars_.wantStrong = event.argument0;
+
+	//点击合成一个
+	if (self.vars_.selectType == 0) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, '请先选择需要合成的淬炼宝石!');
+		return;
+	}
+	var canComposeNumByGen = Math.floor(grou_composeGen.vars_.consumeArr0[1] / grou_composeGen.vars_.consumeArr0[0]);
+	canComposeNumByFu = Math.floor(grou_composeGen.vars_.consumeArr1[1] / grou_composeGen.vars_.consumeArr1[0]);
+	if (canComposeNumByGen < 1) {  //宝石不足
+		qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
+		game.scripts["al_scr_" + "actionlist_getway"](null, null, 90302 - 2 + grou_composeGen.vars_.selectType);   //selectType
+		return;
+	}
+	if (canComposeNumByFu < 1) { //合成符不足
+		qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
+		game.scripts["al_scr_" + "actionlist_getway"](null, null, 90018);
+		return;
+	}
+	//银子是否不足
+	var needSilver = 0,
+		compose_合成数目 = 1;
+	if (self.vars_.selectType == 1) {
+		needSilver = Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text);
+	} else {
+		needSilver = Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text);
+		compose_合成数目 = Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text) / Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text);
+	}
+	if (game.vars_.userInfo.silver < needSilver) {
+		//兑换的接口
+		qyengine.instance_create(-100, 0, "grou_composeRecharge", {
+			"type": "grou_composeRecharge",
+			"id": "grou_composeRecharge",
+			"zIndex": 5,
+			"layer": "layer_headerfeet",
+			"scene": "main_scene"
+		});
+		var genTypeTxt = ["中等淬炼宝石", "高等淬炼宝石", "完美淬炼宝石"];
+		plusGold = Math.ceil(10 * (needSilver - game.vars_.userInfo.silver) / 45000);
+		plusSilver = plusGold * 45000/10;
+		var popShowText = "合成" + "<font  color='#ff88fb'>" + compose_合成数目 + "</font>" + "个" + genTypeTxt[grou_composeGen.vars_.selectType - 1] + "需要消耗" +
+			"<font  color='#91ffee'>" + grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text + "银子" + "</font>" + "是否花费" + "<font  color='#d62c2c'>" +
+			plusGold + "金子" + "</font>" + "购买缺少的" + "<font  color='#91ffee'>" + plusSilver + "银子" + "</font>";
+		grou_composeRecharge.objects['txt_composeRecharge'].text = popShowText;
+		grou_composeRecharge.vars_.value = String(plusSilver);
+		//(needSilver-game.vars_.userInfo.silver)
+	} else {
+		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+		//区别合成一个还是合成全部
+		KBEngine.app.player().baseCall("reqGemCompound", 90302 - 1 + grou_composeGen.vars_.selectType, self.vars_.selectType);
+	}
+
+	//合成保守成功
+	setTimeout(function () {
+		current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
+		current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
+	}, 100);
+
+	//合成宝石失败
+	switch (data) {
+		case 2:
+			qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
+			game.scripts["al_scr_" + "actionlist_getway"](null, null, 90302 - 1 + grou_composeGen.vars_.selectType);
+			break;
+		case 3:
+			qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
+			game.scripts["al_scr_" + "actionlist_getway"](null, null, 90018);
+			break;
+		default:
+			current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "合成失败!");
+			break;
+	}
+
+	//红色的色值:#fa0303
+
+
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqGoldExchangeSilver", grou_composeRecharge.vars_.value);
+
+
+
+
+
+
+
+	//兑换银子成功或者失败
+	if (data) {  //兑换成功
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "兑换成功");
+		qyengine.getInstancesByType("grou_composeRecharge").length > 0 && qyengine.getInstancesByType("grou_composeRecharge")[0].destroy();
 		setTimeout(function () {
-			var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
-			qyengine.guardId(msgObj).dispatchMessage({
-				"type": "message",
-				"message": "wantStrong",
-			});
+			current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
+			current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
 		}, 50);
+	} else {   //兑换失败
+		current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "金子不足,兑换失败!");
 	}
 
 
 
-
-
-	//obj_副本下面
-	if (event.message == "wantStrong") {
-		current_scene.vars_.wantStrong = event.argument0;
-	}
-
-
-	//"obj_副本_底框"+repeatTime
-	if (current_scene.vars_.wantStrong == 6) {
-		qyengine.guardId("obj_副本_底框" + 0).dispatchMessage({
-			"type": "message",
-			"message": "wantStrong"
-		});
-		current_scene.vars_.wantStrong = null;
-	}
-
-
-
-
-
-
-
-
-
-	if (current_scene.vars_.wantStrong) {
-		setTimeout(function () {
-			var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
-			qyengine.guardId(msgObj).dispatchMessage({
-				"type": "message",
-				"message": "wantStrong",
-			});
-		}, 100);
-		current_scene.vars_.wantStrong = null;
-	}
-
-
-
-
-	if (event.message == "wantStrong") {
-		current_scene.vars_.wantStrong = event.argument0;
-	}
-
-
-
-
-	if (current_scene.vars_.wantStrong && game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong]) {
-		var msgObj = game.configs.config_strong_extraTwo[current_scene.vars_.wantStrong].messageObj;
-		qyengine.guardId(msgObj).dispatchMessage({
-			"type": "message",
-			"message": "wantStrong",
-		});
-		current_scene.vars_.wantStrong = null;
-	}
-
-
-
-	//铭刻
-	if (current_scene.vars_.wantStrong == 15) {  
-		setTimeout(function () {
-			qyengine.guardId(msgObj).dispatchMessage({
-				"type": "message",
-				"message": "wantStrong",
-			});
-		}, 100)
-	}
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "即将开启，敬请期待!");
 
 
 
