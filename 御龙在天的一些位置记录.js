@@ -4101,11 +4101,13 @@ if (repeatTime === 0) {
 			"layer": "layer_headerfeet",
 			"scene": "main_scene"
 		});
-		var genTypeTxt = ["中等淬炼宝石", "高等淬炼宝石", "完美淬炼宝石"];
-		plusGold = Math.ceil(10 * (needSilver - game.vars_.userInfo.silver) / 45000);
-		plusSilver = plusGold * 45000/10;
+		var genTypeTxt = ["中等淬炼宝石", "高等淬炼宝石", "完美淬炼宝石"],
+			goldGate = Number(game.configs.buy_silver[game.vars_.userInfo.level].silver);
+
+		plusGold = Math.ceil(10 * (needSilver - game.vars_.userInfo.silver) / goldGate);
+		plusSilver = plusGold * goldGate / 10;
 		var popShowText = "合成" + "<font  color='#ff88fb'>" + compose_合成数目 + "</font>" + "个" + genTypeTxt[grou_composeGen.vars_.selectType - 1] + "需要消耗" +
-			"<font  color='#91ffee'>" + grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text + "银子" + "</font>" + "是否花费" + "<font  color='#d62c2c'>" +
+			"<font  color='#91ffee'>" + needSilver + "银子" + "</font>" + "是否花费" + "<font  color='#d62c2c'>" +
 			plusGold + "金子" + "</font>" + "购买缺少的" + "<font  color='#91ffee'>" + plusSilver + "银子" + "</font>";
 		grou_composeRecharge.objects['txt_composeRecharge'].text = popShowText;
 		grou_composeRecharge.vars_.value = String(plusSilver);
@@ -4168,3 +4170,192 @@ if (repeatTime === 0) {
 
 
 
+
+	//updateComposeScene
+	if (qyengine.getInstancesByType("grou_composeGen") == 0) {
+		return;
+	}
+	setTimeout(function () {
+		grou_composeGen.vars_.selectType > 0 && current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
+	}, 50);
+
+
+
+
+
+	current_game.scripts['al_scr_' + "updateComposeScene"].call(this, undefined, this);
+	//updateComposeSceneGoldAndSilver
+	if (qyengine.getInstancesByType("grou_composeGen").length) {
+		qyengine.getInstancesByType("grou_composeGen")[0].dispatchMessage({
+			"type": "message",
+			"message": "updateGoldAndSilver"
+		});
+	}
+
+	//审查需要   onRespShopEquipInfo
+	/*
+		程序员：王号
+		功能: 显示"购买全部"和"刷新"按钮
+		参数: 无
+	*/
+
+	//审查更改
+	var shopNeedHideArr = ['obj_商城_刷新按钮', 'obj_通用_按钮_01_shop_fresh', "txt_shop_free", "txt_freshPrice_shop_wh", 'obj_通用_银子_shop_refresh_wh'];
+	shopNeedHideArr.forEach(function (e) {
+		grou_shopMainUI.objects[e].hide();
+	});
+
+
+
+	var surname = getConfig('nickname', random_range(1, _length), 'firstName').replace(/丶/g, 1);
+	var name = getConfig('nickname', random_range(1, _length), 'lastName').replace(/丶/g, 1);
+
+	//game.configs.nickname[68].firstName
+
+
+
+	//txt_goldConvertSilver_Tip.setText('是否消耗10金子兑换' + game.configs.buy_silver[game.vars_.userInfo.level].silver + '银币？');
+
+
+
+
+	var renderer, stage, roleAnimation, effectAnimation;
+	window.onload = function () {
+		// PIXI.loader.add("SecondPanel.json").load(function() {
+		// 	var stop = 0;
+		// 	var texture = PIXI.loader.resources["SecondPanel.json"].textures["Btn_pic.png"],
+		// 		sprite = new PIXI.Sprite(texture);
+		// 	container.addChild(sprite);
+		// });
+		renderer = PIXI.autoDetectRenderer(800, 600, {
+			backgroundColor: 0x0,
+			transparent: true
+		});
+		document.body.appendChild(renderer.view);
+		stage = new PIXI.Container();
+		window.container = new PIXI.Container();
+		var bg = PIXI.Sprite.fromImage("/role/Map_10004_4.jpg");
+		container.addChild(bg);
+		bg.scale.x = 2;
+		bg.scale.y = 2;
+		RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
+		effectAnimation = new EffectAnimation();
+		effectAnimation.setEffectNameLevel("-龙啸特效_合成", 1);
+		effectAnimation.setPosition(200, 200);
+		// //effectAnimation.setScale(0.3, 0.3);
+		container.addChild(effectAnimation);
+		stage.addChild(container);
+		animate();
+	}
+	var currentTime;
+
+	function animate(timeStep) {
+		if (!renderer) return;
+		if (!currentTime) {
+			currentTime = timeStep;
+		} else {
+			RoleAnimation.stepAll((timeStep - currentTime) / 1000);
+			currentTime = timeStep;
+			// if (effectAnimation.x <= 700) {
+			// 	effectAnimation.x += 10;
+			// } else {
+			// 	effectAnimation.x = 200;
+			// }
+		}
+		renderer.render(stage);
+		requestAnimationFrame(animate)
+	}
+
+
+
+	//创建宝石的特效~~~~~
+	var _obj = qyengine.instance_create(500 - 125, 500 + 150, "obj_composeGenEffect", {
+		"type": "obj_composeGenEffect",
+		"id": "obj_composeGenEffect",
+		"zIndex": 5,
+		"layer": "layer_headerfeet",
+		"scene": "main_scene"
+	});
+	_obj.currentSprite.setFill('');
+	RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
+	effectAnimation = new EffectAnimation();
+	effectAnimation.qyobj = _obj;
+	// effectAnimation.on("stop", function () {
+		// _obj.dispatchEvent("keyframeend");
+	// })
+	effectAnimation.setEffectNameLevel("-龙啸特效_合成", 1);
+	effectAnimation.setPosition(0, 0);
+	// //effectAnimation.setScale(0.3, 0.3);
+	_obj.currentSprite.addChild(effectAnimation);
+
+
+	current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "合成成功!");
+	qyengine.forEach(function () {
+		this.destroy();
+	}, "obj_composeGenEffect");
+	current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	function createEffect(aniType) {
+		var effectObj = ["obj_waterMonitoring_Effect", "obj_autoManage_1_Effect", "obj_autoManage_2_Effect"];
+		var animationName = ["crabeffect_jiankong", "crabeffect_guanli", "crabeffect_zengchan"];
+		if (qyengine.getInstancesByType(effectObj[aniType]).length == 0) {
+			qyengine.instance_create(0, 0, effectObj[aniType], {
+				"type": effectObj[aniType],
+				"id": effectObj[aniType],
+				"zIndex": 5,
+				"layer": "scene_effect",
+				"scene": "sce_mainScene"
+			});
+
+			qyengine.instance_create(640, 360, "txt_effect_countDown", {
+				"type": "txt_effect_countDown",
+				"id": "txt_effect_countDown",
+				"zIndex": 5,
+				"layer": "scene_effect",
+				"scene": "sce_mainScene"
+			});
+
+			if (aniType == 0) {
+				qyengine.guardId("txt_effect_countDown").vars_.itemId = 90401;
+			}
+			else if (aniType == 1) {
+				qyengine.guardId("txt_effect_countDown").vars_.itemId = 90205;
+			}
+			else if (aniType == 2) {
+				qyengine.guardId("txt_effect_countDown").vars_.itemId = 90403;
+			}
+			qyengine.guardId("txt_effect_countDown").startTimeline();
+
+			var markObj = qyengine.guardId(effectObj[aniType]);
+			markObj.x = 640;
+			markObj.y = 360;
+
+			markObj.currentSprite.setFill("");
+			RoleAnimation.rootFolder = "/qiyun/crab_roleanim/";
+			var effectAnimation = new EffectAnimation();
+			effectAnimation.on("stop", function () {
+				markObj.dispatchEvent("keyframeend");
+			})
+
+			effectAnimation.setEffectNameLevel(animationName[aniType], 1);
+			effectAnimation.setCostume(1).setDuration(0.1).setDirection(1);
+			effectAnimation.setLoop(true);
+			effectAnimation.setPosition(0, 0);
+			markObj.currentSprite.addChild(effectAnimation);
+		}
+	}
