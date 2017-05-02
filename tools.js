@@ -47,6 +47,8 @@ current_scene.setTimeline('tm_1', {
 game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
 	window.clearTimeout(hd);
 })
+//刷新列表容器
+list_wantStrong.refreshView();
 //跳转场景
 qyengine.different_scene('sce_1');
 //添加对象到滚轴容器

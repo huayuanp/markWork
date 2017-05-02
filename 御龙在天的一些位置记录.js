@@ -3907,455 +3907,513 @@ if (repeatTime === 0) {
 	 */
 
 
-	if (qyengine.getInstancesByType("grou_composeGen").length > 0) {
-		return;
-	}
-	qyengine.instance_create(-100, 0, "grou_composeGen", {
-		"type": "grou_composeGen",
-		"id": "grou_composeGen",
-		"zIndex": 5,
-		"layer": "layer_headerfeet",
-		"scene": "main_scene"
-	});
 
-	//grou_composeGen的创建事件中执行
-	grou_composeGen.objects['txt_composeGoldAndSilverNum'].text = game.vars_.userInfo.silver;
-	grou_composeGen.objects['txt_composeGoldAndSilverNum_1'].text = game.vars_.userInfo.gold;
-	grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text = game.vars_.userInfo.silver;
-	grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = game.vars_.userInfo.gold;
-	var _needHide = ['txt_composeMax', 'txt_composeGoldAndSilverNum_2', 'txt_composeGoldAndSilverNum_3', 'obj_通用_银子_1', 'obj_通用_银子_2'];
-	for (item in _needHide) {
-		grou_composeGen.objects[_needHide[item]].hide();
-	}
-	for (var i = 0; i < 3; i++) {
-		qyengine.instance_create(0, 0, "grou_composeItem", {
-			"type": "grou_composeItem",
-			"id": "grou_composeItem" + i,
-			"zIndex": 5,
-			"layer": "layer_headerfeet",
-			"scene": "main_scene"
-		});
-		var markPos = [[407, 522], [231, 700], [585, 700]];
-		var markNeedHideObj = ['txt_composeItemName', 'txt_composeItemNum', 'obj_itemIcon_compose'];
-		grou_composeGen.appendChild("grou_composeItem" + i, markPos[i][0], markPos[i][1]);
-		for (cell in markNeedHideObj) {
-			qyengine.guardId("grou_composeItem" + i).objects[markNeedHideObj[cell]].hide();
+	//calculateHurt 动作序列
+
+	if (self.vars_.currentHp > 0 && self.vars_.currentAtkObj && self.vars_.currentAtkObj.vars_.currentHp > 0) {
+
+
+		//主角伤害敌人
+
+		var currentDirectionSkill = getConfig("heroAction", self.vars_.currentDirection, "skillName").split("|")[self.vars_.objType - 1].split(",")[self.vars_.currentSkillIndex];
+
+		//技能信息
+		var skillInfo = game.configs.skill[self.vars_.currentSkillID];
+
+		//当前技能等级
+		var currentSkillLv = self.vars_.skillList[self.vars_.currentSkillIndex];
+
+		//当前技能伤害百分比
+		var currentSkillHurtPercent = 0;
+
+		var currentSkillID = Number(self.vars_.currentSkillID);
+
+		if (skillInfo.damage != -1) {
+
+			var percentInfo = skillInfo.damage.split("|");
+
+			currentSkillHurtPercent = (Number(percentInfo[0]) + (currentSkillLv - 1) * Number(percentInfo[1])) * 0.01;
 		}
-	}
 
-	//选择要淬炼的宝石类型
-	if (self.vars_.selectType == 3) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "即将开启，敬请期待!");
-	}
-	if (grou_composeGen.vars_.selectType == 0) {
-		self.changeSprite("obj_通用_按钮_01_composeType_sprite0");
-		grou_composeGen.vars_.selectType = self.vars_.selectType;
-		current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
-	} else {
-		if (grou_composeGen.vars_.selectType == self.vars_.selectType) {
-			return;
-		} else {
-			var temp = grou_composeGen.vars_.selectType - 1;
-			grou_composeGen.objects['obj_通用_按钮_01_composeType_' + temp].changeSprite("obj_通用_按钮_01_composeType_default");
-			self.changeSprite("obj_通用_按钮_01_composeType_sprite0");
-			grou_composeGen.vars_.selectType = self.vars_.selectType;
-			current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this);
-		}
-	}
+		var currentSkillImageInfo = currentDirectionSkill.split(":");
 
+		//麻痹戒指的等级
+		var ringParaLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[0];
+		//新增加伤害戒指
+		var ringBreakShieldLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
+		var shieldCrossNum = 0;
+		var ringParaTime = 0;
 
-	//changeComposeGenData动作序列
-	var _needShow = ['txt_composeMax', 'txt_composeGoldAndSilverNum_2', 'txt_composeGoldAndSilverNum_3', 'obj_通用_银子_1', 'obj_通用_金子_1'];
-	for (item in _needShow) {
-		grou_composeGen.objects[_needShow[item]].show();
-	}
-	for (var i = 0; i < 3; i++) {
-		var markNeedShowObj = ['txt_composeItemName', 'txt_composeItemNum', 'obj_itemIcon_compose'];
-		for (cell in markNeedShowObj) {
-			if (i == 0) {
-				qyengine.guardId("grou_composeItem" + i).objects["obj_itemIcon_compose"].show();
-			} else {
-				qyengine.guardId("grou_composeItem" + i).objects[markNeedShowObj[cell]].show();
+		if (ringParaLevel) {
+
+			var ringInfo = game.configs.buff[59001].time.split("|");
+
+			ringParaTime = (Number(ringInfo[0]) + Number(ringInfo[1]) * (ringParaLevel - 1)) * 1000;
+
+			if (ringParaTime.toString().indexOf(".") > 0) {
+
+				ringParaTime = Number(ringParaTime.toString().split(".")[0]);
 			}
 		}
-		calDataShow(i, data);
-	}
-	//合成需要的银子的数量
-	var oneSilver = Number(game.configs.compose[90302 + data - 1].silver);
-	grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text = oneSilver;
-	if (grou_composeGen.vars_.consumeArr1[1] / grou_composeGen.vars_.consumeArr1[0] < 1 || consumeArr0[1] / consumeArr0[0] < 1) {
-		grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = oneSilver;
-		grou_composeGen.objects['txt_composeMax'].text = "最多可合成0个";
-	} else {
-		var consumeArr1_max = Math.floor(grou_composeGen.vars_.consumeArr1[1] / grou_composeGen.vars_.consumeArr1[0]);
-		var consumeArr0_max = Math.floor(grou_composeGen.vars_.consumeArr0[1] / grou_composeGen.vars_.consumeArr0[0]);
-		if (consumeArr1_max > consumeArr0_max) {
-			grou_composeGen.objects['txt_composeMax'].text = "最多可合成" + consumeArr0_max + "个";
-			grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = oneSilver * consumeArr0_max;
-		} else {
-			grou_composeGen.objects['txt_composeMax'].text = "最多可合成" + consumeArr1_max + "个";
-			grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text = oneSilver * consumeArr1_max;
+		//是否有伤害戒指
+		if (ringBreakShieldLevel) {
+			//发送breakShield
+			if (!self.vars_.isBreakShield) {
+				self.dispatchMessage({
+					"type": "message",
+					"message": "breakShield"
+				});
+			}
+			var ringBreakShieldInfo = game.configs.buff[59031],
+				shieldCrossInfo = ringBreakShieldInfo.ct.split['|'];
+			shieldCrossNum = Number(shieldCrossInfo[0] + Number(shieldCrossInfo[1]) * ringBreakShieldLevel);
 		}
-	}
-	function calDataShow(index, data) {
-		var composeItemId = 90302 + data - 1;
-		var consumeItemId = composeItemId - 1;
-		var composeItemInfo = game.configs.item[composeItemId];
-		var consumeItemInfo = game.configs.item[consumeItemId];
-		//合成所需信息
-		var composeInfo = game.configs.compose[composeItemId];
-		consumeArr0 = [];
-		consumeArr1 = [];
-		switch (index) {
-			case 0:
-				qyengine.guardId("grou_composeItem" + index).objects['obj_itemIcon_compose'].changeSprite("obj_" + composeItemInfo.icon + "_default");
-				var quality = Number(composeItemInfo.quality) - 1;
-				qyengine.guardId("grou_composeItem" + index).objects['obj_通用_道具框_compose'].changeSprite("obj_packageSmallFrame_A" + quality);
-				break;
-			case 1:
-				qyengine.guardId("grou_composeItem" + index).objects['obj_itemIcon_compose'].changeSprite("obj_" + consumeItemInfo.icon + "_default");
-				var quality = Number(consumeItemInfo.quality) - 1,
-					name = consumeItemInfo.name;
-				qyengine.guardId("grou_composeItem" + index).objects['obj_通用_道具框_compose'].changeSprite("obj_packageSmallFrame_A" + quality);
-				//名字+淬炼一个需要消耗的数量
-				var composeOneNum = composeInfo.item.split("|")[1];
-				composeOneNum = Number(composeOneNum);
-				qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemName'].text = "" + name + "×" + composeOneNum;
-				consumeArr0 = [composeOneNum, calBackItemNum(consumeItemId)];
-				grou_composeGen.vars_.consumeArr0 = consumeArr0;
-				if (consumeArr0[1] >= composeOneNum) {  //足够一个
-					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "" + consumeArr0[1];
-				} else {  //不够一个变成红色
-					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "<font  color='#fa0303'>" + consumeArr0[1] + "</font>";
+		//特效类型	
+		//普通伤害类型
+		if (Number(skillInfo.damageType) == 1) {
+
+			var skillEffectObj = qyengine.instance_create(self.x + Number(currentSkillImageInfo[1]), self.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": self.zIndex, "layer": self.parentName });
+
+			var hurtValue = 0;
+
+			//暴击几率
+			var criPercent = self.vars_.cri / (self.vars_.cri + self.vars_.currentAtkObj.vars_.rcri);
+
+			//暴击系数
+			var criCoefficient = 2;
+
+			//命中几率
+			var dMissPercent = self.vars_.hit / (self.vars_.hit + self.vars_.currentAtkObj.vars_.dodge);
+
+			//单体伤害
+			if (skillInfo.targetType == 1) {
+
+				//判断未触发暴击
+				if (random(100) > criPercent * 100) {
+
+					criCoefficient = 1;
 				}
-				break;
-			case 2:
-				//需要的合成符和数量
-				//qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemName'].text = ""+name+"×"+composeOneNum;
-				var composeFuId = Number(composeInfo.cost.split("|")[0]);
-				composeFuOneNum = Number(composeInfo.cost.split("|")[1]);
-				composeFuInfo = game.configs.item[composeFuId];
-				composeFuName = composeFuInfo.name;
-				composeFuIcon = composeFuInfo.icon;
-				quality = Number(composeFuInfo.quality) - 1;
-				qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemName'].text = "" + composeFuName + "×" + composeFuOneNum;
-				consumeArr1 = [composeFuOneNum, calBackItemNum(composeFuId)];
-				grou_composeGen.vars_.consumeArr1 = consumeArr1;
-				if (consumeArr1[1] >= composeFuOneNum) {
-					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "" + consumeArr1[1];
-				} else {  //不足一个设置红色
-					qyengine.guardId("grou_composeItem" + index).objects['txt_composeItemNum'].text = "<font  color='#fa0303'>" + consumeArr1[1] + "</font>";
+
+				//伤害类型
+				//物理伤害
+				if (skillInfo.type == 1) {
+
+					hurtValue = Math.ceil(self.vars_.atk * (1 - self.vars_.currentAtkObj.vars_.pdef / (self.vars_.currentAtkObj.vars_.pdef + self.vars_.pdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.currentAtkObj.vars_.dedamage * 0.01) * criCoefficient);
+
+					//法术伤害
+				} else {
+
+					hurtValue = Math.ceil(self.vars_.atk * (1 - self.vars_.currentAtkObj.vars_.mdef / (self.vars_.currentAtkObj.vars_.mdef + self.vars_.mdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.currentAtkObj.vars_.dedamage * 0.01) * criCoefficient);
+
 				}
-				qyengine.guardId("grou_composeItem" + index).objects['obj_通用_道具框_compose'].changeSprite("obj_packageSmallFrame_A" + quality);
-				qyengine.guardId("grou_composeItem" + index).objects['obj_itemIcon_compose'].changeSprite("obj_" + composeFuIcon + "_default");
-				break;
-			default:
-				break;
-		}
-	}
-	function calBackItemNum(itemId) {
-		//game.vars_.userInfo.packageInfo.packGood[0].id
-		for (var i = 0; i < game.vars_.userInfo.packageInfo.packGood.length; i++) {
-			if (game.vars_.userInfo.packageInfo.packGood[i].id == itemId) {
-				return game.vars_.userInfo.packageInfo.packGood[i].num;
+
+				//如果是可移动技能
+				if (skillInfo.bullet == 1) {
+
+					skillEffectObj.vars_.criCoefficient = criCoefficient;
+
+					if (random(100) > dMissPercent * 100) {
+
+						skillEffectObj.vars_.criCoefficient = 3;
+					}
+
+					skillEffectObj.vars_.hurtValue = hurtValue;
+
+					skillEffectObj.vars_.skillID = Number(self.vars_.currentSkillID);
+
+					skillEffectObj.vars_.targetType = skillInfo.targetType;
+
+					skillEffectObj.vars_.paraNum = self.vars_.para;
+
+					skillEffectObj.vars_.paraTime = ringParaTime;
+
+					skillEffectObj.rotation = getConfig("heroAction", self.vars_.currentDirection, "skillAngle");
+
+					skillEffectObj.vars_.endPos = [self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y];
+
+					skillEffectObj.vars_.currentAtkObj = self.vars_.currentAtkObj;
+
+					skillEffectObj.dispatchMessage({ "type": "message", "message": "startCheckPos" });
+
+					skillEffectObj.moveTo(self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y, skillInfo.speed);
+
+				} else {
+
+					//未命中
+					if (random(100) > dMissPercent * 100) {
+
+						self.vars_.currentTimeOut = window.setTimeout(function () {
+
+							if (self.vars_.currentAtkObj) {
+
+								self.vars_.currentAtkObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": 0, "argument1": 3 });
+							}
+
+							window.clearTimeout(self.vars_.currentTimeOut);
+
+						}, 300);
+
+
+					} else {
+
+						self.vars_.currentTimeOut = window.setTimeout(function () {
+
+							if (self.vars_.currentAtkObj) {
+
+								//发送伤害数据
+								self.vars_.currentAtkObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": hurtValue, "argument1": criCoefficient, "argument2": currentSkillID, "argument3": self.vars_.para, "argument4": ringParaTime, "argument5": shieldCrossNum });
+							}
+
+							window.clearTimeout(self.vars_.currentTimeOut);
+
+						}, 300);
+
+					}
+				}
+
+				//群体伤害
+			} else if (skillInfo.targetType == 2) {
+
+				//技能攻击半径
+				var skillAtkRangeRadii = skillInfo.rangeRadii;
+
+				//技能攻击范围
+				var skillAtkRange = [];
+
+				if (skillAtkRange != -1) {
+
+					skillAtkRange[0] = [skillEffectObj.x - skillAtkRangeRadii, skillEffectObj.x + skillAtkRangeRadii];
+
+					skillAtkRange[1] = [skillEffectObj.y - skillAtkRangeRadii, skillEffectObj.y + skillAtkRangeRadii];
+				}
+
+				//如果是非移动技能
+				if (skillInfo.bullet == 2) {
+
+					for (var i = 0; i < current_scene.vars_.enemyArr.length; i++) {
+
+						var enemyObj = current_scene.vars_.enemyArr[i];
+
+						if (enemyObj.isVisible == true && enemyObj.vars_.currentHp > 0) {
+
+							//判断未触发暴击
+							if (random(100) > criPercent * 100) {
+
+								criCoefficient = 1;
+							}
+
+							if (enemyObj.x >= skillAtkRange[0][0] && enemyObj.x <= skillAtkRange[0][1] && enemyObj.y >= skillAtkRange[1][0] && enemyObj.y <= skillAtkRange[1][1]) {
+
+								//伤害类型
+								//物理伤害
+								if (skillInfo.type == 1) {
+
+									hurtValue = Math.ceil(self.vars_.atk * (1 - enemyObj.vars_.pdef / (enemyObj.vars_.pdef + self.vars_.pdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.dedamage * 0.01) * criCoefficient);
+
+									//法术伤害
+								} else {
+
+									hurtValue = Math.ceil(self.vars_.atk * (1 - enemyObj.vars_.mdef / (enemyObj.vars_.mdef + self.vars_.mdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.dedamage * 0.01) * criCoefficient);
+
+								}
+
+								dMissPercent = self.vars_.hit / (self.vars_.hit + enemyObj.vars_.dodge);
+
+								if (random(100) > dMissPercent * 100) {
+
+									enemyObj.vars_.currentTimeOut = window.setTimeout(function () {
+
+										//发送伤害数据
+										enemyObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": 0, "argument1": 3 });
+
+										window.clearTimeout(enemyObj.vars_.currentTimeOut);
+
+									}, 300);
+
+
+
+								} else {
+
+									enemyObj.vars_.currentTimeOut = window.setTimeout(function () {
+
+										//发送伤害数据
+										enemyObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": hurtValue, "argument1": criCoefficient, "argument2": currentSkillID, "argument3": self.vars_.para, "argument4": ringParaTime, "argument5": shieldCrossNum });
+										window.clearTimeout(enemyObj.vars_.currentTimeOut);
+
+									}, 300);
+
+								}
+
+							}
+						}
+					}
+
+				} else {
+
+					skillEffectObj.vars_.skillID = Number(self.vars_.currentSkillID);
+
+					skillEffectObj.vars_.heroObj = self;
+
+					skillEffectObj.vars_.targetType = skillInfo.targetType;
+
+					skillEffectObj.vars_.paraNum = self.vars_.para;
+
+					skillEffectObj.vars_.paraTime = ringParaTime;
+
+					skillEffectObj.rotation = getConfig("heroAction", self.vars_.currentDirection, "skillAngle");
+
+					skillEffectObj.vars_.endPos = [self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y];
+
+					skillEffectObj.vars_.currentAtkObj = self.vars_.currentAtkObj;
+
+					skillEffectObj.dispatchMessage({ "type": "message", "message": "startCheckPos" });
+
+					skillEffectObj.moveTo(self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y, skillInfo.speed);
+
+				}
+			}
+
+			//治疗加血或加防御
+		} else if (Number(skillInfo.damageType) == 2 || Number(skillInfo.damageType) == 3) {
+
+			var currentTreatObj = null;
+
+			//治疗所增加的血量值
+			var treatValue = Math.ceil(self.vars_.atk * currentSkillHurtPercent);
+
+			//血量最少的友方  更改成剩余百分比最少
+			if (skillInfo.targetType == 3) {
+
+				for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
+
+					var heroObj = current_scene.vars_.heroObjArr[i];
+
+					if (heroObj.isVisible && heroObj.vars_.currentHp > 0) {
+
+						if (currentTreatObj) {
+
+							if (currentTreatObj.vars_.currentHp / currentTreatObj.vars_.allHp <= heroObj.vars_.currentHp / heroObj.vars_.allHp) {
+
+								currentTreatObj = heroObj;
+							}
+
+						} else {
+
+							currentTreatObj = heroObj;
+
+						}
+					}
+				}
+
+				if (currentTreatObj) {
+
+					var skillEffectObj = null;
+
+					if (Number(skillInfo.damageType) == 2) {
+
+						skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
+						console.error("加血~!!!!", currentTreatObj.id);
+						console.error("加的血量~!", treatValue);
+						currentTreatObj.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
+
+					} else {
+
+						if (!self.vars_.skillEffectObj) {
+
+							skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
+
+							self.vars_.skillEffectObj = skillEffectObj;
+
+							self.vars_.skillEffectObj.setFollowObj(self.id, 0, 0, "both");
+
+							currentTreatObj.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
+						}
+					}
+				}
+
+				//随机友方
+			} else if (skillInfo.targetType == 4) {
+
+				var randomObj = [];
+
+				for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
+
+					var heroObj = current_scene.vars_.heroObjArr[i];
+
+					if (heroObj.isVisible && heroObj.vars_.currentHp > 0) {
+
+						randomObj.push(heroObj);
+					}
+				}
+
+				if (randomObj.length > 0) {
+
+					currentTreatObj = randomObj[random(randomObj.length - 1)];
+
+					var skillEffectObj = null;
+
+					if (Number(skillInfo.damageType) == 2) {
+
+						skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
+
+						currentTreatObj.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
+
+					} else {
+
+						if (!self.vars_.skillEffectObj) {
+
+							skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
+
+							self.vars_.skillEffectObj = skillEffectObj;
+
+							self.vars_.skillEffectObj.setFollowObj(self.id, 0, 0, "both");
+
+							currentTreatObj.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
+						}
+
+					}
+				}
+
+				//范围友方	
+			} else if (skillInfo.targetType == 5) {
+
+				//技能攻击半径
+				var skillAtkRangeRadii = skillInfo.rangeRadii;
+
+				//技能作用范围
+				var skillAtkRange = [];
+
+				if (skillAtkRange != -1) {
+
+					skillAtkRange[0] = [self.x - skillAtkRangeRadii, self.x + skillAtkRangeRadii];
+
+					skillAtkRange[1] = [self.y - skillAtkRangeRadii, self.y + skillAtkRangeRadii];
+				}
+
+				for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
+
+					var heroObj = current_scene.vars_.heroObjArr[i];
+
+					if (heroObj.isVisible && heroObj.vars_.currentHp > 0) {
+
+						if (heroObj.x >= skillAtkRange[0][0] && heroObj.x <= skillAtkRange[0][1] && heroObj.y >= skillAtkRange[1][0] && heroObj.y <= skillAtkRange[1][1]) {
+
+							var skillEffectObj = null;
+
+							if (Number(skillInfo.damageType) == 2) {
+
+								skillEffectObj = qyengine.instance_create(heroObj.x + Number(currentSkillImageInfo[1]), heroObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": heroObj.zIndex, "layer": heroObj.parentName });
+
+								heroObj.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
+
+							} else {
+
+								if (!self.vars_.skillEffectObj) {
+
+									skillEffectObj = qyengine.instance_create(heroObj.x + Number(currentSkillImageInfo[1]), heroObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": heroObj.zIndex, "layer": heroObj.parentName });
+
+									heroObj.vars_.skillEffectObj = skillEffectObj;
+
+									heroObj.vars_.skillEffectObj.setFollowObj(heroObj.id, 0, 0, "both");
+
+									heroObj.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
+								}
+
+							}
+						}
+					}
+				}
+
+				//自己	
+			} else if (skillInfo.targetType == 6) {
+
+				var skillEffectObj = null;
+
+				if (Number(skillInfo.damageType) == 2) {
+
+					skillEffectObj = qyengine.instance_create(self.x + Number(currentSkillImageInfo[1]), self.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": self.zIndex, "layer": self.parentName });
+
+					self.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
+
+				} else {
+
+					if (!self.vars_.skillEffectObj) {
+
+						skillEffectObj = qyengine.instance_create(self.x + Number(currentSkillImageInfo[1]), self.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": self.zIndex, "layer": self.parentName });
+
+						self.vars_.skillEffectObj = skillEffectObj;
+
+						self.vars_.skillEffectObj.setFollowObj(self.id, 0, 0, "both");
+
+						self.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
+					}
+
+				}
+			}
+			//召唤	
+		} else if (Number(skillInfo.damageType) == 5) {
+
+			if (!self.vars_.summonObj) {
+
+				var summonIDInfo = skillInfo.attEffect.split("|");
+
+				game.scripts["al_scr_createSummonObj"].call(self, null, null, summonIDInfo, currentSkillLv);
+
 			}
 		}
-		return 0;
 	}
 
 
 
 
-	//点击合成一个
-	if (self.vars_.selectType == 0) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, '请先选择需要合成的淬炼宝石!');
+
+
+
+
+
+	//breakShield消息中的内容
+	if (self.vars_.continueBreakShield) {
 		return;
 	}
-	var canComposeNumByGen = Math.floor(grou_composeGen.vars_.consumeArr0[1] / grou_composeGen.vars_.consumeArr0[0]);
-	canComposeNumByFu = Math.floor(grou_composeGen.vars_.consumeArr1[1] / grou_composeGen.vars_.consumeArr1[0]);
-	if (canComposeNumByGen < 1) {  //宝石不足
-		qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
-		game.scripts["al_scr_" + "actionlist_getway"](null, null, 90302 - 2 + grou_composeGen.vars_.selectType);   //selectType
-		return;
-	}
-	if (canComposeNumByFu < 1) { //合成符不足
-		qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
-		game.scripts["al_scr_" + "actionlist_getway"](null, null, 90018);
-		return;
-	}
-	//银子是否不足
-	var needSilver = 0,
-		compose_合成数目 = 1;
-	if (self.vars_.selectType == 1) {
-		needSilver = Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text);
-	} else {
-		needSilver = Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text);
-		compose_合成数目 = Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_3'].text) / Number(grou_composeGen.objects['txt_composeGoldAndSilverNum_2'].text);
-	}
-	if (game.vars_.userInfo.silver < needSilver) {
-		//兑换的接口
-		qyengine.instance_create(-100, 0, "grou_composeRecharge", {
-			"type": "grou_composeRecharge",
-			"id": "grou_composeRecharge",
-			"zIndex": 5,
-			"layer": "layer_headerfeet",
-			"scene": "main_scene"
-		});
-		var genTypeTxt = ["中等淬炼宝石", "高等淬炼宝石", "完美淬炼宝石"],
-			goldGate = Number(game.configs.buy_silver[game.vars_.userInfo.level].silver);
-
-		plusGold = Math.ceil(10 * (needSilver - game.vars_.userInfo.silver) / goldGate);
-		plusSilver = plusGold * goldGate / 10;
-		var popShowText = "合成" + "<font  color='#ff88fb'>" + compose_合成数目 + "</font>" + "个" + genTypeTxt[grou_composeGen.vars_.selectType - 1] + "需要消耗" +
-			"<font  color='#91ffee'>" + needSilver + "银子" + "</font>" + "是否花费" + "<font  color='#d62c2c'>" +
-			plusGold + "金子" + "</font>" + "购买缺少的" + "<font  color='#91ffee'>" + plusSilver + "银子" + "</font>";
-		grou_composeRecharge.objects['txt_composeRecharge'].text = popShowText;
-		grou_composeRecharge.vars_.value = String(plusSilver);
-		//(needSilver-game.vars_.userInfo.silver)
-	} else {
-		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-		//区别合成一个还是合成全部
-		KBEngine.app.player().baseCall("reqGemCompound", 90302 - 1 + grou_composeGen.vars_.selectType, self.vars_.selectType);
-	}
-
-	//合成保守成功
-	setTimeout(function () {
-		current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
-		current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
-	}, 100);
-
-	//合成宝石失败
-	switch (data) {
-		case 2:
-			qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
-			game.scripts["al_scr_" + "actionlist_getway"](null, null, 90302 - 1 + grou_composeGen.vars_.selectType);
-			break;
-		case 3:
-			qyengine.getInstancesByType("grou_composeGen").length > 0 && qyengine.getInstancesByType("grou_composeGen")[0].destroy();
-			game.scripts["al_scr_" + "actionlist_getway"](null, null, 90018);
-			break;
-		default:
-			current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "合成失败!");
-			break;
-	}
-
-	//红色的色值:#fa0303
-
-
-	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-	KBEngine.app.player().baseCall("reqGoldExchangeSilver", grou_composeRecharge.vars_.value);
+	var continueTime = game.configs.buff[59031].time,
+		continueTime = Number(continueTime);
+	self.vars_.continueBreakShield = setTimeout(function () {
+		//本次已经使用过
+		self.vars_.isBreakShield = true;
+		self.vars_.continueBreakShield = null;
+	}, continueTime);
 
 
 
 
 
 
-
-	//兑换银子成功或者失败
-	if (data) {  //兑换成功
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "兑换成功");
-		qyengine.getInstancesByType("grou_composeRecharge").length > 0 && qyengine.getInstancesByType("grou_composeRecharge")[0].destroy();
-		setTimeout(function () {
-			current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
-			current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
-		}, 50);
-	} else {   //兑换失败
-		current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "金子不足,兑换失败!");
-	}
-
-
-
-	current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "即将开启，敬请期待!");
-
-
-
-
-	//updateComposeScene
-	if (qyengine.getInstancesByType("grou_composeGen") == 0) {
-		return;
-	}
-	setTimeout(function () {
-		grou_composeGen.vars_.selectType > 0 && current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
-	}, 50);
-
-
-
-
-
-	current_game.scripts['al_scr_' + "updateComposeScene"].call(this, undefined, this);
-	//updateComposeSceneGoldAndSilver
-	if (qyengine.getInstancesByType("grou_composeGen").length) {
-		qyengine.getInstancesByType("grou_composeGen")[0].dispatchMessage({
-			"type": "message",
-			"message": "updateGoldAndSilver"
-		});
-	}
-
-	//审查需要   onRespShopEquipInfo
-	/*
-		程序员：王号
-		功能: 显示"购买全部"和"刷新"按钮
-		参数: 无
-	*/
-
-	//审查更改
-	var shopNeedHideArr = ['obj_商城_刷新按钮', 'obj_通用_按钮_01_shop_fresh', "txt_shop_free", "txt_freshPrice_shop_wh", 'obj_通用_银子_shop_refresh_wh'];
-	shopNeedHideArr.forEach(function (e) {
-		grou_shopMainUI.objects[e].hide();
-	});
-
-
-
-	var surname = getConfig('nickname', random_range(1, _length), 'firstName').replace(/丶/g, 1);
-	var name = getConfig('nickname', random_range(1, _length), 'lastName').replace(/丶/g, 1);
-
-	//game.configs.nickname[68].firstName
-
-
-
-	//txt_goldConvertSilver_Tip.setText('是否消耗10金子兑换' + game.configs.buy_silver[game.vars_.userInfo.level].silver + '银币？');
-
-
-
-
-	var renderer, stage, roleAnimation, effectAnimation;
-	window.onload = function () {
-		// PIXI.loader.add("SecondPanel.json").load(function() {
-		// 	var stop = 0;
-		// 	var texture = PIXI.loader.resources["SecondPanel.json"].textures["Btn_pic.png"],
-		// 		sprite = new PIXI.Sprite(texture);
-		// 	container.addChild(sprite);
-		// });
-		renderer = PIXI.autoDetectRenderer(800, 600, {
-			backgroundColor: 0x0,
-			transparent: true
-		});
-		document.body.appendChild(renderer.view);
-		stage = new PIXI.Container();
-		window.container = new PIXI.Container();
-		var bg = PIXI.Sprite.fromImage("/role/Map_10004_4.jpg");
-		container.addChild(bg);
-		bg.scale.x = 2;
-		bg.scale.y = 2;
-		RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
-		effectAnimation = new EffectAnimation();
-		effectAnimation.setEffectNameLevel("-龙啸特效_合成", 1);
-		effectAnimation.setPosition(200, 200);
-		// //effectAnimation.setScale(0.3, 0.3);
-		container.addChild(effectAnimation);
-		stage.addChild(container);
-		animate();
-	}
-	var currentTime;
-
-	function animate(timeStep) {
-		if (!renderer) return;
-		if (!currentTime) {
-			currentTime = timeStep;
-		} else {
-			RoleAnimation.stepAll((timeStep - currentTime) / 1000);
-			currentTime = timeStep;
-			// if (effectAnimation.x <= 700) {
-			// 	effectAnimation.x += 10;
-			// } else {
-			// 	effectAnimation.x = 200;
-			// }
-		}
-		renderer.render(stage);
-		requestAnimationFrame(animate)
-	}
-
-
-
-	//创建宝石的特效~~~~~
-	var _obj = qyengine.instance_create(500 - 125, 500 + 150, "obj_composeGenEffect", {
-		"type": "obj_composeGenEffect",
-		"id": "obj_composeGenEffect",
-		"zIndex": 5,
-		"layer": "layer_headerfeet",
-		"scene": "main_scene"
-	});
-	_obj.currentSprite.setFill('');
-	RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
-	effectAnimation = new EffectAnimation();
-	effectAnimation.qyobj = _obj;
-	// effectAnimation.on("stop", function () {
-		// _obj.dispatchEvent("keyframeend");
-	// })
-	effectAnimation.setEffectNameLevel("-龙啸特效_合成", 1);
-	effectAnimation.setPosition(0, 0);
-	// //effectAnimation.setScale(0.3, 0.3);
-	_obj.currentSprite.addChild(effectAnimation);
-
-
-	current_game.scripts['al_scr_' + "changeComposeGenData"].call(this, undefined, this, grou_composeGen.vars_.selectType);
-	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "合成成功!");
-	qyengine.forEach(function () {
-		this.destroy();
-	}, "obj_composeGenEffect");
-	current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	function createEffect(aniType) {
-		var effectObj = ["obj_waterMonitoring_Effect", "obj_autoManage_1_Effect", "obj_autoManage_2_Effect"];
-		var animationName = ["crabeffect_jiankong", "crabeffect_guanli", "crabeffect_zengchan"];
-		if (qyengine.getInstancesByType(effectObj[aniType]).length == 0) {
-			qyengine.instance_create(0, 0, effectObj[aniType], {
-				"type": effectObj[aniType],
-				"id": effectObj[aniType],
-				"zIndex": 5,
-				"layer": "scene_effect",
-				"scene": "sce_mainScene"
-			});
-
-			qyengine.instance_create(640, 360, "txt_effect_countDown", {
-				"type": "txt_effect_countDown",
-				"id": "txt_effect_countDown",
-				"zIndex": 5,
-				"layer": "scene_effect",
-				"scene": "sce_mainScene"
-			});
-
-			if (aniType == 0) {
-				qyengine.guardId("txt_effect_countDown").vars_.itemId = 90401;
+	//判断是否有护盾
+	if (event.argument5 && self.vars_.currentHp > 0) {
+		var ringHuDunLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
+		if (ringHuDunLevel > 0) {
+			//isHuDun护盾是否已经使用过
+			if (!self.vars_.isHuDun) {
+				self.dispatchMessage({
+					"type": "message",
+					"message": "huDun"
+				});
 			}
-			else if (aniType == 1) {
-				qyengine.guardId("txt_effect_countDown").vars_.itemId = 90205;
-			}
-			else if (aniType == 2) {
-				qyengine.guardId("txt_effect_countDown").vars_.itemId = 90403;
-			}
-			qyengine.guardId("txt_effect_countDown").startTimeline();
+		} else {  //没有护盾戒指
 
-			var markObj = qyengine.guardId(effectObj[aniType]);
-			markObj.x = 640;
-			markObj.y = 360;
-
-			markObj.currentSprite.setFill("");
-			RoleAnimation.rootFolder = "/qiyun/crab_roleanim/";
-			var effectAnimation = new EffectAnimation();
-			effectAnimation.on("stop", function () {
-				markObj.dispatchEvent("keyframeend");
-			})
-
-			effectAnimation.setEffectNameLevel(animationName[aniType], 1);
-			effectAnimation.setCostume(1).setDuration(0.1).setDirection(1);
-			effectAnimation.setLoop(true);
-			effectAnimation.setPosition(0, 0);
-			markObj.currentSprite.addChild(effectAnimation);
 		}
 	}
+
+
+	//huDun消息内容
+	if (self.vars_.isHuDun) {
+		self.vars_.continueHudun = setTimeout(function () {
+
+		}, 1111);
+	}
+
+	
+
+
+
+
