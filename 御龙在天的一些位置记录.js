@@ -4389,31 +4389,116 @@ if (repeatTime === 0) {
 
 
 	//判断是否有护盾
-	if (event.argument5 && self.vars_.currentHp > 0) {
-		var ringHuDunLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
+	var ringHuDunLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
+	if (ringHuDunLevel > 0 && self.vars_.currentHp > 0) {
 		if (ringHuDunLevel > 0) {
+			var huDunInfo = game.configs.buff[59021].hp_shield.split('|'),
+				huDunRate = Number(huDunInfo[0]) + ringHuDunLevel * Number(huDunInfo[1]),
+				huDunAllNum = self.vars_.appHp * huDunRate;
+			//提供的总的额护盾的生命值
+			if (!self.vars_.huDunAllNum) {
+				self.vars_.huDunAllNum = huDunAllNum;
+				self.vars_huDunCurrentNum = huDunAllNum;
+			}
 			//isHuDun护盾是否已经使用过
 			if (!self.vars_.isHuDun) {
 				self.dispatchMessage({
 					"type": "message",
 					"message": "huDun"
 				});
-			}
-		} else {  //没有护盾戒指
+				//计算护盾减免后的伤害
+				if (self.vars_huDunCurrentNum > 0) {
+					//打过来是否带破甲
+					if (event.argument5) {
+						var hurt_护盾承受 = event.argument0 * (1 - event.argument5 * 0.01),
+							huDun_护盾剩余 = self.vars_huDunCurrentNum - hurt_护盾承受;
 
+						if (huDun_护盾剩余 <= 0) {  //护盾破
+							self.vars_.isHuDun = true;
+							event.argument0 = event.argument0 * event.argument5 * 0.01 + Math.abs(huDun_护盾剩余);
+							self.vars_.vars_huDunCurrentNum = 0;
+							if (self.vars_.continueHudun) {
+								clearTimeout();
+								self.vars_.continueHudun = null;
+							}
+						} else { //护盾还在
+							event.argument0 = event.argument0 * event.argument5 * 0.01;
+							self.vars_huDunCurrentNum = huDun_护盾剩余;
+						}
+					} else {
+						var huDun_护盾剩余 = self.vars_huDunCurrentNum - event.argument0;
+						if (huDun_护盾剩余 > 0) {
+							event.argument0 = 0;
+							self.vars_huDunCurrentNum = huDun_护盾剩余;
+						} else {
+							self.vars_huDunCurrentNum = 0;
+							event.argument0 = Math.abs(huDun_护盾剩余);
+						}
+					}
+
+				}
+			}
+
+		} else {  //没有护盾戒指
+			console.log("是否有护盾戒指");
 		}
 	}
 
 
 	//huDun消息内容
-	if (self.vars_.isHuDun) {
-		self.vars_.continueHudun = setTimeout(function () {
+	if (self.vars_.continueHudun) {
+		return;
+	}
+	var continueTime = game.configs.buff[59021].time,
+		continueTime = Number(continueTime);
+	self.vars_.continueHudun = setTimeout(function () {
+		try {
+			self.vars_.continueHudun = null;
+			self.vars_.isHuDun = true;
+		} catch (error) {
+			console.log(error.message);
+		}
+	}, continueTime * 1000);
 
-		}, 1111);
+
+
+
+
+
+
+
+
+
+	//self.vars_.arenaType    current_scene.vars_.heroObj.vars_.arenaType
+	//修正第二个角色复活失败的问题
+	if (self != current_scene.vars_.heroObj) {
+		self.vars_.arenaType = current_scene.vars_.heroObj.vars_.arenaType;
 	}
 
-	
 
+
+
+
+	/**
+	 * (260,170)    (373,170)
+	 * (260,168)    (373,168)
+	 * (260,208)	(373,210)
+	 */
+
+	//260-113
+	//373-113
+	//486-113=373
+
+	setTimeout(function () {
+		var offSet = current_scene.width / 6;
+		self.x = offSet * (self.vars_.posType + 1);
+	}, 10);
+
+
+	qyengine.guardId("obj_战斗_真气").dispatchMessage({
+		"type": "message",
+		"message":"backToBattleScene"
+	});
 
 
 
