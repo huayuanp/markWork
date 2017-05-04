@@ -3963,10 +3963,10 @@ if (repeatTime === 0) {
 					"type": "message",
 					"message": "breakShield"
 				});
+				var ringBreakShieldInfo = game.configs.buff[59031],
+					shieldCrossInfo = ringBreakShieldInfo.ct.split['|'];
+				shieldCrossNum = Number(shieldCrossInfo[0] + Number(shieldCrossInfo[1]) * ringBreakShieldLevel);
 			}
-			var ringBreakShieldInfo = game.configs.buff[59031],
-				shieldCrossInfo = ringBreakShieldInfo.ct.split['|'];
-			shieldCrossNum = Number(shieldCrossInfo[0] + Number(shieldCrossInfo[1]) * ringBreakShieldLevel);
 		}
 		//特效类型	
 		//普通伤害类型
@@ -4379,9 +4379,11 @@ if (repeatTime === 0) {
 		continueTime = Number(continueTime);
 	self.vars_.continueBreakShield = setTimeout(function () {
 		//本次已经使用过
-		self.vars_.isBreakShield = true;
-		self.vars_.continueBreakShield = null;
-	}, continueTime);
+		if (self.vars_.continueBreakShield) {
+			self.vars_.isBreakShield = true;
+			self.vars_.continueBreakShield = null;
+		}
+	}, continueTime * 1000);
 
 
 
@@ -4389,16 +4391,16 @@ if (repeatTime === 0) {
 
 
 	//判断是否有护盾
-	var ringHuDunLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
-	if (ringHuDunLevel > 0 && self.vars_.currentHp > 0) {
-		if (ringHuDunLevel > 0) {
+	if (self.vars_.isPvP || self.vars_.foesType || self.vars_.arenaType) {
+		var ringHuDunLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
+		if (ringHuDunLevel > 0 && self.vars_.currentHp > 0) {
 			var huDunInfo = game.configs.buff[59021].hp_shield.split('|'),
 				huDunRate = Number(huDunInfo[0]) + ringHuDunLevel * Number(huDunInfo[1]),
 				huDunAllNum = self.vars_.appHp * huDunRate;
 			//提供的总的额护盾的生命值
 			if (!self.vars_.huDunAllNum) {
 				self.vars_.huDunAllNum = huDunAllNum;
-				self.vars_huDunCurrentNum = huDunAllNum;
+				self.vars_.huDunCurrentNum = huDunAllNum;
 			}
 			//isHuDun护盾是否已经使用过
 			if (!self.vars_.isHuDun) {
@@ -4407,40 +4409,45 @@ if (repeatTime === 0) {
 					"message": "huDun"
 				});
 				//计算护盾减免后的伤害
-				if (self.vars_huDunCurrentNum > 0) {
+				if (self.vars_.huDunCurrentNum > 0) {
 					//打过来是否带破甲
 					if (event.argument5) {
 						var hurt_护盾承受 = event.argument0 * (1 - event.argument5 * 0.01),
-							huDun_护盾剩余 = self.vars_huDunCurrentNum - hurt_护盾承受;
+							huDun_护盾剩余 = self.vars_.huDunCurrentNum - hurt_护盾承受;
 
 						if (huDun_护盾剩余 <= 0) {  //护盾破
 							self.vars_.isHuDun = true;
 							event.argument0 = event.argument0 * event.argument5 * 0.01 + Math.abs(huDun_护盾剩余);
-							self.vars_.vars_huDunCurrentNum = 0;
+							self.vars_.vars_.huDunCurrentNum = 0;
 							if (self.vars_.continueHudun) {
-								clearTimeout();
+								clearTimeout(self.vars_.continueHudun);
 								self.vars_.continueHudun = null;
+								self.vars_.huDunEffectObj.destroy();
+								self.vars_.huDunEffectObj = null;
 							}
 						} else { //护盾还在
 							event.argument0 = event.argument0 * event.argument5 * 0.01;
-							self.vars_huDunCurrentNum = huDun_护盾剩余;
+							self.vars_.huDunCurrentNum = huDun_护盾剩余;
 						}
 					} else {
-						var huDun_护盾剩余 = self.vars_huDunCurrentNum - event.argument0;
+						var huDun_护盾剩余 = self.vars_.huDunCurrentNum - event.argument0;
 						if (huDun_护盾剩余 > 0) {
 							event.argument0 = 0;
-							self.vars_huDunCurrentNum = huDun_护盾剩余;
+							self.vars_.huDunCurrentNum = huDun_护盾剩余;
 						} else {
-							self.vars_huDunCurrentNum = 0;
+							self.vars_.huDunCurrentNum = 0;
 							event.argument0 = Math.abs(huDun_护盾剩余);
+							if (self.vars_.continueHudun) {
+								clearTimeout(self.vars_.continueHudun);
+								self.vars_.continueHudun = null;
+								self.vars_.huDunEffectObj.destroy();
+								self.vars_.huDunEffectObj = null;
+							}
 						}
 					}
 
 				}
 			}
-
-		} else {  //没有护盾戒指
-			console.log("是否有护盾戒指");
 		}
 	}
 
@@ -4453,8 +4460,12 @@ if (repeatTime === 0) {
 		continueTime = Number(continueTime);
 	self.vars_.continueHudun = setTimeout(function () {
 		try {
-			self.vars_.continueHudun = null;
-			self.vars_.isHuDun = true;
+			if (self.vars_.continueHudun) {
+				self.vars_.continueHudun = null;
+				self.vars_.isHuDun = true;
+				self.vars_.huDunEffectObj.destroy();
+				self.vars_.huDunEffectObj = null;
+			}
 		} catch (error) {
 			console.log(error.message);
 		}
@@ -4464,41 +4475,76 @@ if (repeatTime === 0) {
 
 
 
+	//破盾
 
 
 
 
 
-	//self.vars_.arenaType    current_scene.vars_.heroObj.vars_.arenaType
-	//修正第二个角色复活失败的问题
-	if (self != current_scene.vars_.heroObj) {
-		self.vars_.arenaType = current_scene.vars_.heroObj.vars_.arenaType;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	function filterText(txt, filter, replace) {
+		var msg = txt.toLowerCase().replace(new RegExp(filter.toLowerCase(), "g"), "");
+
+		var repl = "潲";
+
+		var ret = "";
+		for (var i = 0; i < txt.length; i++) {
+			if (txt[i].toLowerCase() == msg[0]) {
+				ret += txt[i];
+				msg = msg.substr(1);
+			} else {
+				ret += repl;
+			}
+		}
+		//      /\*{3}/g
+		txt = ret.replace(new RegExp("\\潲{" + filter.length + "}", "g"), replace);
+		return txt;
 	}
+	QyText.prototype.setText = function (txt) {
+		txt === undefined && (txt = "");
+		typeof txt !== "string" && (txt = JSON.stringify(txt));
+
+		txt = filterText(txt, "2316104", "*");
+		/*
+		if (this.classId != "feelGoldStartTimeText") {
+			txt = filterText(txt, "s", "服");
+		} else {
+			txt = filterText(txt, "s", "秒");
+		}
+		*/
 
 
-
-
-
-	/**
-	 * (260,170)    (373,170)
-	 * (260,168)    (373,168)
-	 * (260,208)	(373,210)
-	 */
-
-	//260-113
-	//373-113
-	//486-113=373
-
-	setTimeout(function () {
-		var offSet = current_scene.width / 6;
-		self.x = offSet * (self.vars_.posType + 1);
-	}, 10);
-
-
-	qyengine.guardId("obj_战斗_真气").dispatchMessage({
-		"type": "message",
-		"message":"backToBattleScene"
-	});
-
-
+		qyengine.Text.prototype.setText.call(this, "");
+		this._text = txt + "";
+		this.delays = this.getDelay();
+		this.playing = false;
+		this.clearAllToCall();
+		this.showTextBySpeed();
+		this.currentSprite && (this.currentSprite.updatedCacheTexture = true);
+	};
 
