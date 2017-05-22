@@ -3908,643 +3908,514 @@ if (repeatTime === 0) {
 
 
 
-	//calculateHurt 动作序列
 
-	if (self.vars_.currentHp > 0 && self.vars_.currentAtkObj && self.vars_.currentAtkObj.vars_.currentHp > 0) {
 
+	//创建主角,初始化主角模块
+	var rolesInfo = game.vars_.userInfo.roles;
 
-		//主角伤害敌人
+	for (var i = 0; i < rolesInfo.length; i++) {
 
-		var currentDirectionSkill = getConfig("heroAction", self.vars_.currentDirection, "skillName").split("|")[self.vars_.objType - 1].split(",")[self.vars_.currentSkillIndex];
+		var heroObj = null;
 
-		//技能信息
-		var skillInfo = game.configs.skill[self.vars_.currentSkillID];
+		if (i == 0) {
 
-		//当前技能等级
-		var currentSkillLv = self.vars_.skillList[self.vars_.currentSkillIndex];
+			heroObj = qyengine.instance_create(750, 900, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
 
-		//当前技能伤害百分比
-		var currentSkillHurtPercent = 0;
+			//主角
+			current_scene.vars_.heroObj = heroObj;
 
-		var currentSkillID = Number(self.vars_.currentSkillID);
+			heroObj.setFollowView();
 
-		if (skillInfo.damage != -1) {
-
-			var percentInfo = skillInfo.damage.split("|");
-
-			currentSkillHurtPercent = (Number(percentInfo[0]) + (currentSkillLv - 1) * Number(percentInfo[1])) * 0.01;
-		}
-
-		var currentSkillImageInfo = currentDirectionSkill.split(":");
-
-		//麻痹戒指的等级
-		var ringParaLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[0];
-		//新增加伤害戒指
-		var ringBreakShieldLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
-		var shieldCrossNum = 0;
-		var ringParaTime = 0;
-
-		if (ringParaLevel) {
-
-			var ringInfo = game.configs.buff[59001].time.split("|");
-
-			ringParaTime = (Number(ringInfo[0]) + Number(ringInfo[1]) * (ringParaLevel - 1)) * 1000;
-
-			if (ringParaTime.toString().indexOf(".") > 0) {
-
-				ringParaTime = Number(ringParaTime.toString().split(".")[0]);
-			}
-		}
-		//是否有伤害戒指
-		if (ringBreakShieldLevel) {
-			//发送breakShield
-			if (!self.vars_.isBreakShield) {
-				self.dispatchMessage({
-					"type": "message",
-					"message": "breakShield"
-				});
-				var ringBreakShieldInfo = game.configs.buff[59031],
-					shieldCrossInfo = ringBreakShieldInfo.ct.split['|'];
-				shieldCrossNum = Number(shieldCrossInfo[0] + Number(shieldCrossInfo[1]) * ringBreakShieldLevel);
-			}
-		}
-		//特效类型	
-		//普通伤害类型
-		if (Number(skillInfo.damageType) == 1) {
-
-			var skillEffectObj = qyengine.instance_create(self.x + Number(currentSkillImageInfo[1]), self.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": self.zIndex, "layer": self.parentName });
-
-			var hurtValue = 0;
-
-			//暴击几率
-			var criPercent = self.vars_.cri / (self.vars_.cri + self.vars_.currentAtkObj.vars_.rcri);
-
-			//暴击系数
-			var criCoefficient = 2;
-
-			//命中几率
-			var dMissPercent = self.vars_.hit / (self.vars_.hit + self.vars_.currentAtkObj.vars_.dodge);
-
-			//单体伤害
-			if (skillInfo.targetType == 1) {
-
-				//判断未触发暴击
-				if (random(100) > criPercent * 100) {
-
-					criCoefficient = 1;
-				}
-
-				//伤害类型
-				//物理伤害
-				if (skillInfo.type == 1) {
-
-					hurtValue = Math.ceil(self.vars_.atk * (1 - self.vars_.currentAtkObj.vars_.pdef / (self.vars_.currentAtkObj.vars_.pdef + self.vars_.pdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.currentAtkObj.vars_.dedamage * 0.01) * criCoefficient);
-
-					//法术伤害
-				} else {
-
-					hurtValue = Math.ceil(self.vars_.atk * (1 - self.vars_.currentAtkObj.vars_.mdef / (self.vars_.currentAtkObj.vars_.mdef + self.vars_.mdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.currentAtkObj.vars_.dedamage * 0.01) * criCoefficient);
-
-				}
-
-				//如果是可移动技能
-				if (skillInfo.bullet == 1) {
-
-					skillEffectObj.vars_.criCoefficient = criCoefficient;
-
-					if (random(100) > dMissPercent * 100) {
-
-						skillEffectObj.vars_.criCoefficient = 3;
-					}
-
-					skillEffectObj.vars_.hurtValue = hurtValue;
-
-					skillEffectObj.vars_.skillID = Number(self.vars_.currentSkillID);
-
-					skillEffectObj.vars_.targetType = skillInfo.targetType;
-
-					skillEffectObj.vars_.paraNum = self.vars_.para;
-
-					skillEffectObj.vars_.paraTime = ringParaTime;
-
-					skillEffectObj.rotation = getConfig("heroAction", self.vars_.currentDirection, "skillAngle");
-
-					skillEffectObj.vars_.endPos = [self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y];
-
-					skillEffectObj.vars_.currentAtkObj = self.vars_.currentAtkObj;
-
-					skillEffectObj.dispatchMessage({ "type": "message", "message": "startCheckPos" });
-
-					skillEffectObj.moveTo(self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y, skillInfo.speed);
-
-				} else {
-
-					//未命中
-					if (random(100) > dMissPercent * 100) {
-
-						self.vars_.currentTimeOut = window.setTimeout(function () {
-
-							if (self.vars_.currentAtkObj) {
-
-								self.vars_.currentAtkObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": 0, "argument1": 3 });
-							}
-
-							window.clearTimeout(self.vars_.currentTimeOut);
-
-						}, 300);
-
-
-					} else {
-
-						self.vars_.currentTimeOut = window.setTimeout(function () {
-
-							if (self.vars_.currentAtkObj) {
-
-								//发送伤害数据
-								self.vars_.currentAtkObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": hurtValue, "argument1": criCoefficient, "argument2": currentSkillID, "argument3": self.vars_.para, "argument4": ringParaTime, "argument5": shieldCrossNum });
-							}
-
-							window.clearTimeout(self.vars_.currentTimeOut);
-
-						}, 300);
-
-					}
-				}
-
-				//群体伤害
-			} else if (skillInfo.targetType == 2) {
-
-				//技能攻击半径
-				var skillAtkRangeRadii = skillInfo.rangeRadii;
-
-				//技能攻击范围
-				var skillAtkRange = [];
-
-				if (skillAtkRange != -1) {
-
-					skillAtkRange[0] = [skillEffectObj.x - skillAtkRangeRadii, skillEffectObj.x + skillAtkRangeRadii];
-
-					skillAtkRange[1] = [skillEffectObj.y - skillAtkRangeRadii, skillEffectObj.y + skillAtkRangeRadii];
-				}
-
-				//如果是非移动技能
-				if (skillInfo.bullet == 2) {
-
-					for (var i = 0; i < current_scene.vars_.enemyArr.length; i++) {
-
-						var enemyObj = current_scene.vars_.enemyArr[i];
-
-						if (enemyObj.isVisible == true && enemyObj.vars_.currentHp > 0) {
-
-							//判断未触发暴击
-							if (random(100) > criPercent * 100) {
-
-								criCoefficient = 1;
-							}
-
-							if (enemyObj.x >= skillAtkRange[0][0] && enemyObj.x <= skillAtkRange[0][1] && enemyObj.y >= skillAtkRange[1][0] && enemyObj.y <= skillAtkRange[1][1]) {
-
-								//伤害类型
-								//物理伤害
-								if (skillInfo.type == 1) {
-
-									hurtValue = Math.ceil(self.vars_.atk * (1 - enemyObj.vars_.pdef / (enemyObj.vars_.pdef + self.vars_.pdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.dedamage * 0.01) * criCoefficient);
-
-									//法术伤害
-								} else {
-
-									hurtValue = Math.ceil(self.vars_.atk * (1 - enemyObj.vars_.mdef / (enemyObj.vars_.mdef + self.vars_.mdef)) * currentSkillHurtPercent * (1 + self.vars_.adddamage * 0.01) * (1 - self.vars_.dedamage * 0.01) * criCoefficient);
-
-								}
-
-								dMissPercent = self.vars_.hit / (self.vars_.hit + enemyObj.vars_.dodge);
-
-								if (random(100) > dMissPercent * 100) {
-
-									enemyObj.vars_.currentTimeOut = window.setTimeout(function () {
-
-										//发送伤害数据
-										enemyObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": 0, "argument1": 3 });
-
-										window.clearTimeout(enemyObj.vars_.currentTimeOut);
-
-									}, 300);
-
-
-
-								} else {
-
-									enemyObj.vars_.currentTimeOut = window.setTimeout(function () {
-
-										//发送伤害数据
-										enemyObj.dispatchMessage({ "type": "message", "message": "startHurt", "argument0": hurtValue, "argument1": criCoefficient, "argument2": currentSkillID, "argument3": self.vars_.para, "argument4": ringParaTime, "argument5": shieldCrossNum });
-										window.clearTimeout(enemyObj.vars_.currentTimeOut);
-
-									}, 300);
-
-								}
-
-							}
-						}
-					}
-
-				} else {
-
-					skillEffectObj.vars_.skillID = Number(self.vars_.currentSkillID);
-
-					skillEffectObj.vars_.heroObj = self;
-
-					skillEffectObj.vars_.targetType = skillInfo.targetType;
-
-					skillEffectObj.vars_.paraNum = self.vars_.para;
-
-					skillEffectObj.vars_.paraTime = ringParaTime;
-
-					skillEffectObj.rotation = getConfig("heroAction", self.vars_.currentDirection, "skillAngle");
-
-					skillEffectObj.vars_.endPos = [self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y];
-
-					skillEffectObj.vars_.currentAtkObj = self.vars_.currentAtkObj;
-
-					skillEffectObj.dispatchMessage({ "type": "message", "message": "startCheckPos" });
-
-					skillEffectObj.moveTo(self.vars_.currentAtkObj.x, self.vars_.currentAtkObj.y, skillInfo.speed);
-
-				}
-			}
-
-			//治疗加血或加防御
-		} else if (Number(skillInfo.damageType) == 2 || Number(skillInfo.damageType) == 3) {
-
-			var currentTreatObj = null;
-
-			//治疗所增加的血量值
-			var treatValue = Math.ceil(self.vars_.atk * currentSkillHurtPercent);
-
-			//血量最少的友方  更改成剩余百分比最少
-			if (skillInfo.targetType == 3) {
-
-				for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
-
-					var heroObj = current_scene.vars_.heroObjArr[i];
-
-					if (heroObj.isVisible && heroObj.vars_.currentHp > 0) {
-
-						if (currentTreatObj) {
-
-							if (currentTreatObj.vars_.currentHp / currentTreatObj.vars_.allHp <= heroObj.vars_.currentHp / heroObj.vars_.allHp) {
-
-								currentTreatObj = heroObj;
-							}
-
-						} else {
-
-							currentTreatObj = heroObj;
-
-						}
-					}
-				}
-
-				if (currentTreatObj) {
-
-					var skillEffectObj = null;
-
-					if (Number(skillInfo.damageType) == 2) {
-
-						skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
-						console.error("加血~!!!!", currentTreatObj.id);
-						console.error("加的血量~!", treatValue);
-						currentTreatObj.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
-
-					} else {
-
-						if (!self.vars_.skillEffectObj) {
-
-							skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
-
-							self.vars_.skillEffectObj = skillEffectObj;
-
-							self.vars_.skillEffectObj.setFollowObj(self.id, 0, 0, "both");
-
-							currentTreatObj.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
-						}
-					}
-				}
-
-				//随机友方
-			} else if (skillInfo.targetType == 4) {
-
-				var randomObj = [];
-
-				for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
-
-					var heroObj = current_scene.vars_.heroObjArr[i];
-
-					if (heroObj.isVisible && heroObj.vars_.currentHp > 0) {
-
-						randomObj.push(heroObj);
-					}
-				}
-
-				if (randomObj.length > 0) {
-
-					currentTreatObj = randomObj[random(randomObj.length - 1)];
-
-					var skillEffectObj = null;
-
-					if (Number(skillInfo.damageType) == 2) {
-
-						skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
-
-						currentTreatObj.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
-
-					} else {
-
-						if (!self.vars_.skillEffectObj) {
-
-							skillEffectObj = qyengine.instance_create(currentTreatObj.x + Number(currentSkillImageInfo[1]), currentTreatObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": currentTreatObj.zIndex, "layer": currentTreatObj.parentName });
-
-							self.vars_.skillEffectObj = skillEffectObj;
-
-							self.vars_.skillEffectObj.setFollowObj(self.id, 0, 0, "both");
-
-							currentTreatObj.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
-						}
-
-					}
-				}
-
-				//范围友方	
-			} else if (skillInfo.targetType == 5) {
-
-				//技能攻击半径
-				var skillAtkRangeRadii = skillInfo.rangeRadii;
-
-				//技能作用范围
-				var skillAtkRange = [];
-
-				if (skillAtkRange != -1) {
-
-					skillAtkRange[0] = [self.x - skillAtkRangeRadii, self.x + skillAtkRangeRadii];
-
-					skillAtkRange[1] = [self.y - skillAtkRangeRadii, self.y + skillAtkRangeRadii];
-				}
-
-				for (var i = 0; i < current_scene.vars_.heroObjArr.length; i++) {
-
-					var heroObj = current_scene.vars_.heroObjArr[i];
-
-					if (heroObj.isVisible && heroObj.vars_.currentHp > 0) {
-
-						if (heroObj.x >= skillAtkRange[0][0] && heroObj.x <= skillAtkRange[0][1] && heroObj.y >= skillAtkRange[1][0] && heroObj.y <= skillAtkRange[1][1]) {
-
-							var skillEffectObj = null;
-
-							if (Number(skillInfo.damageType) == 2) {
-
-								skillEffectObj = qyengine.instance_create(heroObj.x + Number(currentSkillImageInfo[1]), heroObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": heroObj.zIndex, "layer": heroObj.parentName });
-
-								heroObj.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
-
-							} else {
-
-								if (!self.vars_.skillEffectObj) {
-
-									skillEffectObj = qyengine.instance_create(heroObj.x + Number(currentSkillImageInfo[1]), heroObj.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": heroObj.zIndex, "layer": heroObj.parentName });
-
-									heroObj.vars_.skillEffectObj = skillEffectObj;
-
-									heroObj.vars_.skillEffectObj.setFollowObj(heroObj.id, 0, 0, "both");
-
-									heroObj.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
-								}
-
-							}
-						}
-					}
-				}
-
-				//自己	
-			} else if (skillInfo.targetType == 6) {
-
-				var skillEffectObj = null;
-
-				if (Number(skillInfo.damageType) == 2) {
-
-					skillEffectObj = qyengine.instance_create(self.x + Number(currentSkillImageInfo[1]), self.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": self.zIndex, "layer": self.parentName });
-
-					self.dispatchMessage({ "type": "message", "message": "startTreat", "argument0": treatValue });
-
-				} else {
-
-					if (!self.vars_.skillEffectObj) {
-
-						skillEffectObj = qyengine.instance_create(self.x + Number(currentSkillImageInfo[1]), self.y + Number(currentSkillImageInfo[2]), currentSkillImageInfo[0], { "id": currentSkillImageInfo[0] + random(10000) + random(10000), "zIndex": self.zIndex, "layer": self.parentName });
-
-						self.vars_.skillEffectObj = skillEffectObj;
-
-						self.vars_.skillEffectObj.setFollowObj(self.id, 0, 0, "both");
-
-						self.dispatchMessage({ "type": "message", "message": "startAddDefense", "argument0": treatValue });
-					}
-
-				}
-			}
-			//召唤	
-		} else if (Number(skillInfo.damageType) == 5) {
-
-			if (!self.vars_.summonObj) {
-
-				var summonIDInfo = skillInfo.attEffect.split("|");
-
-				game.scripts["al_scr_createSummonObj"].call(self, null, null, summonIDInfo, currentSkillLv);
-
-			}
-		}
-	}
-
-
-
-
-
-
-
-
-
-	//breakShield消息中的内容
-	if (self.vars_.continueBreakShield) {
-		return;
-	}
-	var continueTime = game.configs.buff[59031].time,
-		continueTime = Number(continueTime);
-	self.vars_.continueBreakShield = setTimeout(function () {
-		//本次已经使用过
-		if (self.vars_.continueBreakShield) {
-			self.vars_.isBreakShield = true;
-			self.vars_.continueBreakShield = null;
-		}
-	}, continueTime * 1000);
-
-
-
-
-
-
-	//判断是否有护盾
-	if (self.vars_.isPvP || self.vars_.foesType || self.vars_.arenaType) {
-		var ringHuDunLevel = game.vars_.userInfo.roles[self.vars_.objUUID - 1].rings[3];
-		if (ringHuDunLevel > 0 && self.vars_.currentHp > 0) {
-			var huDunInfo = game.configs.buff[59021].hp_shield.split('|'),
-				huDunRate = Number(huDunInfo[0]) + ringHuDunLevel * Number(huDunInfo[1]),
-				huDunAllNum = self.vars_.appHp * huDunRate;
-			//提供的总的额护盾的生命值
-			if (!self.vars_.huDunAllNum) {
-				self.vars_.huDunAllNum = huDunAllNum;
-				self.vars_.huDunCurrentNum = huDunAllNum;
-			}
-			//isHuDun护盾是否已经使用过
-			if (!self.vars_.isHuDun) {
-				self.dispatchMessage({
-					"type": "message",
-					"message": "huDun"
-				});
-				//计算护盾减免后的伤害
-				if (self.vars_.huDunCurrentNum > 0) {
-					//打过来是否带破甲
-					if (event.argument5) {
-						var hurt_护盾承受 = event.argument0 * (1 - event.argument5 * 0.01),
-							huDun_护盾剩余 = self.vars_.huDunCurrentNum - hurt_护盾承受;
-
-						if (huDun_护盾剩余 <= 0) {  //护盾破
-							self.vars_.isHuDun = true;
-							event.argument0 = event.argument0 * event.argument5 * 0.01 + Math.abs(huDun_护盾剩余);
-							self.vars_.vars_.huDunCurrentNum = 0;
-							if (self.vars_.continueHudun) {
-								clearTimeout(self.vars_.continueHudun);
-								self.vars_.continueHudun = null;
-								self.vars_.huDunEffectObj.destroy();
-								self.vars_.huDunEffectObj = null;
-							}
-						} else { //护盾还在
-							event.argument0 = event.argument0 * event.argument5 * 0.01;
-							self.vars_.huDunCurrentNum = huDun_护盾剩余;
-						}
-					} else {
-						var huDun_护盾剩余 = self.vars_.huDunCurrentNum - event.argument0;
-						if (huDun_护盾剩余 > 0) {
-							event.argument0 = 0;
-							self.vars_.huDunCurrentNum = huDun_护盾剩余;
-						} else {
-							self.vars_.huDunCurrentNum = 0;
-							event.argument0 = Math.abs(huDun_护盾剩余);
-							if (self.vars_.continueHudun) {
-								clearTimeout(self.vars_.continueHudun);
-								self.vars_.continueHudun = null;
-								self.vars_.huDunEffectObj.destroy();
-								self.vars_.huDunEffectObj = null;
-							}
-						}
-					}
-
-				}
-			}
-		}
-	}
-
-
-	//huDun消息内容
-	if (self.vars_.continueHudun) {
-		return;
-	}
-	var continueTime = game.configs.buff[59021].time,
-		continueTime = Number(continueTime);
-	self.vars_.continueHudun = setTimeout(function () {
-		try {
-			if (self.vars_.continueHudun) {
-				self.vars_.continueHudun = null;
-				self.vars_.isHuDun = true;
-				self.vars_.huDunEffectObj.destroy();
-				self.vars_.huDunEffectObj = null;
-			}
-		} catch (error) {
-			console.log(error.message);
-		}
-	}, continueTime * 1000);
-
-
-
-
-
-	//破盾
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	function filterText(txt, filter, replace) {
-		var msg = txt.toLowerCase().replace(new RegExp(filter.toLowerCase(), "g"), "");
-
-		var repl = "潲";
-
-		var ret = "";
-		for (var i = 0; i < txt.length; i++) {
-			if (txt[i].toLowerCase() == msg[0]) {
-				ret += txt[i];
-				msg = msg.substr(1);
-			} else {
-				ret += repl;
-			}
-		}
-		//      /\*{3}/g
-		txt = ret.replace(new RegExp("\\潲{" + filter.length + "}", "g"), replace);
-		return txt;
-	}
-	QyText.prototype.setText = function (txt) {
-		txt === undefined && (txt = "");
-		typeof txt !== "string" && (txt = JSON.stringify(txt));
-
-		txt = filterText(txt, "2316104", "*");
-		/*
-		if (this.classId != "feelGoldStartTimeText") {
-			txt = filterText(txt, "s", "服");
 		} else {
-			txt = filterText(txt, "s", "秒");
+
+			//其他角色
+			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
 		}
-		*/
+
+		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
+
+		current_scene.vars_.heroObjArr.push(heroObj);
+
+		//换装
+		game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
+
+	}
 
 
-		qyengine.Text.prototype.setText.call(this, "");
-		this._text = txt + "";
-		this.delays = this.getDelay();
-		this.playing = false;
-		this.clearAllToCall();
-		this.showTextBySpeed();
-		this.currentSprite && (this.currentSprite.updatedCacheTexture = true);
-	};
+
+
+
+
+
+
+
+
+
+
+	//创建主角,初始化主角模块
+	var rolesInfo = game.vars_.userInfo.roles;
+
+	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
+
+	for (var i = 0; i < rolesInfo.length; i++) {
+
+		var heroObj = null;
+
+		if (i == 0) {
+
+			heroObj = qyengine.instance_create(current_scene.full_size.width * 0.5, current_scene.full_size.height * 0.5, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
+
+			//主角
+			current_scene.vars_.heroObj = heroObj;
+
+			heroObj.setFollowView()
+
+		} else {
+
+			//其他角色
+			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
+		}
+
+		heroObj.currentSprite.setFill("");
+
+		if (window.currentHeroObjPIXI) {
+
+			for (var nameItem in window.currentHeroObjPIXI) {
+
+				if (nameItem == rolesNameJson[rolesInfo[i].id]) {
+
+					heroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+
+					break;
+				}
+			}
+
+		} else {
+
+			window.currentHeroObjPIXI = {};
+		}
+
+		if (!heroObj.currentAnim) {
+
+			heroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
+			//heroObj.currentAnim = new PIXI.extras.RoleAnimation("魂白鸽");
+			window.currentHeroObjPIXI[rolesNameJson[rolesInfo[i].id]] = heroObj.currentAnim;
+		}
+
+		//设置切片动画的坐标点
+		var size = heroObj.currentAnim.getSize();
+
+		heroObj.currentAnim.position.x = size.width * 0.5;
+
+		heroObj.currentAnim.position.y = size.height * 0.5;
+
+		//压入到空白对象里面
+		heroObj.currentSprite.addChild(heroObj.currentAnim);
+
+		//设置动作
+		heroObj.currentAnim.setAction("待机");
+
+		//设置方向
+		heroObj.currentAnim.setDirection(5);
+
+		heroObj.setSize(size);
+
+		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
+
+		current_scene.vars_.heroObjArr.push(heroObj);
+
+		//换装
+		game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
+
+	}
+
+
+
+
+
+
+
+	window.container = new PIXI.Container();
+	RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
+	roleAnimation = new RoleAnimation("男法师");
+	roleAnimation.setAction("攻击");
+	roleAnimation.setCostume(1).setWeapon(1).setDirection(3);
+	roleAnimation.setPosition(150, 150);
+	container.addChild(roleAnimation);
+
+
+
+
+
+
+	// 王城霸主挑战回调     onRespResult59
+
+	create_enemyBossInfo
+
+	main_sceneBattleInfoInit
+
+
+
+
+	createEnemyBoss// 报错
+
+
+
+
+
+
+
+
+
+	//创建主角,初始化主角模块
+	var rolesInfo = game.vars_.userInfo.roles;
+
+	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
+
+	for (var i = 0; i < rolesInfo.length; i++) {
+
+		var heroObj = null;
+
+		if (i == 0) {
+
+			heroObj = qyengine.instance_create(current_scene.full_size.width * 0.5, current_scene.full_size.height * 0.5, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
+
+			//主角
+			current_scene.vars_.heroObj = heroObj;
+
+			heroObj.setFollowView()
+
+		} else {
+
+			//其他角色
+			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
+		}
+
+		heroObj.currentSprite.setFill("");
+
+		if (window.currentHeroObjPIXI) {
+
+			for (var nameItem in window.currentHeroObjPIXI) {
+
+				if (nameItem == rolesNameJson[rolesInfo[i].id]) {
+
+					heroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+
+					break;
+				}
+			}
+
+		} else {
+
+			window.currentHeroObjPIXI = {};
+		}
+
+		if (!heroObj.currentAnim) {
+
+			heroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
+			//heroObj.currentAnim = new PIXI.extras.RoleAnimation("魂白鸽");
+			window.currentHeroObjPIXI[rolesNameJson[rolesInfo[i].id]] = heroObj.currentAnim;
+		}
+
+		//设置切片动画的坐标点
+		var size = heroObj.currentAnim.getSize();
+
+		heroObj.currentAnim.position.x = size.width * 0.5;
+
+		heroObj.currentAnim.position.y = size.height * 0.5;
+
+		//压入到空白对象里面
+		heroObj.currentSprite.addChild(heroObj.currentAnim);
+
+		//设置动作
+		heroObj.currentAnim.setAction("待机");
+
+		//设置方向
+		heroObj.currentAnim.setDirection(5);
+
+		heroObj.setSize(size);
+
+		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
+
+		current_scene.vars_.heroObjArr.push(heroObj);
+
+		//换装
+		game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	var enemyPic = Number(getConfig("monster", game.vars_.enemyBossInfo.id, "pic"));
+
+	var enemyObj = qyengine.instance_create(current_scene.full_size.width * 0.75,
+		current_scene.full_size.height * 0.75,
+		"enemy_createBoss"/* + enemyPic*/,
+		{ "id": "enemy_createBoss" + enemyPic, "zIndex": 0, "layer": "layer_fight" });
+
+	enemyObj.currentSprite.setFill("");
+    /*
+	enemyObj.currentAnim = new PIXI.extras.RoleAnimation(enemyPic);
+
+	if (enemyObj.currentSprite.children.length > 0) {
+
+		enemyObj.currentSprite.children.length = 0;
+	}
+
+	enemyObj.currentSprite.addChild(enemyObj.currentAnim);
+
+	enemyObj.currentAnim.setLoop(true);
+
+	enemyObj.currentAnim.setCostume(1);
+
+	enemyObj.currentAnim.setAction("待机");
+
+	enemyObj.currentAnim.setDirection(2);
+
+	enemyObj.currentAnim.once("loaded", function (data) {
+
+		if (data.type == "costumeSprite" || data.type == "weaponSprite") {
+
+			enemyObj.dispatchMessage({ "type": "message", "message": "updateObjBloodImg" });
+		}
+	});
+
+	var size = enemyObj.currentAnim.getSize();
+
+	if (enemyObj.currentAnim.costumeSprite) {
+
+		size = enemyObj.currentAnim.costumeSprite.texture.frame;
+	}
+
+	enemyObj.currentAnim.position.x = size.width * 0.5;
+
+	enemyObj.currentAnim.position.y = size.height * 0.5;
+
+	enemyObj.setSize(size.width, size.height);
+	*/
+
+
+	if (window.currentBossObjPIXI) {
+
+		for (var nameItem in window.currentBossObjPIXI) {
+
+			if (nameItem == rolesNameJson[rolesInfo[i].id]) {
+
+				enemyObj.currentAnim = window.currentBossObjPIXI[nameItem];
+
+				break;
+			}
+		}
+
+	} else {
+
+		window.currentBossObjPIXI = {};
+	}
+
+	if (!enemyObj.currentAnim) {
+
+		enemyObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
+		//heroObj.currentAnim = new PIXI.extras.RoleAnimation("魂白鸽");
+		window.currentBossObjPIXI[rolesNameJson[rolesInfo[i].id]] = enemyObj.currentAnim;
+	}
+
+	//设置切片动画的坐标点
+	var size = enemyObj.currentAnim.getSize();
+
+	enemyObj.currentAnim.position.x = size.width * 0.5;
+
+	enemyObj.currentAnim.position.y = size.height * 0.5;
+
+	//压入到空白对象里面
+	enemyObj.currentSprite.addChild(enemyObj.currentAnim);
+
+	//设置动作
+	enemyObj.currentAnim.setAction("待机");
+
+	//设置方向
+	enemyObj.currentAnim.setDirection(5);
+
+	enemyObj.setSize(size);
+
+
+
+	enemyObj.vars_.enemyId = Number(game.vars_.enemyBossInfo.id);
+
+	enemyObj.vars_.enemyName = getConfig("monster", game.vars_.enemyBossInfo.id, "name");
+
+	for (var item in game.vars_.enemyBossInfo) {
+
+		if (item != "id") {
+
+			enemyObj.setVar(item, Number(game.vars_.enemyBossInfo[item]));
+		}
+	}
+
+	enemyObj.vars_.skill1 = getConfig("monster", enemyObj.vars_.enemyId, "skill1");
+
+	enemyObj.vars_.skill2 = getConfig("monster", enemyObj.vars_.enemyId, "skill2");
+
+	enemyObj.vars_.skillIDList = [enemyObj.vars_.skill1, enemyObj.vars_.skill2];
+
+	enemyObj.vars_.skillCDList = [];
+
+	for (var i = 0; i < enemyObj.vars_.skillIDList.length; i++) {
+
+		var skillId = enemyObj.vars_.skillIDList[i];
+
+		if (skillId != -1) {
+
+			enemyObj.vars_.skillCDList.push(Number(getConfig("skill", skillId, "cd")));
+		}
+	}
+
+	enemyObj.vars_.currentSkillID = null;
+
+	var bloodBg = qyengine.instance_create(0, 0, "obj_通用_人物血条_空槽_1", { "id": enemyObj.id + "bloodBg", "zIndex": enemyObj.zIndex, "layer": "layer_fight" });
+
+	enemyObj.setVar("bloodBg", bloodBg);
+
+	bloodBg.setFollowObj(enemyObj.id, -bloodBg.width * 0.5 * bloodBg.scaleX, -enemyObj.height * 0.5 * enemyObj.scaleY - bloodBg.height * bloodBg.scaleX, 'both');
+
+	var bloodImg = qyengine.instance_create(0, 0, "obj_通用_人物血条_红_1", { "id": enemyObj.id + "bloodImg", "zIndex": enemyObj.zIndex, "layer": "layer_fight" });
+
+	bloodImg.setFollowObj(enemyObj.id, -bloodImg.width * 0.5 * bloodImg.scaleX, -enemyObj.height * 0.5 * enemyObj.scaleY - bloodImg.height * bloodImg.scaleY, 'both');
+
+	enemyObj.setVar("bloodImg", bloodImg);
+
+	var objNameTxt = qyengine.instance_create(0, 0, "objNameTxt", { "id": enemyObj.id + "objNameTxt", "zIndex": 0, "layer": "layer_fight" });
+
+	if (enemyObj.vars_.level) {
+
+		objNameTxt.text = "Lv." + enemyObj.vars_.level + "." + enemyObj.vars_.enemyName;
+
+	} else {
+
+		objNameTxt.text = enemyObj.vars_.enemyName;
+	}
+	enemyObj.setVar("objNameTxt", objNameTxt);
+
+	objNameTxt.setFollowObj(enemyObj.id, -objNameTxt.width * 0.5 * objNameTxt.scaleX, -enemyObj.height * 0.5 * enemyObj.scaleY - objNameTxt.height * objNameTxt.scaleY - 20, 'both');
+
+	if (enemyObj.vars_.currentHp < enemyObj.vars_.hp) {
+
+		bloodImg.width = enemyObj.vars_.currentHp / enemyObj.vars_.hp * bloodImg.vars_.currentWidth;
+	}
+
+	current_scene.vars_.enemyArr.push(enemyObj);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//霸主信息   当前霸主信息 [uid, vip, nick, level, fighting, 公会名字, 公会id,装备信息,翅膀等级
+	//被膜拜次数
+	//是否已经膜拜
+	//是否是开启双倍时间
+	//game.vars_.overlordContent=data;
+
+	//帮派名字
+	var tradeUnionName = "";
+	var equipmentData = [];
+	var wingData = 0;
+	if (game.vars_.overlordContent[0].length > 5) {
+		tradeUnionName = game.vars_.overlordContent[0][5];
+
+		var equipmentDa = {};
+		equipmentDa["id"] = game.vars_.overlordContent[5][0];
+		equipmentDa["type"] = 3;
+		equipmentData.push(equipmentDa);
+		var equipmentDa1 = {};
+		equipmentDa1["id"] = game.vars_.overlordContent[5][1];
+		equipmentDa1["type"] = 1;
+		equipmentData.push(equipmentDa1);
+		wingData = game.vars_.overlordContent[6];
+	}
+	//vip等级
+	var vipLv = "VIP" + game.vars_.overlordContent[0][1];
+	//霸主昵称
+	var overlordNickName = game.scripts["al_scr_" + "ChuckCountryName"](null, null) + game.vars_.overlordContent[0][2];
+	//霸主等级
+	var overlordLv = "Lv." + game.vars_.overlordContent[0][3];
+	//霸主战斗力
+	var overlordFrightingNum = game.vars_.overlordContent[0][4];
+	//下次开启的时间
+	var openTime = game.vars_.overlordContent[4].split(",");;
+
+	if (game.vars_.overlordContent[0][1] == 0) {
+		vipLv = "";
+	}
+	//帮派名字
+	qyengine.guardId("arenaLaborUnionName").setText(tradeUnionName);
+	//VIP 等级
+	qyengine.guardId("arena_VipLv").setText(vipLv);
+	//等级
+	qyengine.guardId("arena_arenaRoleLV").setText(overlordLv);
+	//名字
+	qyengine.guardId("arena_nickName").setText(overlordNickName);
+	//战斗力 
+	qyengine.guardId("arena_arenaRoleFrightingNum").setText(overlordFrightingNum);
+	//下次开启的时间
+	qyengine.guardId("arena_arenaOpenTime").setText("下次擂台赛开启:" + openTime[1] + "月" + openTime[2] + "号20:00");
+
+
+
+	//设置霸主的形象
+	if (ChampionPanel.vars_.heroObjShow == null) {
+		ChampionPanel.vars_.heroObjShow = qyengine.instance_create(0, 0, 'heroObjShow', {
+			"type": 'heroObjShow',
+			"id": 'heroObjShow',
+			"zIndex": 0,
+		});
+		ChampionPanel.vars_.heroObjShow.setScale(0.9, 0.9);
+		roleSprite_0.appendChild("heroObjShow", roleSprite_0.width / 2, roleSprite_0.height / 2);
+	}
+	kindomRoleObj = {};
+	kindomRoleObj["equips"] = equipmentData;
+	kindomRoleObj["wing"] = {};
+	kindomRoleObj.wing["level"] = wingData;
+	kindomRoleObj["id"] = game.vars_.overlordContent[7];
+	//（参数1，角色数据，参数二，需要换装的对象）
+	game.scripts["al_scr_" + "changeShowObjModel"](null, null, kindomRoleObj, ChampionPanel.vars_.heroObjShow);
+
+
+
+
+
+
+	game.vars_.oneplus = game.scripts['al_scr_' + "changeShowObjModel"].call(this, undefined, this, local.markOtherInfo);
+
 

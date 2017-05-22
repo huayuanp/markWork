@@ -144,6 +144,10 @@ qyengine.addDataforms('dataform_1', 'id', {
 	"data": 100
 });
 
+
+//获得父对象/父容器
+obj_PVEicon_首充.currentSprite.parent.qyobj
+
 //发送消息
 qyengine.guardId("grou_redPointMore85").dispatchMessage({
 	"type": 'message',
