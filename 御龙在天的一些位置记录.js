@@ -4055,93 +4055,94 @@ if (repeatTime === 0) {
 	main_sceneBattleInfoInit
 
 
-
+	//onRespFlushOverlordInfo       game.vars_.oneplus
 
 	createEnemyBoss// 报错
 
 
 
+	//刷新技能CD
+	for (var i = 0; i < self.vars_.skillList.length; i++) {
 
+		if (self.vars_.skillList[i] > 0) {
 
+			if (self.vars_.skillCdList[i] > 0) {
 
+				self.vars_.skillCdList[i] -= 0.1;
 
+				if (self.vars_.skillCdList[i] <= 0) {
 
-
-	//创建主角,初始化主角模块
-	var rolesInfo = game.vars_.userInfo.roles;
-
-	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
-
-	for (var i = 0; i < rolesInfo.length; i++) {
-
-		var heroObj = null;
-
-		if (i == 0) {
-
-			heroObj = qyengine.instance_create(current_scene.full_size.width * 0.5, current_scene.full_size.height * 0.5, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
-
-			//主角
-			current_scene.vars_.heroObj = heroObj;
-
-			heroObj.setFollowView()
-
-		} else {
-
-			//其他角色
-			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
-		}
-
-		heroObj.currentSprite.setFill("");
-
-		if (window.currentHeroObjPIXI) {
-
-			for (var nameItem in window.currentHeroObjPIXI) {
-
-				if (nameItem == rolesNameJson[rolesInfo[i].id]) {
-
-					heroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
-
-					break;
+					self.vars_.skillCdList[i] = 0;
 				}
 			}
 
-		} else {
+		}
+	}
 
-			window.currentHeroObjPIXI = {};
+	//筛选当前技能
+	if (self.vars_.currentSkillIndex == 0) {
+
+		//四次第一技能释放完毕
+		if (self.vars_.currentSkillNum == 4) {
+
+			//如果上次释放的技能未激活成功
+			if (!self.vars_.oldSkillID) {
+
+				//是否激活技能2
+				if (self.vars_.skillList[self.vars_.currentSkillIndex + 1] > 0 && self.vars_.skillCdList[self.vars_.currentSkillIndex + 1] == 0) {
+
+					self.vars_.currentSkillIndex++;
+
+					//重新释放第一个技能
+				} else {
+
+					self.vars_.currentSkillIndex = 0;
+
+					self.vars_.currentSkillNum = 0;
+				}
+
+			} else {
+
+				if (self.vars_.oldSkillID < 4) {
+
+					//是否激活更高级的技能
+					if (self.vars_.skillList[self.vars_.oldSkillID + 1] > 0 && self.vars_.skillCdList[self.vars_.oldSkillID + 1] == 0) {
+
+						self.vars_.currentSkillIndex = self.vars_.oldSkillID + 1;
+
+						//重新释放第一个技能
+					} else {
+
+						self.vars_.currentSkillIndex = 0;
+
+						self.vars_.currentSkillNum = 0;
+
+						self.vars_.oldSkillID = null;
+					}
+
+				} else {
+
+					self.vars_.currentSkillIndex = 0;
+
+					self.vars_.currentSkillNum = 0;
+
+					self.vars_.oldSkillID = null;
+				}
+			}
+
+			self.vars_.currentSkillID = self.vars_.skillIDList[self.vars_.currentSkillIndex];
 		}
 
-		if (!heroObj.currentAnim) {
+		//如果上次释放的不是第一个技能	
+	} else {
 
-			heroObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
-			//heroObj.currentAnim = new PIXI.extras.RoleAnimation("魂白鸽");
-			window.currentHeroObjPIXI[rolesNameJson[rolesInfo[i].id]] = heroObj.currentAnim;
+		//如果技能已释放完成,重复释放四次第一个技能
+		if (self.vars_.currentSkillNum == 0) {
+
+			self.vars_.currentSkillIndex = 0;
+
+			self.vars_.currentSkillID = self.vars_.skillIDList[self.vars_.currentSkillIndex];
 		}
-
-		//设置切片动画的坐标点
-		var size = heroObj.currentAnim.getSize();
-
-		heroObj.currentAnim.position.x = size.width * 0.5;
-
-		heroObj.currentAnim.position.y = size.height * 0.5;
-
-		//压入到空白对象里面
-		heroObj.currentSprite.addChild(heroObj.currentAnim);
-
-		//设置动作
-		heroObj.currentAnim.setAction("待机");
-
-		//设置方向
-		heroObj.currentAnim.setDirection(5);
-
-		heroObj.setSize(size);
-
-		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
-
-		current_scene.vars_.heroObjArr.push(heroObj);
-
-		//换装
-		game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
-
 	}
 
 
@@ -4149,273 +4150,1026 @@ if (repeatTime === 0) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-	var enemyPic = Number(getConfig("monster", game.vars_.enemyBossInfo.id, "pic"));
-
-	var enemyObj = qyengine.instance_create(current_scene.full_size.width * 0.75,
-		current_scene.full_size.height * 0.75,
-		"enemy_createBoss"/* + enemyPic*/,
-		{ "id": "enemy_createBoss" + enemyPic, "zIndex": 0, "layer": "layer_fight" });
-
-	enemyObj.currentSprite.setFill("");
-    /*
-	enemyObj.currentAnim = new PIXI.extras.RoleAnimation(enemyPic);
-
-	if (enemyObj.currentSprite.children.length > 0) {
-
-		enemyObj.currentSprite.children.length = 0;
-	}
-
-	enemyObj.currentSprite.addChild(enemyObj.currentAnim);
-
-	enemyObj.currentAnim.setLoop(true);
-
-	enemyObj.currentAnim.setCostume(1);
-
-	enemyObj.currentAnim.setAction("待机");
-
-	enemyObj.currentAnim.setDirection(2);
-
-	enemyObj.currentAnim.once("loaded", function (data) {
-
-		if (data.type == "costumeSprite" || data.type == "weaponSprite") {
-
-			enemyObj.dispatchMessage({ "type": "message", "message": "updateObjBloodImg" });
+	var _grouArr = ['grou_guide_LockIcon', 'grou_guide_NewFunctionOpen', 'grou_guide_arrow', 'grou_guide_dialogue',
+		'grou_guide_jiantou_1', 'grou_guide_step', 'grou_guide_stepdialog', 'grou_newguideinfo'];
+	_grouArr.forEach(function (e) {
+		//qyengine.guardId(e).destroy();
+		if (qyengine.getInstancesByType(e).length > 0) {
+			qyengine.guardId(e).destroy();
 		}
 	});
 
-	var size = enemyObj.currentAnim.getSize();
 
-	if (enemyObj.currentAnim.costumeSprite) {
 
-		size = enemyObj.currentAnim.costumeSprite.texture.frame;
+	game.configs.mission[taskInfo[repeatTime].missionid]
+
+
+	grou_crossFightResult.objects['txt_crossFightResultBack'].dispatchMessage({
+		"type": "message",
+		"message": "stopCountDown"
+	});
+	grou_crossFightResult.destroy();
+
+
+
+
+
+
+	game.vars_.inArena = false;
+
+	game.vars_.backScenePopUI = "reopenStarUpScene"; game.vars_.backScenePopUI = "reopenStoneScene";
+	game.vars_.backScenePopUI = "OpenWingPanel"; game.vars_.backScenePopUI = "taskSkipInterface";
+
+	qyengine.instance_destroy(grou_crossFightResult);
+
+
+	current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this);
+
+
+
+
+	game.vars_.inArena = false;
+	game.vars_.backScenePopUI = "reopenStarUpScene";
+	qyengine.instance_destroy(grou_crossFightResult);
+	current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this);
+
+
+
+
+	//grou_crossServerFightReward_item_cell  (21,39)
+
+
+	//创建跨服竞技场的奖励
+	qyengine.getInstancesByType("grou_crossServerFightReward").length == 0 && qyengine.instance_create(-100, 0, "grou_crossServerFightReward", {
+		"type": "grou_crossServerFightReward",
+		"id": "grou_crossServerFightReward",
+		"zIndex": 5,
+		"layer": "layer_headerfeet",
+		"scene": "main_scene"
+	});
+
+	//grou_crossServerFightReward的创建事件
+	grou_crossServerFightReward.vars_.nowTab = 0; //现在显示的是排名奖励
+	self.objects['obj_通用_选择框_01_crossFight'].dispatchMessage({
+		"type": "message",
+		"message": "changeTab"
+	});
+
+	//changeTab消息中内容
+	self.changeSprite("obj_通用_选择框_02_crossFight_default");
+	game.configs.config_crossFightReward = {};
+	if (scro_crossServerFightReward.isVisible) {
+		scro_crossServerFightReward.cells = [];
+		scro_crossServerFightReward.currentSprite.moving_.removeChildren();
+		scro_crossServerFightReward.removeAll();
+	}
+	var rangingDataLength = grou_crossServerFightReward.vars_.nowTab == 1 ? configDataLength("pk_rank_score") : configDataLength("pk_rank_reward");
+	for (var i = 1; i <= rangingDataLength; i++) {
+		var name = grou_crossServerFightReward.vars_.nowTab == 1 ? game.configs.pk_rank_score[i].name : game.configs.pk_rank_reward[i].name;
+		game.configs.config_crossFightReward[i] = {
+			id: i,
+			ranking: game.configs.pk_rank_reward[i].name,
+			scroId: "scroranking_" + i
+		}
+	}
+	scro_crossServerFightReward.refreshRelations();
+	//scro_crossServerFightReward_item的创建事件
+	var markId = self.id.split("_")[1];
+	markId = Number(markId);
+	var _info = 0,
+		index = 0,
+		pic = "",
+		num = 0,
+		itemObj = null;
+
+	if (qyengine.getInstancesByType('grou_crossServerFightReward').length > 0 && qyengine.getInstancesByType('grou_crossServerFightReward')[0].vars_ && grou_crossServerFightReward.vars_.nowTab) {  //段位奖励
+		_info = game.configs.pk_rank_score[markId];
+		var markSilver = Number(_info.silver);
+		if (markSilver) {
+			pic = "obj_通用_银子_crossServerFight_default";
+			num = markSilver;
+			itemObj = createItemOrBox(index);
+			self.appendChild(itemObj.id, 21, 39, 0, index, false, true);
+			itemObj.objects['obj_通用_金子'].changeSprite(pic);
+			itemObj.objects['txt_crossFightRewardNum'].text = num;
+			index++;
+		}
+	} else {                      //排名奖励
+		_info = game.configs.pk_rank_reward[markId];
+		var markGold = Number(_info.gold);
+		if (markGold) {
+			pic = "obj_通用_金子_default";
+			num = markGold;
+			itemObj = createItemOrBox(index);
+			self.appendChild(itemObj.id, 21, 39, 0, index, false, true);
+			itemObj.objects['obj_通用_金子'].changeSprite(pic);
+			itemObj.objects['txt_crossFightRewardNum'].text = num;
+			index++;
+		}
+	}
+	if (_info.reward) {
+		var itemArr = _info.reward.split(";");
+		for (cell in itemArr) {
+			var itemIdAndNum = itemArr[cell].split("|");
+			var itemId = Number(itemIdAndNum[0]);
+			pic = "obj_" + game.configs.item[itemId].icon + "_default";
+			num = Number(itemIdAndNum[1]);
+			itemObj = createItemOrBox(index);
+			self.appendChild(itemObj.id, 21, 39, 0, index, false, true);
+			itemObj.objects['obj_通用_金子'].changeSprite(pic);
+			itemObj.objects['obj_通用_金子'].setScale(0.6, 0.6);
+			itemObj.objects['txt_crossFightRewardNum'].text = num;
+			index++
+		}
+	}
+	if (_info.box != -1) {
+		itemArr = _info.box.split("|");
+		itemId = Number(itemArr[0]);
+		pic = "obj_" + game.configs.box[itemId].icon + "_default";
+		num = Number(itemArr[1]);
+		itemObj = createItemOrBox(index);
+		itemObj.objects['obj_通用_金子'].changeSprite(pic);
+		itemObj.objects['txt_crossFightRewardNum'].text = num;
+		index++;
 	}
 
-	enemyObj.currentAnim.position.x = size.width * 0.5;
 
-	enemyObj.currentAnim.position.y = size.height * 0.5;
+	function createItemOrBox(index) {
+		//var temp={"id":1,"num":1,isSilver};
+		var itemObj = qyengine.instance_create(0, 0, "grou_crossServerFightReward_item_cell", {
+			"type": "grou_crossServerFightReward_item_cell",
+			"id": "grou_crossServerFightReward_item_cell" + index,
+			"zIndex": 5
+		});
+		return itemObj;
+	}
 
-	enemyObj.setSize(size.width, size.height);
-	*/
+
+	//tab按钮的点击事件
+	if (self.vars_.buttonType == grou_crossServerFightReward.vars_.nowTab) {
+		return;
+	}
+	if (self.vars_.buttonType == 1) {
+		grou_crossServerFightReward.vars_.nowTab = 1; //现在显示的是段位
+		grou_crossServerFightReward.objects['obj_通用_选择框_01_crossFight_1'].dispatchMessage({
+			"type": "message",
+			"message": "changeTab"
+		});
+		grou_crossServerFightReward.objects['obj_通用_选择框_01_crossFight'].changeSprite("obj_通用_选择框_01_crossFight_default");
+	} else {
+		grou_crossServerFightReward.vars_.nowTab = 0; //现在显示的是排名奖励
+		grou_crossServerFightReward.objects['obj_通用_选择框_01_crossFight'].dispatchMessage({
+			"type": "message",
+			"message": "changeTab"
+		});
+		grou_crossServerFightReward.objects['obj_通用_选择框_01_crossFight_1'].changeSprite("obj_通用_选择框_01_crossFight_default");
+	}
 
 
-	if (window.currentBossObjPIXI) {
 
-		for (var nameItem in window.currentBossObjPIXI) {
+	current_game.scripts['al_scr_' + "createCrossFightReward"].call(this, undefined, this);
 
-			if (nameItem == rolesNameJson[rolesInfo[i].id]) {
 
-				enemyObj.currentAnim = window.currentBossObjPIXI[nameItem];
 
+
+
+
+	qyengine.getInstancesByType("grou_crossServerFightReward_item").length > 0 && qyengine.forEach(function () {
+		this.destroy();
+	}, "grou_crossServerFightReward_item");
+	qyengine.getInstancesByType("grou_crossServerFightReward_item_cell").length > 0 && qyengine.forEach(function () {
+		this.destroy();
+	}, "grou_crossServerFightReward_item_cell");
+
+
+	try {
+
+	} catch (error) {
+		console.log(error.message);
+	}
+
+
+
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqCrossServerJJC");
+
+
+
+
+
+
+	KBEngine.app.player().baseCall("reqCrossServerShop");
+
+
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+
+
+
+	arena_shop_cur_honor.text = KBEngine.app.player().sportHonor;
+
+	//威望值
+	game.vars_.userInfo.prestigeNum = data[1];
+
+
+	arena_shop_cur_honor.text = game.vars_.userInfo.prestigeNum;
+
+
+
+
+	if (grou_arena.vars_.nowFightType == 1) {
+		self.objects['obj_竞技场商店_竞技场商店标题'].changeSprite("obj_跨服竞技商店_字_default");
+		grou_arena_shop.objects['obj_通用_荣誉_1'].changeSprite("obj_威望_字_default");
+		arena_shop_cur_honor.text = game.vars_.userInfo.prestigeNum;
+
+	}
+
+	//更新威望值的消息      updatePrestigeNum
+
+	qyengine.getInstancesByType('grou_arena_shop').length > 0 && grou_arena_shop.dispatchMessage({
+		"type": "message",
+		"message": "updatePrestigeNum"
+	});
+
+
+	getConfig("shop_pk_rank", self.vars_.item_id, "price")
+
+	if (grou_arena.vars_.nowFightType == 1) {
+		grou_arena_shop_buy.objects['obj_通用_荣誉_2'].changeSprite("obj_威望_字_default");
+	}
+
+
+	if (grou_arena.vars_.nowFightType == 1) {
+		arena_shop_buy_honor.text = grou_arena_shop_buy.vars_.count * getConfig("shop_pk_rank", arena_shop_buy_btn.vars_.item_id, "price");
+
+	} else {
+		arena_shop_buy_honor.text = grou_arena_shop_buy.vars_.count * getConfig("shop_pk", arena_shop_buy_btn.vars_.item_id, "price");
+	}
+
+
+
+
+
+
+
+
+
+
+	var sH = grou_arena.vars_.nowFightType == 1 ? game.vars_.userInfo.prestigeNum : KBEngine.app.player().sportHonor,
+		price = grou_arena.vars_.nowFightType == 1 ? getConfig("shop_pk_rank", arena_shop_buy_btn.vars_.item_id, "price") : getConfig("shop_pk", arena_shop_buy_btn.vars_.item_id, "price"),
+		getN = Math.floor(sH / price);
+
+	if (getN <= grou_arena_shop_buy.vars_.countMax) {
+		grou_arena_shop_buy.vars_.count = getN;
+	} else {
+		grou_arena_shop_buy.vars_.count = grou_arena_shop_buy.vars_.countMax;
+	}
+
+	arena_shop_buy_count.text = grou_arena_shop_buy.vars_.count + "";
+	if (grou_arena.vars_.nowFightType == 1) {
+		arena_shop_buy_honor.text = grou_arena_shop_buy.vars_.count * getConfig("shop_pk_rank", arena_shop_buy_btn.vars_.item_id, "price");
+	} else {
+		arena_shop_buy_honor.text = grou_arena_shop_buy.vars_.count * getConfig("shop_pk", arena_shop_buy_btn.vars_.item_id, "price");
+	}
+
+
+	//商店购买按钮上的逻辑
+	if (grou_arena.vars_.nowFightType == 1) {   //跨服竞技场
+		if (grou_arena_shop_buy.vars_.count * getConfig("shop_pk_rank", arena_shop_buy_btn.vars_.item_id, "price") > game.vars_.userInfo.prestigeNum) {
+			game.scripts["al_scr_" + "createCommonFlutterTxt_other"](null, null, "威望不足");
+			return;
+		}
+	} else {
+		if (grou_arena_shop_buy.vars_.count * getConfig("shop_pk", arena_shop_buy_btn.vars_.item_id, "price") > KBEngine.app.player().sportHonor) {
+			game.scripts["al_scr_" + "showText"](null, null, "荣誉不足");
+			return;
+		}
+	}
+	if (grou_arena.vars_.nowFightType == 1) {
+		KBEngine.app.player().baseCall("reqCrossServerBuyShop", self.vars_.item_id, grou_arena_shop_buy.vars_.count);
+
+	} else {
+		KBEngine.app.player().baseCall("reqPvpBuySportShopGood", self.vars_.item_id, grou_arena_shop_buy.vars_.count);
+	}
+
+	grou_arena.vars_.buyId = self.vars_.item_id;
+
+	grou_arena.vars_.buyCount = grou_arena_shop_buy.vars_.count;
+
+	qyengine.instance_destroy(grou_arena_shop_buy);
+	//购买的回调
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+
+	var markBackStatus = ["购买失败", "购买成功", "威望值不够", "购买超过限制"];
+
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, markBackStatus[data]);
+	if (data == 1) {
+		KBEngine.app.player().baseCall("reqCrossServerShop");
+	}
+
+	//匹配:请求匹配数据
+	KBEngine.app.player().baseCall("reqCrossServerMatchPlayer");
+
+
+	game.vars_.enemyType = "CROSS_ARENA";
+
+	game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
+		window.clearTimeout(hd);
+	})
+
+	game.vars_.respPvpFightingEnemys = data;
+	grou_crossServerFight.vars_.alreadyGetOtherData = true;
+	current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this, 1);
+
+
+
+	//跨服竞技场的回调
+	var data_胜场等 = data[2];
+	function pk_rank_score_backId(scores) {   //积分返回id
+		for (cell in game.configs.pk_rank_score) {
+			if (Number(game.configs.pk_rank_score[cell].score) > scores) {
+				return (cell - 1);
+			}
+		}
+		return configDataLength("pk_rank_score");
+	}
+	grou_crossServerFight.objects['txt_crossServerFightRank_0'].text = data[1] == 0 ? "我的排名:1000名之后" : "我的排名:" + data[1];
+	grou_crossServerFight.vars_.myRank = data[1];
+	//总场次
+	grou_crossServerFight.objects['txt_crossServerFightRank_1'].text = "总场次：" + data_胜场等.allsession;
+	grou_crossServerFight.objects['txt_crossServerFightRank_2'].text = "胜场：" + data_胜场等.winsession;
+	var rate_胜率 = 0;
+	if (Number(data_胜场等.allsession)) {
+		var rate = data_胜场等.winsession / data_胜场等.allsession;
+		rate_胜率 = 100 * rate.toFixed(2);
+	}
+	grou_crossServerFight.objects['txt_crossServerFightRank_3'].text = "胜率：" + rate_胜率 + "%";
+	//积分
+	var score = Number(data_胜场等.socre);
+	grou_crossServerFight.objects['txt_crossServerFightIntegration'].text = "当前积分：" + score;
+	//段位:
+	var my_段位 = "青铜V5";
+	my_段位 = calDuanWei(score);
+	var icon_段位 = game.configs.pk_rank_score[pk_rank_score_backId(score)].icon;
+
+	grou_crossServerFight.objects['obj_icon_by'].changeSprite("obj_" + icon_段位 + "_default");
+
+	grou_crossServerFight.objects['txt_crossServerFightLevel'].text = my_段位;
+	//上周三强
+	var info_上周三强 = data[0];
+	var info_膜拜 = data[3];
+	var photoObj_上周三强 = [grou_arena.objects['grou_crossServerFightPhoto' + 1],
+	grou_arena.objects['grou_crossServerFightPhoto' + 0],
+	grou_arena.objects['grou_crossServerFightPhoto' + 2]];
+	var daXieNum = ['一', '二', '三'];
+	if (info_上周三强.length == 0) {//未产生三强
+		for (item in photoObj_上周三强) {
+			photoObj_上周三强[item].objects['txt_crossServerFightFirst'].text = "第" + daXieNum[item] + "名";
+			photoObj_上周三强[item].objects['obj_通用_方形头像0_crossServerFight'].hide();
+			photoObj_上周三强[item].objects['txt_crossServerFightFirst_1'].text = "虚位以待";
+			//状态:0,未产生、1，可膜拜 2、已经膜拜
+			photoObj_上周三强[item].objects['obj_通用_方形头像框0_crossServerFight'].vars_.nowStatus = 0;
+		}
+	} else {
+		for (item in photoObj_上周三强) {
+			if (item >= info_上周三强.length) {
+				photoObj_上周三强[item].objects['txt_crossServerFightFirst'].text = "第" + daXieNum[item] + "名";
+				photoObj_上周三强[item].objects['obj_通用_方形头像0_crossServerFight'].hide();
+				photoObj_上周三强[item].objects['txt_crossServerFightFirst_1'].text = "虚位以待";
+				//状态:0,未产生、1，可膜拜 2、已经膜拜
+				photoObj_上周三强[item].objects['obj_通用_方形头像框0_crossServerFight'].vars_.nowStatus = 0;
+			} else {
+				photoObj_上周三强[item].objects['txt_crossServerFightFirst'].text = "第" + daXieNum[item] + "名";
+
+				photoObj_上周三强[item].objects['obj_通用_方形头像0_crossServerFight'].changeSprite("selectRole_photo_" + info_上周三强[item].profession + "_default");
+				photoObj_上周三强[item].objects['txt_crossServerFightFirst_1'].text = info_上周三强[item].nick;
+			}
+		}
+		info_膜拜.length > 0 && info_膜拜.forEach(function (e) {
+			photoObj_上周三强[e - 1].objects['obj_通用_方形头像框0_crossServerFight'].vars_.nowStatus = 2;
+		});
+	}
+	//挑战次数
+	var fightNum = data[4];
+	grou_crossServerFight.objects['txt_crossServerFightNum'].text = "挑战次数 " + fightNum + "/" + 20;
+	if (fightNum >= 20) {
+		grou_crossServerFight.objects['txt_crossServerFightNum_1'].show();
+	} else {
+		grou_crossServerFight.objects['txt_crossServerFightNum_1'].hide();
+	}
+
+	//已经购买的次数
+	var alreadyBuyNum = data[5];
+	grou_crossServerFight.vars_.alreadyBuyNum = alreadyBuyNum;
+	//匹配按钮设置已经挑战次数
+	grou_crossServerFight.objects['obj_兑换排行榜排名奖励_按钮_crossServerFight_4'].vars_.plusFightNum = fightNum;
+	function calDuanWei(myScore) {
+		for (cell in game.configs.pk_rank_score) {
+			var _scores = game.configs.pk_rank_score[cell].score;
+			if (myScore < _scores) {
+				my_段位 = game.configs.pk_rank_score[cell - 1].name;
+				return my_段位;
+			}
+		}
+		return "王者V1";
+	}
+
+
+	//上周三强的点击事件
+	if (self.currentSprite.parent.qyobj.id == "grou_arena") {
+		//0，未产生 2已经膜拜
+		var rankTxt = ["二", '一', '三'];
+		var rankSendMessage = [2, 1, 3];
+		if (self.vars_.nowStatus == 0) {
+			var index = self.id.slice(self.id.length - 1, self.id.length);
+			current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "尚未产生第" + rankTxt[Number(index)] + "名,无法膜拜哦~~~");
+			return;
+		} else if (self.vars_.nowStatus == 2) {
+			current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "您已经膜拜过第" + rankTxt[Number(index)] + "名了,明日再来吧~");
+		} else {
+			current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+			KBEngine.app.player().baseCall("reqClickThereTop", rankSendMessage[Number(index)]);
+		}
+	}
+
+
+	//膜拜的回调
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+
+	if (data == 1) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "膜拜成功");
+		KBEngine.app.player().baseCall("reqCrossServerJJC");
+		current_game.scripts['al_scr_' + "createMoBaiReward"].call(this, undefined, this);
+	} else {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "膜拜失败");
+	}
+
+
+
+
+	//匹配点击 挑战次数不足
+	if (self.vars_.plusFightNum >= 20) {
+		qyengine.instance_create(-100, 0, "grou_crossServiceFightTip", {
+			"type": "grou_crossServiceFightTip",
+			"id": "grou_crossServiceFightTip",
+			"zIndex": 5,
+			"layer": "layer_headerfeet"
+		});
+		grou_crossServiceFightTip.objects['txt_crossServiceFightTip'].text = "  今日跨服竞技场挑战免费次数已用完，是否花费" + "<font  color='#ffe57a'>" + "50金子" + "</font>" + "购买一次?(已购买" + grou_crossServerFight.vars_.alreadyBuyNum + "次)\n（VIP0可购买2次,VIP等级越高购买次数越多）";
+	}
+
+	//购买挑战次数的按钮  
+	var consumeGold = game.configs.misc['pk_rank_gold'].value;
+	if (game.vars_.userInfo.gold >= Number(consumeGold)) {
+		//current_game.scripts['al_scr_' + "createCrossMatching"].call(this, undefined, this);
+		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+		KBEngine.app.player().baseCall("reqCrossServerJJCBuyTime");
+	} else {
+		qyengine.getInstancesByType("grou_crossServiceFightTip")[0].destroy();
+		current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
+	}
+
+
+
+
+
+
+	//购买跨服竞技场次数的回调
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	if (data == 1) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, '购买成功');
+		qyengine.getInstancesByType("grou_crossServiceFightTip").forEach(function (e) {
+			e.destroy();
+		});
+		current_game.scripts['al_scr_' + "createCrossMatching"].call(this, undefined, this);
+	} else {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "购买失败");
+	}
+
+
+	//创建pk之前的vs界面
+	//grou_crossServerFightPk的创建事件
+	var _pos = [[198, 575], [573, 575]];
+	for (var i = 4; i < 6; i++) {
+		qyengine.instance_create(_pos[i - 4][0], _pos[i - 4][1], "grou_crossServerFightPhoto", {
+			"type": "grou_crossServerFightPhoto",
+			"id": "grou_crossServerFightPhoto" + i,
+			"zIndex": 5,
+			"layer": "layer_headerfeet"
+		});
+		grou_crossServerFightPk.appendChild("grou_crossServerFightPhoto" + i, _pos[i - 4][0], _pos[i - 4][1]);
+	}
+
+	var myPhotoObj = grou_crossServerFightPk.objects['grou_crossServerFightPhoto' + 4];
+	var otherPhotoObj = grou_crossServerFightPk.objects['grou_crossServerFightPhoto' + 5];
+	myPhotoObj.objects['txt_crossServerFightFirst'].text = grou_crossServerFight.objects['txt_crossServerFightLevel'].text;
+	myPhotoObj.objects['txt_crossServerFightFirst_1'].text = game.vars_.userInfo.nick;
+	myPhotoObj.objects['obj_通用_方形头像0_crossServerFight'].changeSprite("selectRole_photo_" + game.vars_.userInfo.profession + "_default");
+	//var otherDuanWei = current_game.scripts['al_scr_' + "calDuanWeiByJiFen"].call(this, undefined, this, game.vars_.respPvpFightingEnemys[7]);
+	var otherDuanWei = game.configs.pk_rank_score[game.vars_.respPvpFightingEnemys[7]].name;
+	otherHeroObj.objects['txt_crossServerFightFirst'].text = otherDuanWei;
+	otherHeroObj.objects['txt_crossServerFightFirst_1'].text = "" + game.vars_.respPvpFightingEnemys[2];
+	var otherProfession = game.vars_.respPvpFightingEnemys[5][0].profession;
+	otherHeroObj.objects['obj_通用_方形头像0_crossServerFight'].changeSprite("selectRole_photo_" + otherProfession + "_default");
+
+
+	//进入战斗
+	game.vars_.enemyType = "CROSS_ARENA";
+
+	game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
+		window.clearTimeout(hd);
+	})
+	current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this, 1);
+
+
+
+
+	//跨服家族战胜利或者失败后的处理   createCrossFightResult
+	//0 失败 1胜利
+	current_game.scripts['al_scr_' + "createCrossFightResult"].call(this, undefined, this, 0);
+	KBEngine.app.player().baseCall("reqCrossServerMatchPlayerResult", 0, game.vars_.respPvpFightingEnemys[2]);
+
+
+	//创建跨服竞技场的胜利失败界面
+	qyengine.instance_create(-100, 0, "grou_crossFightResult", {
+		"type": "grou_crossFightResult",
+		"id": "grou_crossFightResult",
+		"zIndex": 5,
+		"layer": "layer_headerfeet",
+		"scene": "main_scene"
+	});
+	function pk_rank_score_backId(scores) {
+		for (cell in game.configs.pk_rank_score) {
+			if (Number(game.configs.pk_rank_score[cell].score) > scores) {
+				return (cell - 1);
+			}
+		}
+		return configDataLength("pk_rank_score");
+	}
+	var scoreid = pk_rank_score_backId(game.vars_.userInfo.fightCrossScore),
+		original_段位 = game.configs.pk_rank_score[scoreid].name;
+	//暂且隐藏排名
+	grou_crossFightResult.objectsp['txt_crossFightResultNameAndFight_5'].hide();
+	if (data == 1) {  //胜利
+		//获得威望
+		grou_crossFightResult.objects['txt_crossFightResultNameAndFight_6'].text = "威望 +" + game.configs.pk_rank_score[scoreid].victory_reward;
+		grou_crossFightResult.objects['grou_crossFightResultUpdate'].hide();
+		grou_crossFightResult.objects['obj_失败_装饰'].changeSprite("obj_胜利_装饰_default");
+		grou_crossFightResult.objects['obj_失败_字'].changeSprite("obj_胜利_字_default");
+		//胜利积分
+		//game.vars_.userInfo.fightCrossScore       game.vars_.respPvpFightingEnemys[7]   
+		//game.configs.pk_rank_score
+		//胜利基础分
+		var successBaseScore = game.configs.pk_rank_score[scoreid].victory_score + (pk_rank_score_backId(game.vars_.respPvpFightingEnemys[7]) - scoreid);
+		game.vars_.userInfo.fightCrossScore += successBaseScore;
+		var nowId = pk_rank_score_backId(game.vars_.userInfo.fightCrossScore);
+		var now_段位 = game.configs.pk_rank_score[nowId].name;
+		if (scoreid == nowId) {  //未晋级
+			grou_crossFightResult.objects['txt_crossFightResultRankUp'].hide();
+			grou_crossFightResult.objects['txt_crossFightResultNameAndFight_4'].hide();
+		} else {  //晋级
+			grou_crossFightResult.objects['txt_crossFightResultRankUp'].text = "" + original_段位 + " --------->" + now_段位;
+			grou_crossFightResult.objects['txt_crossFightResultNameAndFight_4'].text = "晋级";
+		}
+	} else {
+		//威望
+		grou_crossFightResult.objects['txt_crossFightResultNameAndFight_6'].text = "威望 +" + game.configs.pk_rank_score[scoreid].fail_reward;
+		var failBaseScore = game.configs.pk_rank_score[scoreid].fail_score + (-pk_rank_score_backId(game.vars_.respPvpFightingEnemys[7]) + scoreid);
+		game.vars_.userInfo.fightCrossScore -= failBaseScore;
+		var nowId = pk_rank_score_backId(game.vars_.userInfo.fightCrossScore);
+		var now_段位 = game.configs.pk_rank_score[nowId].name;
+		if (scoreid == nowId) {  //未降级
+			grou_crossFightResult.objects['txt_crossFightResultRankUp'].hide();
+			grou_crossFightResult.objects['txt_crossFightResultNameAndFight_4'].hide();
+		} else {  //晋级
+			grou_crossFightResult.objects['txt_crossFightResultRankUp'].text = "" + original_段位 + " --------->" + now_段位;
+			grou_crossFightResult.objects['txt_crossFightResultNameAndFight_4'].text = "降级";
+		}
+	}
+
+	//头像昵称等
+	grou_crossFightResult.objects['obj_通用_方形头像0_crossServerFight_0'].changeSprite("selectRole_photo_" + game.vars_.userInfo.profession + "_default");
+	grou_crossFightResult.objects['obj_通用_方形头像0_crossServerFight_0'].setScale(0.63, 0.63);
+	grou_crossFightResult.objects['txt_crossFightResultNameAndFight'].text = game.vars_.userInfo.serverName + " " + game.vars_.userInfo.nick;
+	//grou_crossFightResult.objects['txt_crossFightResultNameAndFight_1'].text = "战斗力： " + KBEngine.app.player().fighting;
+	grou_crossFightResult.objects['txt_crossFightResultNameAndFight_1'].hide();
+	//其它玩家的头像昵称
+	var otherProfession = game.vars_.respPvpFightingEnemys[5][i].profession;
+	grou_crossFightResult.objects['obj_通用_方形头像0_crossServerFight_1'].changeSprite("selectRole_photo_" + otherProfession + "_default");
+	grou_crossFightResult.objects['obj_通用_方形头像0_crossServerFight_1'].setScale(0.63, 0.63);
+	grou_crossFightResult.objects['txt_crossFightResultNameAndFight_2'].text = game.vars_.respPvpFightingEnemys[8] + "" + game.vars_.respPvpFightingEnemys[2];
+	grou_crossFightResult.objects['txt_crossFightResultNameAndFight_3'].hide();
+
+	//跨服竞技场排行榜
+	var pos = getConfig('UIConfig', 'grou_arena_rank', 'position').split(',');
+	var zIndex = getConfig('UIConfig', 'grou_arena_rank', 'zIndex');
+	var layer = getConfig('UIConfig', 'grou_arena_rank', 'layer');
+
+	qyengine.instance_create(pos[0], pos[1], 'grou_crossArena_rank', {
+		"id": 'grou_crossArena_rank',
+		"layer": layer,
+		"zIndex": zIndex
+	});
+	//根据积分求关键字
+	function pk_rank_score_backId(scores) {
+		for (_cell in game.configs.pk_rank_score) {
+			if (Number(game.configs.pk_rank_score[_cell].score) > scores) {
+				return (_cell - 1);
+			}
+		}
+		return configDataLength("pk_rank_score");
+	}
+	for (cell in data) {
+		var photoIcon = "selectRole_photo_" + data[cell][2] + "_default";
+		var score = data[cell][6];
+		var duanWeiIcon = "obj_" + game.configs.pk_rank_score[pk_rank_score_backId(score)].icon + "_small_default";
+		var duanWeiWord = current_game.scripts['al_scr_' + "calDuanWeiByJiFen"].call(this, undefined, this, score);
+		game.configs.crossServerFightRank[cell + 1] = {
+			"id": Number(cell) + 1,
+			"icon": photoIcon,
+			"vip": "vip" + data[cell][5],
+			"server": data[cell][3],
+			"monthCard": 0,
+			"nick": "" + data[cell][3] + " " + data[cell][1],
+			"score": data[cell][6],
+			"level": "lv" + data[cell][4],
+			"rankIndex": cell + 1,
+			"duanWeiIcon": duanWeiIcon,
+			"duanWeiWord": duanWeiWord
+		}
+	}
+	scro_arena_rank_list.refreshRelations();
+
+
+
+
+
+
+
+
+
+
+
+	if (Number(event.argument0) === grou_activityMain_new.vars_.nowAtTab) {
+		return;
+	} else {
+		//var allActivityTab = ["grou_activityInTest", "grou_activityConsume", "grou_levelgift", "grou_activityCharts", "grou_activityLuckyWheel", "grou_leichonggift"];
+		var allActivityTab = ["grou_activitySingleTimeBack", "grou_activityLuckyWheel", "grou_activityConsume", "grou_activityCharts", "grou_leichonggift", "grou_levelgift", "grou_activityInTest", "grou_activityLimitTime"];
+		var whichGroup = allActivityTab[grou_activityMain_new.vars_.nowAtTab];
+		var nextCreateGroup = allActivityTab[Number(event.argument0)];
+		//qyengine.guardId(whichGroup).length > 0 && qyengine.guardId(whichGroup).destroy();
+		var selectSprite = ["obj_活动_单充回馈2", "obj_活动_积分转轮2", "obj_活动_累计消耗2", "obj_活动_王者争霸2", "obj_活动_累计充值2", "obj_活动_等级礼包2", "obj_活动_封测特权2", "obj_活动_限时折扣2"];
+		//var selectSprite = ["obj_活动_封测特权2", "obj_活动_累计消耗2", "obj_活动_等级礼包2", "obj_活动_王者争霸2", "obj_活动_积分转轮2", "obj_活动_累计充值2"];
+		//var initSprite = ["obj_活动_封测特权1_activiy_new", "obj_活动_累计消耗1", "obj_活动_等级礼包1", "obj_活动_王者争霸1", "obj_活动_积分转轮1", "obj_活动_累计充值1","obj_活动_限时折扣1"];
+		var initSprite = ["obj_活动_单充回馈1", "obj_活动_积分转轮1", "obj_活动_累计消耗1", "obj_活动_王者争霸1", "obj_活动_累计充值1", "obj_活动_等级礼包1", "obj_活动_封测特权1_activiy_new", "obj_活动_限时折扣1"];
+		qyengine.guardId("grou_activityMainTab_cell_" + grou_activityMain_new.vars_.nowAtTab).objects["obj_活动_封测特权1"].changeSprite(initSprite[grou_activityMain_new.vars_.nowAtTab] + "_default");
+		qyengine.guardId("grou_activityMainTab_cell_" + grou_activityMain_new.vars_.nowAtTab).objects["obj_活动_框未选中"].changeSprite("obj_活动_框未选中_activity_new_default");
+		qyengine.guardId("grou_activityMainTab_cell_" + Number(event.argument0)).objects["obj_活动_封测特权1"].changeSprite(selectSprite[Number(event.argument0)] + "_default");
+		qyengine.guardId("grou_activityMainTab_cell_" + Number(event.argument0)).objects["obj_活动_框未选中"].changeSprite("obj_活动_框已选中_default");
+
+		qyengine.getInstancesByType(whichGroup)[0].destroy();
+		grou_activityMain_new.vars_.nowAtTab = Number(event.argument0);
+
+		if (Number(event.argument0) == 4 + 1 || Number(event.argument0) == 3 + 1) {  //等级礼包和累计充值
+			if (Number(event.argument0) == 3 + 1) {
+				current_game.scripts['al_scr_' + "reqActivitySix"].call(this, undefined, this);
+			} else {
+				current_game.scripts['al_scr_' + "act_levelgift_open"].call(this, undefined, this);
+			}
+		} else {
+			qyengine.instance_create(176, 436, nextCreateGroup, {
+				"type": nextCreateGroup,
+				"id": nextCreateGroup,
+				"zIndex": 5,
+				"scene": "main_scene",
+				"layer": "layer_headerfeet"
+			});
+			grou_activityMain_new.appendChild(nextCreateGroup, 176, 436);
+			console.log("ahehehehheheheheh");
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+	if (Number(event.argument0) === grou_activityMain_new.vars_.nowAtTab) {
+		return;
+	} else {
+		//var allActivityTab = ["grou_activityInTest", "grou_activityConsume", "grou_levelgift", "grou_activityCharts", "grou_activityLuckyWheel", "grou_leichonggift"];
+		var allActivityTab = ["grou_activitySingleTimeBack", "grou_activityLimitTime", "grou_activityLuckyWheel", "grou_activityConsume", "grou_activityCharts", "grou_leichonggift", "grou_levelgift", "grou_activityInTest", "grou_activityLimitTime"];
+		var whichGroup = allActivityTab[grou_activityMain_new.vars_.nowAtTab];
+		var nextCreateGroup = allActivityTab[Number(event.argument0)];
+		//qyengine.guardId(whichGroup).length > 0 && qyengine.guardId(whichGroup).destroy();
+		var selectSprite = ["obj_活动_单充回馈2", "obj_活动_限时折扣2", "obj_活动_积分转轮2", "obj_活动_累计消耗2", "obj_活动_王者争霸2", "obj_活动_累计充值2", "obj_活动_等级礼包2", "obj_活动_封测特权2", "obj_活动_限时折扣2"];
+		//var selectSprite = ["obj_活动_封测特权2", "obj_活动_累计消耗2", "obj_活动_等级礼包2", "obj_活动_王者争霸2", "obj_活动_积分转轮2", "obj_活动_累计充值2"];
+		//var initSprite = ["obj_活动_封测特权1_activiy_new", "obj_活动_累计消耗1", "obj_活动_等级礼包1", "obj_活动_王者争霸1", "obj_活动_积分转轮1", "obj_活动_累计充值1","obj_活动_限时折扣1"];
+		var initSprite = ["obj_活动_单充回馈1", "obj_活动_限时折扣1", "obj_活动_积分转轮1", "obj_活动_累计消耗1", "obj_活动_王者争霸1", "obj_活动_累计充值1", "obj_活动_等级礼包1", "obj_活动_封测特权1_activiy_new", "obj_活动_限时折扣1"];
+		qyengine.guardId("grou_activityMainTab_cell_" + grou_activityMain_new.vars_.nowAtTab).objects["obj_活动_封测特权1"].changeSprite(initSprite[grou_activityMain_new.vars_.nowAtTab] + "_default");
+		qyengine.guardId("grou_activityMainTab_cell_" + grou_activityMain_new.vars_.nowAtTab).objects["obj_活动_框未选中"].changeSprite("obj_活动_框未选中_activity_new_default");
+		qyengine.guardId("grou_activityMainTab_cell_" + Number(event.argument0)).objects["obj_活动_封测特权1"].changeSprite(selectSprite[Number(event.argument0)] + "_default");
+		qyengine.guardId("grou_activityMainTab_cell_" + Number(event.argument0)).objects["obj_活动_框未选中"].changeSprite("obj_活动_框已选中_default");
+
+		qyengine.getInstancesByType(whichGroup)[0].destroy();
+		grou_activityMain_new.vars_.nowAtTab = Number(event.argument0);
+
+		if (Number(event.argument0) == 4 + 2 || Number(event.argument0) == 3 + 2) {  //等级礼包和累计充值
+			if (Number(event.argument0) == 3 + 2) {
+				current_game.scripts['al_scr_' + "reqActivitySix"].call(this, undefined, this);
+			} else {
+				current_game.scripts['al_scr_' + "act_levelgift_open"].call(this, undefined, this);
+			}
+		} else {
+			qyengine.instance_create(176, 436, nextCreateGroup, {
+				"type": nextCreateGroup,
+				"id": nextCreateGroup,
+				"zIndex": 5,
+				"scene": "main_scene",
+				"layer": "layer_headerfeet"
+			});
+			grou_activityMain_new.appendChild(nextCreateGroup, 176, 436);
+			console.log("ahehehehheheheheh");
+		}
+	}
+
+
+
+
+
+
+
+
+	//显示折扣的更新事件
+	var xxxTimeShow = current_game.scripts['al_scr_' + "rechangeActivityTime"].call(this, undefined, this, 6);
+	grou_activityLimitTime.objects['txt_inTestTime_title'].text = xxxTimeShow[0] + xxxTimeShow[1];
+	var isOver;   //是否过期
+	var activity_gift = grou_activityMain_new.vars_.nowAtTab == 1 ? game.configs.activity_dragon[self.id] : game.configs.activity_gift[self.id];
+	for (item in activity_gift) {
+		var name = activity_gift[item].name;
+		var num = activity_gift[item].limit;
+		var alreadyNum = calAlreadyNum(item);
+		var nowNum = Number(num) - Number(alreadyNum);
+		var titleTxt = name + "（剩余" + nowNum + "个）";
+		var vip = Number(activity_gift[item].viplevel);
+		var initPrice = activity_gift[item].price;
+		var price = activity_gift[item].gold;
+		var buyStatus = judgeBuStatus(item, Number(num), Number(alreadyNum), vip);
+		game.configs.config_limitTime[item] = {
+			"id": item,
+			"name": titleTxt,
+			"initPrice": "原价：" + initPrice,
+			"price": price + " ",
+			"vip": "VIP " + vip,
+			"itemId": item,
+			"num": num,
+			"buyStatus": buyStatus,
+			"groupId": "grou_activityLimitTime_cell_" + item,
+			"plusNum": nowNum
+		}
+
+	}
+	scro_activityInTest.refreshRelations();
+	function judgeBuStatus(item, canBuyNum, alreadyBuyNum, needVip) {
+		if (canBuyNum <= alreadyBuyNum) {  //已售完
+			return 2;
+		} else {
+			if (game.vars_.userInfo.vip < needVip) {  //vip不够
+				return 3;
+			}
+		}
+		return 1;
+	}
+	function calAlreadyNum(item) {
+		if (data[0].length) {
+			for (cell in data[0]) {
+				if (data[0][cell].id == item) {
+					return data[0][cell].num;
+				}
+			}
+		}
+		return 0;
+	}
+
+
+
+
+
+	//pwangrd_qiyun/yulongzaitianH5_dragonWeapon_lxjt
+
+	if (grou_activityMain_new.vars_.nowAtTab == 1) {
+		KBEngine.app.player().baseCall('onRespClickActivityNine');
+	} else {
+		KBEngine.app.player().baseCall('reqClickActivitySeven');
+	}
+
+	//龙魂限时折扣
+	current_game.scripts['al_scr_' + "onRespClickActivitySeven"].call(this, undefined, this, data);
+	current_game.scripts['al_scr_' + "onRespResult95"].call(this, undefined, this, data);
+
+
+
+
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	//购买后的结果的反馈
+	var showText = ["购买失败", '金币不足', 'vip等级不够', '购买成功'];
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, showText[data]);
+	if (data == 3) {
+		// 购买成功后的一些数据的改变~~~
+		var numShowObj = qyengine.guardId("grou_activityLimitTime_cell_" + grou_activityLimitTime.vars_.nowTouchId).objects["txt_activityLimitTimeName_item"];
+		var lastNum = numShowObj.vars_.plusNum;
+		var nowNum = lastNum - 1;
+		var itemId = grou_activityLimitTime.vars_.nowTouchId;
+		var itemName = game.configs.activity_gift[itemId].name;
+		numShowObj.text = "" + itemName + "（剩余" + nowNum + "个）";
+		numShowObj.vars_.plusNum = nowNum;
+		if (nowNum <= 0) {
+			var needUpdateStatusObj = ["obj_活动_小按钮框2_limitTime", "obj_活动_限时折扣_购买_limitTime"];
+			for (cell in needUpdateStatusObj) {
+				var needObj = qyengine.guardId("grou_activityLimitTime_cell_" + grou_activityLimitTime.vars_.nowTouchId).objects[needUpdateStatusObj[cell]];
+				needObj.vars_.buyStatus = 2;
+				needObj.dispatchMessage({
+					"type": "message",
+					"message": "updateStatus"
+				});
+			}
+		}
+	}
+
+
+
+
+	//购买时对是否是金子不足的判断
+	if (grou_activityMain_new.vars_.nowAtTab == 1) {
+
+	}
+	var needGold = grou_activityMain_new.vars_.nowAtTab == 1 ? game.configs.activity_dragon[self.vars_.itemId].gold : game.configs.activity_gift[self.vars_.itemId].gold;
+
+	if (game.vars_.userInfo.gold < Number(needGold)) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, '金子不足!');
+	}
+	current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
+
+
+	createCounterpartLevelUI
+	//弹出购买金币的界面
+	current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
+
+	//counterpartBuyTopUI
+
+	qyengine.getInstancesByType("grou_dragonWeapon").forEach(function (e) {
+		e.destroy();
+	});
+
+	//创建龙魂武器界面
+
+	qyengine.instance_create(-100, 0, "grou_dragonWeapon", {
+		"type": "grou_dragonWeapon",
+		"id": "grou_dragonWeapon",
+		"zIndex": 5,
+		"layer": "layer_headerfeet"
+	});
+	//默认的是哪种角色
+	var roleType = game.vars_.userInfo.roles[0].type;
+	qyengine.forEach(function () {
+		this.dispatchMessage({
+			"type": "message",
+			"message": "rechangeStatus",
+			"argument0": (roleType - 1)
+		});
+	}, "obj_龙魂武器_选择框_01_dragonWeapon")
+	qyengine.guardId("grou_dragonWeapon").dispatchMessage({
+		"type": "message",
+		"message": "rechangeStatus",
+		"argument0": (roleType - 1)
+	});
+	//判断是否需要激活
+	//game.vars_.userInfo.roles[0].loongWeapon
+
+
+
+
+
+	//obj_龙魂武器_选择框_01_dragonWeapon  对象收到消息的处理
+	if (self.vars_.buttonType == event.argument0) {
+		self.changeSprite("obj_龙魂武器_选择框_02_dragonWeapon_default");
+		grou_dragonWeapon.vars_.nowTab = event.argument0;
+	}
+
+	//grou_dragonWeapon 收到消息的处理
+	local.nextButtonType = event.argument0;
+	if (self.vars_.nowTab == local.nextButtonType) {
+		return;
+	}
+	var roleButtonArr = ['obj_龙魂武器_选择框_01_dragonWeapon', "obj_龙魂武器_选择框_01_dragonWeapon_1", "obj_龙魂武器_选择框_01_dragonWeapon_2"];
+	qyengine.guardId(roleButtonArr[self.vars_.nowTab]).changeSprite("obj_龙魂武器_选择框_01_dragonWeapon_default");
+	qyengine.forEach(function () {
+		this.dispatchMessage({
+			"type": "message",
+			"message": "rechangeStatus",
+			"argument0": local.nextButtonType
+		});
+	}, "obj_龙魂武器_选择框_01_dragonWeapon");
+	//改变主界面的显示
+	//激活按钮状态1,可以激活 2,锤炼 3,突破 4 ,进化
+	var dragonLevel = calDragonLevel();
+
+	if (dragonLevel == 0) {  //未激活
+		self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 1;
+		self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_激活_dragonWeapon_default");
+		var needHideArr = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "txt_dragonLevelDec"],
+			needHideArrDec = ['生命:', '物防:', '闪避', '抗暴'];
+		for (i = 0; i < 4; i++) {
+			self.objects['txt_dragonWeaponProperty_' + i].text = needHideArrDec[i] + needHideArr[i];
+		}
+	} else {
+		var dragonLevelPlace = dragonLevel.toString().length;
+		var lastNum = dragonLevel - 10 * Number(dragonLevelPlace);
+		if (lastNum == 5) {  //突破
+			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 3;
+			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_突破_dragonWeapon_default");
+		} else if (lastNum == 0) {  //进化
+			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 4;
+			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_进化_dragonWeapon_default");
+		} else {   //锤炼
+			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 2;
+			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_锤炼_dragonWeapon");
+		}
+		var dragonInfo = game.configs.dragon_weapon;
+		var dragonMatchId = 0;
+		for (cell in dragonInfo) {
+			if (Number(dragonInfo[cell].type) == (self.vars_.nowTab + 1) && Number(dragonInfo[cell].level) == dragonLevel) {
+				dragonMatchId = cell;
 				break;
 			}
 		}
+		if (dragonMatchId == 0) {
+			console.error("出错了~~~~~~~");
+			return;
+		}
+		calConsoleItem(dragonMatchId);
+		//计算属性加成
+		var dragonNowInfo = game.configs.dragon_weapon[dragonMatchId],
+			dragonNextInfo = game.configs.dragon_weapon[Number(dragonMatchId) + 1];
 
-	} else {
 
-		window.currentBossObjPIXI = {};
+		propertyArr = ["hp", "pdef", "mdef", 'rcri'];
+		for (_cell in propertyArr) {
+			self.objects['txt_dragonWeaponProperty_' + _cell].text = dragonNowInfo[propertyArr[_cell]];
+			self.objects['txt_dragonWeaponProperty_' + (_cell + 4)].text = dragonNextInfo[propertyArr[_cell]];
+		}
+		//描述
+		self.objects['txt_dragonWeaponDec0'].text = dragonNowInfo.name;
+		var dragonNowDec = dragonNowInfo.dec.split("|");
+		for (_cell in dragonNowDec) {
+			self.objects['txt_dragonWeaponDec0_1_' + _cell].text = dragonNowDec[_cell];
+		}
+
 	}
+	//计算消耗的材料
+	function calConsoleItem(id) {
+		var dragonItemInfo = game.configs.dragon_weapon[id].cost.split(";");
+		for (cell in dragonItemInfo) {
+			var itemId = dragonItemInfo[cell].split("|")[0];
+			var itemNum = dragonItemInfo[cell].split("|")[1];
+			var itemName = game.configs.item[itemId].name,
+				itemIcon = game.configs.item[itemId].icon,
+				itemQuality = game.configs.item[itemId].quality;
+			var grouItemObj = qyengine.instance_create(0, 0, "grou_dragonWeapon_cell", {
+				"type": "grou_dragonWeapon_cell",
+				"id": "grou_dragonWeapon_cell_" + cell,
+				"zIndex1": 5
+			});
+			grou_dragonWeapon.appendChild(grouItemObj, 108, 980 + cell * 350);
+			grouItemObj.objects['obj_dragonWeaponIcon'].changeSprite("obj_" + itemIcon + "_default");
+			grouItemObj.objects['txt_dragonWeaponItemName'].text = itemName;
+			grouItemObj.objects['txt_dragonWeaponItemNum'].text = "" + itemNum + "/" + calNowHaveItem(Number(itemId));
 
-	if (!enemyObj.currentAnim) {
-
-		enemyObj.currentAnim = new PIXI.extras.RoleAnimation(rolesNameJson[rolesInfo[i].id]);
-		//heroObj.currentAnim = new PIXI.extras.RoleAnimation("魂白鸽");
-		window.currentBossObjPIXI[rolesNameJson[rolesInfo[i].id]] = enemyObj.currentAnim;
-	}
-
-	//设置切片动画的坐标点
-	var size = enemyObj.currentAnim.getSize();
-
-	enemyObj.currentAnim.position.x = size.width * 0.5;
-
-	enemyObj.currentAnim.position.y = size.height * 0.5;
-
-	//压入到空白对象里面
-	enemyObj.currentSprite.addChild(enemyObj.currentAnim);
-
-	//设置动作
-	enemyObj.currentAnim.setAction("待机");
-
-	//设置方向
-	enemyObj.currentAnim.setDirection(5);
-
-	enemyObj.setSize(size);
-
-
-
-	enemyObj.vars_.enemyId = Number(game.vars_.enemyBossInfo.id);
-
-	enemyObj.vars_.enemyName = getConfig("monster", game.vars_.enemyBossInfo.id, "name");
-
-	for (var item in game.vars_.enemyBossInfo) {
-
-		if (item != "id") {
-
-			enemyObj.setVar(item, Number(game.vars_.enemyBossInfo[item]));
 		}
 	}
-
-	enemyObj.vars_.skill1 = getConfig("monster", enemyObj.vars_.enemyId, "skill1");
-
-	enemyObj.vars_.skill2 = getConfig("monster", enemyObj.vars_.enemyId, "skill2");
-
-	enemyObj.vars_.skillIDList = [enemyObj.vars_.skill1, enemyObj.vars_.skill2];
-
-	enemyObj.vars_.skillCDList = [];
-
-	for (var i = 0; i < enemyObj.vars_.skillIDList.length; i++) {
-
-		var skillId = enemyObj.vars_.skillIDList[i];
-
-		if (skillId != -1) {
-
-			enemyObj.vars_.skillCDList.push(Number(getConfig("skill", skillId, "cd")));
+	//计算拥有item的数量
+	function calNowHaveItem(id) {
+		for (item in game.vars_.userInfo.packageInfo.packGood) {
+			if (game.vars_.userInfo.packageInfo.packGood[item].id == id) {
+				return game.vars_.userInfo.packageInfo.packGood[item].num;
+			}
 		}
+		return 0;
+	}
+	//计算龙魂武器等级
+	function calDragonLevel() {
+		for (var i = 0; i < game.vars_.userInfo.role.length; i++) {
+			if (game.vars_.userInfo.role[i].type == (self.vars_.nowTab + 1)) {
+				return game.vars_.userInfo.roles[i].loongWeapon;
+			}
+		}
+		return false;
 	}
 
-	enemyObj.vars_.currentSkillID = null;
 
-	var bloodBg = qyengine.instance_create(0, 0, "obj_通用_人物血条_空槽_1", { "id": enemyObj.id + "bloodBg", "zIndex": enemyObj.zIndex, "layer": "layer_fight" });
-
-	enemyObj.setVar("bloodBg", bloodBg);
-
-	bloodBg.setFollowObj(enemyObj.id, -bloodBg.width * 0.5 * bloodBg.scaleX, -enemyObj.height * 0.5 * enemyObj.scaleY - bloodBg.height * bloodBg.scaleX, 'both');
-
-	var bloodImg = qyengine.instance_create(0, 0, "obj_通用_人物血条_红_1", { "id": enemyObj.id + "bloodImg", "zIndex": enemyObj.zIndex, "layer": "layer_fight" });
-
-	bloodImg.setFollowObj(enemyObj.id, -bloodImg.width * 0.5 * bloodImg.scaleX, -enemyObj.height * 0.5 * enemyObj.scaleY - bloodImg.height * bloodImg.scaleY, 'both');
-
-	enemyObj.setVar("bloodImg", bloodImg);
-
-	var objNameTxt = qyengine.instance_create(0, 0, "objNameTxt", { "id": enemyObj.id + "objNameTxt", "zIndex": 0, "layer": "layer_fight" });
-
-	if (enemyObj.vars_.level) {
-
-		objNameTxt.text = "Lv." + enemyObj.vars_.level + "." + enemyObj.vars_.enemyName;
-
-	} else {
-
-		objNameTxt.text = enemyObj.vars_.enemyName;
-	}
-	enemyObj.setVar("objNameTxt", objNameTxt);
-
-	objNameTxt.setFollowObj(enemyObj.id, -objNameTxt.width * 0.5 * objNameTxt.scaleX, -enemyObj.height * 0.5 * enemyObj.scaleY - objNameTxt.height * objNameTxt.scaleY - 20, 'both');
-
-	if (enemyObj.vars_.currentHp < enemyObj.vars_.hp) {
-
-		bloodImg.width = enemyObj.vars_.currentHp / enemyObj.vars_.hp * bloodImg.vars_.currentWidth;
-	}
-
-	current_scene.vars_.enemyArr.push(enemyObj);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//霸主信息   当前霸主信息 [uid, vip, nick, level, fighting, 公会名字, 公会id,装备信息,翅膀等级
-	//被膜拜次数
-	//是否已经膜拜
-	//是否是开启双倍时间
-	//game.vars_.overlordContent=data;
-
-	//帮派名字
-	var tradeUnionName = "";
-	var equipmentData = [];
-	var wingData = 0;
-	if (game.vars_.overlordContent[0].length > 5) {
-		tradeUnionName = game.vars_.overlordContent[0][5];
-
-		var equipmentDa = {};
-		equipmentDa["id"] = game.vars_.overlordContent[5][0];
-		equipmentDa["type"] = 3;
-		equipmentData.push(equipmentDa);
-		var equipmentDa1 = {};
-		equipmentDa1["id"] = game.vars_.overlordContent[5][1];
-		equipmentDa1["type"] = 1;
-		equipmentData.push(equipmentDa1);
-		wingData = game.vars_.overlordContent[6];
-	}
-	//vip等级
-	var vipLv = "VIP" + game.vars_.overlordContent[0][1];
-	//霸主昵称
-	var overlordNickName = game.scripts["al_scr_" + "ChuckCountryName"](null, null) + game.vars_.overlordContent[0][2];
-	//霸主等级
-	var overlordLv = "Lv." + game.vars_.overlordContent[0][3];
-	//霸主战斗力
-	var overlordFrightingNum = game.vars_.overlordContent[0][4];
-	//下次开启的时间
-	var openTime = game.vars_.overlordContent[4].split(",");;
-
-	if (game.vars_.overlordContent[0][1] == 0) {
-		vipLv = "";
-	}
-	//帮派名字
-	qyengine.guardId("arenaLaborUnionName").setText(tradeUnionName);
-	//VIP 等级
-	qyengine.guardId("arena_VipLv").setText(vipLv);
-	//等级
-	qyengine.guardId("arena_arenaRoleLV").setText(overlordLv);
-	//名字
-	qyengine.guardId("arena_nickName").setText(overlordNickName);
-	//战斗力 
-	qyengine.guardId("arena_arenaRoleFrightingNum").setText(overlordFrightingNum);
-	//下次开启的时间
-	qyengine.guardId("arena_arenaOpenTime").setText("下次擂台赛开启:" + openTime[1] + "月" + openTime[2] + "号20:00");
-
-
-
-	//设置霸主的形象
-	if (ChampionPanel.vars_.heroObjShow == null) {
-		ChampionPanel.vars_.heroObjShow = qyengine.instance_create(0, 0, 'heroObjShow', {
-			"type": 'heroObjShow',
-			"id": 'heroObjShow',
-			"zIndex": 0,
-		});
-		ChampionPanel.vars_.heroObjShow.setScale(0.9, 0.9);
-		roleSprite_0.appendChild("heroObjShow", roleSprite_0.width / 2, roleSprite_0.height / 2);
-	}
-	kindomRoleObj = {};
-	kindomRoleObj["equips"] = equipmentData;
-	kindomRoleObj["wing"] = {};
-	kindomRoleObj.wing["level"] = wingData;
-	kindomRoleObj["id"] = game.vars_.overlordContent[7];
-	//（参数1，角色数据，参数二，需要换装的对象）
-	game.scripts["al_scr_" + "changeShowObjModel"](null, null, kindomRoleObj, ChampionPanel.vars_.heroObjShow);
-
-
-
-
-
-
-	game.vars_.oneplus = game.scripts['al_scr_' + "changeShowObjModel"].call(this, undefined, this, local.markOtherInfo);
 
 

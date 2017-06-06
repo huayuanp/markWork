@@ -111,7 +111,11 @@ qyengine.instance_create(1414, 1226, "txt_rankListNumber", {
 	"layer": 'layer_headerfeet'
 });
 
-
+//查看user-agent，useragent
+window.navigator.userAgent
+//龙啸九天beta链接上显示 游客登陆的按钮
+document.querySelector(".logincustomer")
+document.querySelector(".logincustomer").style.display = "block"
 //自适应填充
 qyengine.createInstance({
 	type: "obj_warnFrame",
