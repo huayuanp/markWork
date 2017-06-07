@@ -5026,22 +5026,55 @@ if (repeatTime === 0) {
 	});
 
 	//创建龙魂武器界面
-
+	if (game.vars_.userInfo.level < 90) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "达到90级开启!");
+		return;
+	}
 	qyengine.instance_create(-100, 0, "grou_dragonWeapon", {
 		"type": "grou_dragonWeapon",
 		"id": "grou_dragonWeapon",
 		"zIndex": 5,
 		"layer": "layer_headerfeet"
 	});
+	//解锁的角色Tab显示
+	local.roleTypeArr = [];
+	for (cell in game.vars_.userInfo.roles) {
+		local.roleTypeArr.push(game.vars_.userInfo.roles[cell].type);
+	}
+	var isHave = function (x) {
+		for (_cell in local.roleTypeArr) {
+			if (local.roleTypeArr[_cell] == x) {
+				return true;
+			}
+		}
+		return false;
+	}
+	var index = 0;
+	var unlockInfo = game.configs.misc,
+		lockVipAndLevel = [[unlockInfo['unlock_role2_level'].value, unlockInfo['unlock_role2_viplevel'].value], [unlockInfo['unlock_role3_level'].value, unlockInfo['unlock_role3_viplevel']]];
+
+
+	var buttonTab_龙魂武器 = ["obj_龙魂武器_选择框_01_dragonWeapon", "obj_龙魂武器_选择框_01_dragonWeapon_1", "obj_龙魂武器_选择框_01_dragonWeapon_2"];
+	for (var i = 1; i <= 3; i++) {
+		if (isHave(i)) {
+
+		} else {
+			if (local.roleTypeArr.length == 2) {
+				grou_dragonWeapon['txt_dragonWeaponCondition_' + (i - 1)].text = "" + lockVipAndLevel[1][0] + "级或v" + lockVipAndLevel[1][1] + "解锁";
+				grou_dragonWeapon['txt_dragonWeaponCondition_' + (i - 1)].show();
+				grou_dragonWeapon[buttonTab_龙魂武器[i - 1]].setHSL(0, -100, 0);
+				grou_dragonWeapon[buttonTab_龙魂武器[i - 1]].canTouch = false;
+			} else if (local.roleTypeArr.length == 1) {
+				grou_dragonWeapon['txt_dragonWeaponCondition_' + (i - 1)].text = "" + lockVipAndLevel[index][0] + "级或v" + lockVipAndLevel[index][1] + "解锁";
+				grou_dragonWeapon['txt_dragonWeaponCondition_' + (i - 1)].show();
+				grou_dragonWeapon[buttonTab_龙魂武器[i - 1]].setHSL(0, -100, 0);
+				grou_dragonWeapon[buttonTab_龙魂武器[i - 1]].canTouch = false;
+			}
+			index += 1;
+		}
+	}
 	//默认的是哪种角色
 	var roleType = game.vars_.userInfo.roles[0].type;
-	qyengine.forEach(function () {
-		this.dispatchMessage({
-			"type": "message",
-			"message": "rechangeStatus",
-			"argument0": (roleType - 1)
-		});
-	}, "obj_龙魂武器_选择框_01_dragonWeapon")
 	qyengine.guardId("grou_dragonWeapon").dispatchMessage({
 		"type": "message",
 		"message": "rechangeStatus",
@@ -5066,7 +5099,9 @@ if (repeatTime === 0) {
 		return;
 	}
 	var roleButtonArr = ['obj_龙魂武器_选择框_01_dragonWeapon', "obj_龙魂武器_选择框_01_dragonWeapon_1", "obj_龙魂武器_选择框_01_dragonWeapon_2"];
-	qyengine.guardId(roleButtonArr[self.vars_.nowTab]).changeSprite("obj_龙魂武器_选择框_01_dragonWeapon_default");
+	if (self.vars_.nowTab != undefined) {
+		qyengine.guardId(roleButtonArr[self.vars_.nowTab]).changeSprite("obj_龙魂武器_选择框_01_dragonWeapon_default");
+	}
 	qyengine.forEach(function () {
 		this.dispatchMessage({
 			"type": "message",
@@ -5077,16 +5112,35 @@ if (repeatTime === 0) {
 	//改变主界面的显示
 	//激活按钮状态1,可以激活 2,锤炼 3,突破 4 ,进化
 	var dragonLevel = calDragonLevel();
-
 	if (dragonLevel == 0) {  //未激活
 		self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 1;
 		self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_激活_dragonWeapon_default");
-		var needHideArr = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "txt_dragonLevelDec"],
-			needHideArrDec = ['生命:', '物防:', '闪避', '抗暴'];
-		for (i = 0; i < 4; i++) {
-			self.objects['txt_dragonWeaponProperty_' + i].text = needHideArrDec[i] + needHideArr[i];
+		//隐藏部分元素
+		var needHideArr = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "txt_dragonLevelDec", "txt_loongWeaponJinHuaDec"];
+		needHideArr.forEach(function (e) {
+			qyengine.guardId(e).hide();
+		});
+		//属性
+		var dragonMatchId = 0,
+			dragonInfo = game.configs.dragon_weapon;
+		for (cell in dragonInfo) {
+			if (Number(dragonInfo[cell].level) == 1 && Number(dragonInfo[cell].type) == (self.vars_.nowTab + 1)) {
+				dragonMatchId = cell;
+				break;
+			}
 		}
+		if (dragonMatchId == 0) {
+			console.error("出错啦~~~");
+		}
+		var propertyArr = ["hp", "pdef", "mdef", 'rcri'];
+		var dragonNowInfo = dragonInfo[dragonMatchId]
+		for (cell in game.configs)
+			for (i = 0; i < 4; i++) {
+				self.objects['txt_dragonWeaponProperty_' + i].text = 0;
+				self.objects['txt_dragonWeaponProperty_' + (i + 4)].text = dragonNowInfo[propertyArr[i]];
+			}
 	} else {
+		self.objects['txt_loongWeaponJinHuaDec'].show();
 		var dragonLevelPlace = dragonLevel.toString().length;
 		var lastNum = dragonLevel - 10 * Number(dragonLevelPlace);
 		if (lastNum == 5) {  //突破
@@ -5097,7 +5151,7 @@ if (repeatTime === 0) {
 			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_进化_dragonWeapon_default");
 		} else {   //锤炼
 			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 2;
-			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_锤炼_dragonWeapon");
+			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_锤炼_dragonWeapon_default");
 		}
 		var dragonInfo = game.configs.dragon_weapon;
 		var dragonMatchId = 0;
@@ -5120,19 +5174,45 @@ if (repeatTime === 0) {
 		propertyArr = ["hp", "pdef", "mdef", 'rcri'];
 		for (_cell in propertyArr) {
 			self.objects['txt_dragonWeaponProperty_' + _cell].text = dragonNowInfo[propertyArr[_cell]];
-			self.objects['txt_dragonWeaponProperty_' + (_cell + 4)].text = dragonNextInfo[propertyArr[_cell]];
+			if (dragonLevel < 100) {
+				self.objects['txt_dragonWeaponProperty_' + (Number(_cell) + 4)].text = dragonNextInfo[propertyArr[_cell]];
+			}
 		}
-		//描述
-		self.objects['txt_dragonWeaponDec0'].text = dragonNowInfo.name;
-		var dragonNowDec = dragonNowInfo.dec.split("|");
-		for (_cell in dragonNowDec) {
-			self.objects['txt_dragonWeaponDec0_1_' + _cell].text = dragonNowDec[_cell];
+		//龙魂武器满级的判断
+		var needShowAndHide_满级 = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "obj_龙魂武器_激活_dragonWeapon", "obj_通用_按钮_02_dragonWeapon",
+			"txt_dragonLevelDec"];
+		if (dragonLevel >= 100) {
+			grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].show();
+			needShowAndHide_满级.forEach(function (e) {
+				grou_dragonWeapon.objects[e].hide();
+			});
+			qyengine.forEach(function () {
+				this.hide();
+			}, "obj_龙魂武器_箭头_dragonWeapon");
+		} else {
+			grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].hide();
+			needShowAndHide_满级.forEach(function (e) {
+				grou_dragonWeapon.objects[e].show();
+			});
+			qyengine.forEach(function () {
+				this.show();
+			}, "obj_龙魂武器_箭头_dragonWeapon");
 		}
-
 	}
+	//描述
+	self.objects['txt_dragonWeaponDec0'].text = dragonNowInfo.name;
+	var dragonNowDec = dragonNowInfo.dec.split("|");
+	for (_cell in dragonNowDec) {
+		self.objects['txt_dragonWeaponDec0_1_' + _cell].text = dragonNowDec[_cell];
+	}
+	//更新界面的龙魂显示等
+	current_game.scripts['al_scr_' + "updateLoongWeaponLoong"].call(this, undefined, this);
 	//计算消耗的材料
 	function calConsoleItem(id) {
 		var dragonItemInfo = game.configs.dragon_weapon[id].cost.split(";");
+		if (self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem) {
+			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem.length = 0;
+		}
 		for (cell in dragonItemInfo) {
 			var itemId = dragonItemInfo[cell].split("|")[0];
 			var itemNum = dragonItemInfo[cell].split("|")[1];
@@ -5144,11 +5224,19 @@ if (repeatTime === 0) {
 				"id": "grou_dragonWeapon_cell_" + cell,
 				"zIndex1": 5
 			});
-			grou_dragonWeapon.appendChild(grouItemObj, 108, 980 + cell * 350);
+			grou_dragonWeapon.appendChild(grouItemObj.id, 108 + cell * 510, 980);
 			grouItemObj.objects['obj_dragonWeaponIcon'].changeSprite("obj_" + itemIcon + "_default");
 			grouItemObj.objects['txt_dragonWeaponItemName'].text = itemName;
-			grouItemObj.objects['txt_dragonWeaponItemNum'].text = "" + itemNum + "/" + calNowHaveItem(Number(itemId));
-
+			var nowHaveItemNum = calNowHaveItem(Number(itemId));
+			grouItemObj.objects['txt_dragonWeaponItemNum'].text = "" + itemNum + "/" + nowHaveItemNum;
+			//材料不足
+			if (itemNum > nowHaveItemNum) {
+				grouItemObj.objects['txt_dragonWeaponItemNum'].setFontColor("#fa0808");
+			}
+			if (!self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem) {
+				self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem = [];
+			}
+			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem.push([itemNum, nowHaveItemNum, itemId]);
 		}
 	}
 	//计算拥有item的数量
@@ -5162,8 +5250,8 @@ if (repeatTime === 0) {
 	}
 	//计算龙魂武器等级
 	function calDragonLevel() {
-		for (var i = 0; i < game.vars_.userInfo.role.length; i++) {
-			if (game.vars_.userInfo.role[i].type == (self.vars_.nowTab + 1)) {
+		for (var i = 0; i < game.vars_.userInfo.roles.length; i++) {
+			if (game.vars_.userInfo.roles[i].type == (self.vars_.nowTab + 1)) {
 				return game.vars_.userInfo.roles[i].loongWeapon;
 			}
 		}
@@ -5172,4 +5260,138 @@ if (repeatTime === 0) {
 
 
 
+	//obj_龙魂武器_选择框_01_dragonWeapon   tab上的点击事件
+	if (self.vars_.canType == false) {
+		return;
+	}
+	qyengine.guardId("grou_dragonWeapon").dispatchMessage({
+		"type": "message",
+		"message": "rechangeStatus",
+		"argument0": self.vars_.buttonType
+	});
+	//obj_通用_按钮_02_dragonWeapon  激活、锤炼、进化按钮上的点击事件
+	if (self.vars_.buttonType == 1) {
+		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+		KBEngine.app.player().baseCall("reqActiveLoongWeapon", game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].uuid);
+	} else {
+		//判断材料
+		for (var i = 0; i < 2; i++) {
+			if (self.vars_.consumeItem[i][0] > self.vars_.consumeItem[i][1]) {
+				current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "材料不足!");
+				game.scripts["al_scr_" + "actionlist_getway"](null, null, self.vars_.consumeItem[i][2]);
+				return;
+			}
+		}
+		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+		KBEngine.app.player().baseCall("reqCultureLoongWeapon", game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].uuid);
+	}
+
+	//激活成功的回调
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	if (data == 1) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "激活成功!");
+		console.log("激活成功", game.vars_.userInfo.roles[0].loongWeapon);
+		KBEngine.app.player().roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = 1;
+		game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = 1;
+		//更新界面
+		qyengine.guardId("grou_dragonWeapon").dispatchMessage({
+			"type": "message",
+			"message": "rechangeStatus",
+			"argument0": grou_dragonWeapon.vars_.nowTab
+		});
+		console.log("--------------------");
+	} else {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "激活失败!");
+
+	}
+	//锤炼进化等的回调
+	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+	if (data[0] == 0) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "升级失败!");
+	} else {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "升级成功!");
+		KBEngine.app.player().roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = Number(data[1]);
+		game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = Number(data[1]);
+		//更新界面
+		qyengine.guardId("grou_dragonWeapon").dispatchMessage({
+			"type": "message",
+			"message": "rechangeStatus",
+			"argument0": grou_dragonWeapon.vars_.nowTab
+		});
+	}
+
+
+
+	//从龙魂途径购买材料后执行来更新界面
+	qyengine.getInstancesByType("grou_dragonWeapon").length > 0 && qyengine.getInstancesByType("grou_dragonWeapon")[0].dispatchMessage({
+		"types": "message",
+		"message": "rechangeStatus",
+		"argument0": grou_dragonWeapon.vars_.nowTab
+	});
+	//更新龙魂武器界面的龙魂
+
+	//获取当前的龙魂值
+	var roleLoongNum = game.vars_.userInfo.loong;
+
+	//当前龙魂的上限
+	var roleLoongNumMax = getConfig('dragon_soul_num', game.vars_.userInfo.level, 'limit');
+
+	//当前龙魂的每分钟产量
+	var roleLoongYieldNum = getConfig('dragon_soul_num', game.vars_.userInfo.level, 'yield');
+	grou_dragonWeapon.objects['txt_dragonLevelDec_1'].text = "产出速度" + roleLoongYieldNum + "/每分钟，随玩家等级提升";
+	grou_dragonWeapon.objects['txt_dragonWeaponProgress'].text = "" + roleLoongNum + "/" + roleLoongNumMax;
+	//龙魂所在阶级
+	//game.configs.dragon_soul_up
+	var loongNum = game.vars_.userInfo.roles[self.vars_.nowTab].loong[0];
+	if (loongNum == 0) {
+		self.objects['txt_dragonLevelDec'].hide();
+	} else {
+		var loongLevelName = game.configs.dragon_soul_up[loongNum].name;
+		self.objects['txt_dragonLevelDec'].text = "龙魂等级达到" + loongLevelName;
+	}
+	//2916294819
+	//2056357057
+	//2430446953
+	current_game.scripts['al_scr_' + "createDragonWeaponScene"].call(this, undefined, this);
+
+	current_game.scripts['al_scr_' + "buyLoongWeaponItemBack"].call(this, undefined, this);
+
+
+
+
+
+
+
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "龙魂需要达到3级");
+
+
+	//判断龙魂等级是否能足够升级
+	var target_loongLevel = function judgeLoongIsCanUpdate() {
+		var nowLoongLevel = game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loong[0];
+		var nowLoongweaponLevel = game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon;
+		var data_dragon_weapon = game.configs.dragon_weapon;
+		for (cell in data_dragon_weapon) {
+			if (Number(data_dragon_weapon[cell].level) == nowLoongweaponLevel && Number(data_dragon_weapon[cell].type) == (grou_dragonWeapon.vars_.nowTab + 1)) {
+				var matchId = cell;
+				self.vars_.needLoongLevel = Number(data_dragon_weapon[Number(cell) + 1].dragon_level);
+				return Number(data_dragon_weapon[Number(cell) + 1].dragon_level) > nowLoongLevel ? false : true;
+			}
+		}
+		//return false;
+	}
+	if (!target_loongLevel()) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "需要龙魂等级为" + self.vars_.needLoongLevel);
+		return;
+	}
+	//龙魂武器满级的判断
+	var needShowAndHide_满级 = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "obj_龙魂武器_激活_dragonWeapon", "obj_通用_按钮_02_dragonWeapon",
+		"txt_dragonLevelDec"];
+	if (game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon >= 100) {
+		grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].show();
+		needShowAndHide_满级.forEach(function (e) {
+			grou_dragonWeapon.objects[e].hide();
+		});
+	} else {
+		grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].hide();
+	}
 

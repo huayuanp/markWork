@@ -51,6 +51,8 @@ game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
 list_wantStrong.refreshView();
 //跳转场景
 qyengine.different_scene('sce_1');
+//获取途径、物品途径
+game.scripts["al_scr_" + "actionlist_getway"](null, null, 90014);
 //添加对象到滚轴容器
 qyengine.guardId('scro_equip')._batchCreate = true
 qyengine.guardId('scro_equip').addOneInstance('grou_packageEquipItem', Math.floor(repeatTime / 4) + 1 - 1, (repeatTime % 4) + 1 - 1, {
