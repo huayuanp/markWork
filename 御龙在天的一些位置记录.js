@@ -4903,367 +4903,146 @@ if (repeatTime === 0) {
 
 
 
+	//创建主角,初始化主角模块
+	var rolesInfo = game.vars_.userInfo.roles;
+	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
 
-	//显示折扣的更新事件
-	var xxxTimeShow = current_game.scripts['al_scr_' + "rechangeActivityTime"].call(this, undefined, this, 6);
-	grou_activityLimitTime.objects['txt_inTestTime_title'].text = xxxTimeShow[0] + xxxTimeShow[1];
-	var isOver;   //是否过期
-	var activity_gift = grou_activityMain_new.vars_.nowAtTab == 1 ? game.configs.activity_dragon[self.id] : game.configs.activity_gift[self.id];
-	for (item in activity_gift) {
-		var name = activity_gift[item].name;
-		var num = activity_gift[item].limit;
-		var alreadyNum = calAlreadyNum(item);
-		var nowNum = Number(num) - Number(alreadyNum);
-		var titleTxt = name + "（剩余" + nowNum + "个）";
-		var vip = Number(activity_gift[item].viplevel);
-		var initPrice = activity_gift[item].price;
-		var price = activity_gift[item].gold;
-		var buyStatus = judgeBuStatus(item, Number(num), Number(alreadyNum), vip);
-		game.configs.config_limitTime[item] = {
-			"id": item,
-			"name": titleTxt,
-			"initPrice": "原价：" + initPrice,
-			"price": price + " ",
-			"vip": "VIP " + vip,
-			"itemId": item,
-			"num": num,
-			"buyStatus": buyStatus,
-			"groupId": "grou_activityLimitTime_cell_" + item,
-			"plusNum": nowNum
-		}
+	for (var i = 0; i < rolesInfo.length; i++) {
 
-	}
-	scro_activityInTest.refreshRelations();
-	function judgeBuStatus(item, canBuyNum, alreadyBuyNum, needVip) {
-		if (canBuyNum <= alreadyBuyNum) {  //已售完
-			return 2;
+		var heroObj = null;
+
+		if (i == 0) {
+
+			heroObj = qyengine.instance_create(750, 900, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
+
+			//主角
+			current_scene.vars_.heroObj = heroObj;
+
+			heroObj.setFollowView();
+
 		} else {
-			if (game.vars_.userInfo.vip < needVip) {  //vip不够
-				return 3;
-			}
+
+			//其他角色
+			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
 		}
-		return 1;
+
+
+		//先只有法杖
+		if (rolesInfo[i].id == 10003) {
+			heroObj.currentSprite.setFill("");
+			RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
+			roleAnimation = new RoleAnimation(rolesNameJson[10003]);
+			roleAnimation.setAction("待机");
+			//设置方向
+			roleAnimation.setCostume(1).setWeapon(1).setDirection(5);
+			roleAnimation.setPosition(160, 150);
+			heroObj.currentSprite.addChild(roleAnimation);
+			roleAnimation.stop();
+			roleAnimation.setLoop(true);
+			roleAnimation.play();
+		}
+		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
+
+		current_scene.vars_.heroObjArr.push(heroObj);
+
+		//换装
+		if (rolesInfo[i].id != 10003) {
+
+			game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
+		}
+
+
 	}
-	function calAlreadyNum(item) {
-		if (data[0].length) {
-			for (cell in data[0]) {
-				if (data[0][cell].id == item) {
-					return data[0][cell].num;
+
+
+
+
+
+
+	//创建主角,初始化主角模块
+	var rolesInfo = game.vars_.userInfo.roles;
+	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
+	for (var i = 0; i < rolesInfo.length; i++) {
+
+		var heroObj = null;
+
+		if (i == 0) {
+
+			heroObj = qyengine.instance_create(750, 900, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
+
+			//主角
+			current_scene.vars_.heroObj = heroObj;
+
+			heroObj.setFollowView();
+
+		} else {
+
+			//其他角色
+			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
+		}
+		heroObj.currentSprite.setFill('');
+		if (window.currentHeroObjPIXI) {
+			for (var nameItem in window.currentHeroObjPIXI) {
+
+				if (nameItem == rolesNameJson[rolesInfo[i].id]) {
+
+					heroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
+
+					break;
 				}
 			}
+		} else {
+			window.currentHeroObjPIXI = {};
 		}
-		return 0;
+		if (!heroObj.currentAnim) {
+			RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
+			roleAnimation = new RoleAnimation(rolesNameJson[rolesInfo[i].id]);
+			heroObj.currentAnim = roleAnimation;
+			roleAnimation.setAction("待机");
+			roleAnimation.setPosition(160, 150);
+			//设置方向武器等
+			//roleAnimation.setCostume(1).setWeapon(1).setDirection(5);
+			heroObj.currentSprite.appendChild(roleAnimation)
+			roleAnimation.setLoop(true);
+			roleAnimation.play();
+		}
+
+		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
+
+		current_scene.vars_.heroObjArr.push(heroObj);
+
+		//换装
+		game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
+
 	}
 
+	//角色模型的代码更改了部分~~~
 
 
 
-
-	//pwangrd_qiyun/yulongzaitianH5_dragonWeapon_lxjt
 
 	if (grou_activityMain_new.vars_.nowAtTab == 1) {
-		KBEngine.app.player().baseCall('onRespClickActivityNine');
-	} else {
-		KBEngine.app.player().baseCall('reqClickActivitySeven');
-	}
-
-	//龙魂限时折扣
-	current_game.scripts['al_scr_' + "onRespClickActivitySeven"].call(this, undefined, this, data);
-	current_game.scripts['al_scr_' + "onRespResult95"].call(this, undefined, this, data);
-
-
-
-
-	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
-	//购买后的结果的反馈
-	var showText = ["购买失败", '金币不足', 'vip等级不够', '购买成功'];
-	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, showText[data]);
-	if (data == 3) {
-		// 购买成功后的一些数据的改变~~~
-		var numShowObj = qyengine.guardId("grou_activityLimitTime_cell_" + grou_activityLimitTime.vars_.nowTouchId).objects["txt_activityLimitTimeName_item"];
-		var lastNum = numShowObj.vars_.plusNum;
-		var nowNum = lastNum - 1;
-		var itemId = grou_activityLimitTime.vars_.nowTouchId;
-		var itemName = game.configs.activity_gift[itemId].name;
-		numShowObj.text = "" + itemName + "（剩余" + nowNum + "个）";
-		numShowObj.vars_.plusNum = nowNum;
-		if (nowNum <= 0) {
-			var needUpdateStatusObj = ["obj_活动_小按钮框2_limitTime", "obj_活动_限时折扣_购买_limitTime"];
-			for (cell in needUpdateStatusObj) {
-				var needObj = qyengine.guardId("grou_activityLimitTime_cell_" + grou_activityLimitTime.vars_.nowTouchId).objects[needUpdateStatusObj[cell]];
-				needObj.vars_.buyStatus = 2;
-				needObj.dispatchMessage({
-					"type": "message",
-					"message": "updateStatus"
-				});
-			}
-		}
+		grou_activityLimitTime.objects['obj_活动_限时折扣3'].changeSprite("obj_" + "活动_龙武觉醒3_default");
+		grou_activityLimitTime.objects['obj_活动_人物1'].changeSprite("obj_活动_人物2_default");
+		grou_activityLimitTime.objects['obj_活动_人物1'].x = 6;
 	}
 
 
 
 
-	//购买时对是否是金子不足的判断
-	if (grou_activityMain_new.vars_.nowAtTab == 1) {
-
-	}
-	var needGold = grou_activityMain_new.vars_.nowAtTab == 1 ? game.configs.activity_dragon[self.vars_.itemId].gold : game.configs.activity_gift[self.vars_.itemId].gold;
-
-	if (game.vars_.userInfo.gold < Number(needGold)) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, '金子不足!');
-	}
-	current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
 
 
-	createCounterpartLevelUI
-	//弹出购买金币的界面
-	current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
-
-	//counterpartBuyTopUI
-
-	qyengine.getInstancesByType("grou_dragonWeapon").forEach(function (e) {
-		e.destroy();
-	});
-
-	//创建龙魂武器界面
-	if (game.vars_.userInfo.level < 90) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "达到90级开启!");
-		return;
-	}
-	qyengine.instance_create(-100, 0, "grou_dragonWeapon", {
-		"type": "grou_dragonWeapon",
-		"id": "grou_dragonWeapon",
-		"zIndex": 5,
-		"layer": "layer_headerfeet"
-	});
-	//解锁的角色Tab显示
-	local.roleTypeArr = [];
-	for (cell in game.vars_.userInfo.roles) {
-		local.roleTypeArr.push(game.vars_.userInfo.roles[cell].type);
-	}
-	var isHave = function (x) {
-		for (_cell in local.roleTypeArr) {
-			if (local.roleTypeArr[_cell] == x) {
-				return true;
-			}
-		}
-		return false;
-	}
-	var index = 0;
-	var unlockInfo = game.configs.misc,
-		lockVipAndLevel = [[unlockInfo['unlock_role2_level'].value, unlockInfo['unlock_role2_viplevel'].value], [unlockInfo['unlock_role3_level'].value, unlockInfo['unlock_role3_viplevel'].value]];
+	obj_活动_龙武觉醒
 
 
-	var buttonTab_龙魂武器 = ["obj_龙魂武器_选择框_01_dragonWeapon", "obj_龙魂武器_选择框_01_dragonWeapon_1", "obj_龙魂武器_选择框_01_dragonWeapon_2"];
-	var wordTab_龙魂武器 = ['obj_龙魂武器_霸刀_dragonWeapon', "obj_龙魂武器_法杖_dragonWeapon", "obj_龙魂武器_羽扇_dragonWeapon"];
-	for (var i = 1; i <= 3; i++) {
-		if (isHave(i)) {
-
-		} else {
-			if (local.roleTypeArr.length == 2) {
-				grou_dragonWeapon.objects['txt_dragonWeaponCondition_' + (i - 1)].text = "" + lockVipAndLevel[1][0] + "级或v" + lockVipAndLevel[1][1] + "解锁";
-				grou_dragonWeapon.objects['txt_dragonWeaponCondition_' + (i - 1)].show();
-				grou_dragonWeapon.objects[buttonTab_龙魂武器[i - 1]].setHSL(0, -100, 0);
-				grou_dragonWeapon.objects[buttonTab_龙魂武器[i - 1]].vars_.canTouch = false;
-				grou_dragonWeapon.objects[wordTab_龙魂武器[i - 1]].hide();
-			} else if (local.roleTypeArr.length == 1) {
-				grou_dragonWeapon.objects['txt_dragonWeaponCondition_' + (i - 1)].text = "" + lockVipAndLevel[index][0] + "级或v" + lockVipAndLevel[index][1] + "解锁";
-				grou_dragonWeapon.objects['txt_dragonWeaponCondition_' + (i - 1)].show();
-				grou_dragonWeapon.objects[buttonTab_龙魂武器[i - 1]].setHSL(0, -100, 0);
-				grou_dragonWeapon.objects[buttonTab_龙魂武器[i - 1]].vars_.canTouch = false;
-				grou_dragonWeapon.objects[wordTab_龙魂武器[i - 1]].hide();
-			}
-			index += 1;
-		}
-	}
-	//默认的是哪种角色
-	var roleType = game.vars_.userInfo.roles[0].type;
-	qyengine.guardId("grou_dragonWeapon").dispatchMessage({
-		"type": "message",
-		"message": "rechangeStatus",
-		"argument0": (roleType - 1)
-	});
-	//判断是否需要激活
-	//game.vars_.userInfo.roles[0].loongWeapon
+	current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.itemId, 6);
 
 
 
 
 
-	//obj_龙魂武器_选择框_01_dragonWeapon  对象收到消息的处理
-	if (self.vars_.buttonType == event.argument0) {
-		self.changeSprite("obj_龙魂武器_选择框_02_dragonWeapon_default");
-		grou_dragonWeapon.vars_.nowTab = event.argument0;
-	}
-
-	//grou_dragonWeapon 收到消息的处理
-	local.nextButtonType = event.argument0;
-	if (self.vars_.nowTab == local.nextButtonType) {
-		return;
-	}
-	var roleButtonArr = ['obj_龙魂武器_选择框_01_dragonWeapon', "obj_龙魂武器_选择框_01_dragonWeapon_1", "obj_龙魂武器_选择框_01_dragonWeapon_2"];
-	if (self.vars_.nowTab != undefined) {
-		qyengine.guardId(roleButtonArr[self.vars_.nowTab]).changeSprite("obj_龙魂武器_选择框_01_dragonWeapon_default");
-	}
-	qyengine.forEach(function () {
-		this.dispatchMessage({
-			"type": "message",
-			"message": "rechangeStatus",
-			"argument0": local.nextButtonType
-		});
-	}, "obj_龙魂武器_选择框_01_dragonWeapon");
-	//改变主界面的显示
-	//激活按钮状态1,可以激活 2,锤炼 3,突破 4 ,进化
-	var dragonLevel = calDragonLevel();
-	var loongWeaponIcon = current_game.scripts['al_scr_' + "loongWeaponIconByLevel"].call(this, undefined, this, self.vars_.nowTab, dragonLevel);
-	//武器的特效的资源name
-	var weaponEffectName = ["-战士大刀_武器", "-法师法杖_武器", "-道士羽扇_武器"];
-	if (dragonLevel == 0) {  //未激活
-		//切换到未激活标签的时候如果存在消耗,销毁
-		qyengine.forEach(function () {
-			this.destroy();
-		}, "grou_dragonWeapon_cell");
-		self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 1;
-		self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_激活_dragonWeapon_default");
-		//隐藏部分元素
-		var needHideArr = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "txt_dragonLevelDec", "txt_loongWeaponJinHuaDec"];
-		needHideArr.forEach(function (e) {
-			qyengine.guardId(e).hide();
-		});
-		//属性
-		var dragonMatchId = 0,
-			dragonInfo = game.configs.dragon_weapon;
-		for (cell in dragonInfo) {
-			if (Number(dragonInfo[cell].level) == 1 && Number(dragonInfo[cell].type) == (self.vars_.nowTab + 1)) {
-				dragonMatchId = cell;
-				break;
-			}
-		}
-		if (dragonMatchId == 0) {
-			console.error("出错啦~~~");
-		}
-		var propertyArr = backRolePlusProperty(self.vars_.nowTab);//["hp", "pdef", "mdef", 'rcri'];
-		var dragonNowInfo = dragonInfo[dragonMatchId]
-
-		//for (cell in game.configs)
-		for (i = 0; i < 4; i++) {
-			self.objects['txt_dragonWeaponProperty_' + i].text = 0;
-			self.objects['txt_dragonWeaponProperty_' + (i + 4)].text = dragonNowInfo[Object.keys(propertyArr)[i]];
-			self.objects['txt_dragonWeaponPropertyDec_' + i].text = "" + propertyArr[Object.keys(propertyArr)[i]] + ":"
-		}
-		//显示大刀 隐藏小刀
-		self.objects['obj_pic_49001_1'].changeSprite("obj_" + loongWeaponIcon + "_default");
-		self.objects['obj_pic_49001_1'].hide();
-		self.objects['obj_pic_49001_1'].setScale(0.65, 0.65);
-		self.objects['obj_pic_49001_0'].hide();
-		//武器特效	
-		qyengine.getInstancesByType("obj_霸刀界面特效").length > 0 && qyengine.getInstancesByType("obj_霸刀界面特效")[0].destroy();
-		current_game.scripts['al_scr_' + "createSliceAniByLoongWeapon"].call(this, undefined, this, "obj_霸刀界面特效", weaponEffectName[self.vars_.nowTab], [405, 680], true, [1, 1], 1);
-	} else {
-		var dragonLevelPlace = Number(dragonLevel.toString()[dragonLevel.toString().length - 1]);
-		var lastNum = dragonLevelPlace;
-		if (lastNum == 5) {  //突破
-			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 3;
-			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_突破_dragonWeapon_default");
-		} else if (lastNum == 0) {  //进化
-			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 4;
-			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_进化_dragonWeapon_default");
-		} else {   //锤炼
-			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.buttonType = 2;
-			self.objects['obj_龙魂武器_激活_dragonWeapon'].changeSprite("obj_龙魂武器_锤炼_dragonWeapon_default");
-		}
-		var dragonInfo = game.configs.dragon_weapon;
-		var dragonMatchId = 0;
-		for (cell in dragonInfo) {
-			if (Number(dragonInfo[cell].type) == (self.vars_.nowTab + 1) && Number(dragonInfo[cell].level) == dragonLevel) {
-				dragonMatchId = cell;
-				break;
-			}
-		}
-		if (dragonMatchId == 0) {
-			console.error("出错了~~~~~~~");
-			return;
-		}
-		calConsoleItem(dragonMatchId);
-		//计算属性加成
-		var dragonNowInfo = game.configs.dragon_weapon[dragonMatchId],
-			dragonNextInfo = game.configs.dragon_weapon[Number(dragonMatchId) + 1];
 
 
-		propertyArr = backRolePlusProperty(self.vars_.nowTab);//["hp", "pdef", "mdef", 'rcri'];
-		var _index = 0;
-		for (_cell in propertyArr) {
-			self.objects['txt_dragonWeaponProperty_' + _cell].text = dragonNowInfo[_cell];
-			self.objects['txt_dragonWeaponPropertyDec_' + i].text = "" + propertyArr[_cell] + ":"
-			if (dragonLevel < 100) {
-				self.objects['txt_dragonWeaponProperty_' + (Number(_cell) + 4)].text = dragonNextInfo[_cell];
-			}
-			_index++;
-		}
-		//龙魂武器满级的判断
-		var needShowAndHide_满级 = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "obj_龙魂武器_激活_dragonWeapon", "obj_通用_按钮_02_dragonWeapon",
-			"txt_dragonLevelDec"];
-		if (dragonLevel >= 100) {
-			grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].show();
-			needShowAndHide_满级.forEach(function (e) {
-				grou_dragonWeapon.objects[e].hide();
-			});
-			qyengine.forEach(function () {
-				this.hide();
-			}, "obj_龙魂武器_箭头_dragonWeapon");
-			// 大刀和小刀的隐藏和显示
-			self.objects['obj_pic_49001_1'].changeSprite("obj_" + loongWeaponIcon + "_default");
-			self.objects['obj_pic_49001_1'].hide();
-			self.objects['obj_pic_49001_1'].setScale(0.65, 0.65);
-			self.objects['obj_pic_49001_0'].hide();
-			//武器特效	
-			qyengine.getInstancesByType("obj_霸刀界面特效").length > 0 && qyengine.getInstancesByType("obj_霸刀界面特效")[0].destroy();
-			current_game.scripts['al_scr_' + "createSliceAniByLoongWeapon"].call(this, undefined, this, "obj_霸刀界面特效", weaponEffectName[self.vars_.nowTab], [405, 680], true, [1, 1], 1);
-		} else {
-			grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].hide();
-			needShowAndHide_满级.forEach(function (e) {
-				grou_dragonWeapon.objects[e].show();
-			});
-			qyengine.forEach(function () {
-				this.show();
-			}, "obj_龙魂武器_箭头_dragonWeapon");
-
-			// 大刀和小刀的隐藏和显示
-			self.objects['obj_pic_49001_0'].changeSprite("obj_" + loongWeaponIcon + "_default");
-			self.objects['obj_pic_49001_0'].setScale(0.3, 0.3);
-			self.objects['obj_pic_49001_1'].hide();
-			self.objects['obj_pic_49001_0'].hide();
-			//武器特效	
-			qyengine.getInstancesByType("obj_霸刀界面特效").length > 0 && qyengine.getInstancesByType("obj_霸刀界面特效")[0].destroy();
-			current_game.scripts['al_scr_' + "createSliceAniByLoongWeapon"].call(this, undefined, this, "obj_霸刀界面特效", weaponEffectName[self.vars_.nowTab], [408, 425], true, [0.46, 0.46], 1);
-		}
-	}
-	//描述
-	self.objects['txt_dragonWeaponDec0'].text = dragonNowInfo.name;
-	var dragonNowDec = dragonNowInfo.dec.split("|");
-	for (_cell in dragonNowDec) {
-		self.objects['txt_dragonWeaponDec0_1_' + (2-Number(_cell))].text = dragonNowDec[_cell];
-	}
-	//更新界面的龙魂显示等
-	current_game.scripts['al_scr_' + "updateLoongWeaponLoong"].call(this, undefined, this);
-	//根据不同的龙魂武器显示属性
-	function backRolePlusProperty(nowTab) {
-		var _arr = []
-		var allProperty = { 'hp': '生命', 'atk': "攻击", "pdef": "物防", "mdef": "法防", "hit": "命中", "dodge": "闪避", "cri": "暴击", 'rcri': "抗暴" };
-		var _dragon_weaponInfo = game.configs.dragon_weapon;
-		for (_cc in _dragon_weaponInfo) {
-			if (Number(_dragon_weaponInfo[_cc].type) == (nowTab + 1)) {
-				for (var j = 0; j < Object.keys(allProperty).length; j++) {
-					var propertyItem = Object.keys(allProperty)[j];
-					if (_dragon_weaponInfo[_cc][propertyItem] == 0 && _dragon_weaponInfo[_cc][propertyItem] == "0") {
-						delete allProperty[propertyItem];
-						j--;
-					}
-				}
-				return allProperty;
-			}
-		}
-	}
 	//计算消耗的材料
 	function calConsoleItem(id) {
 		//满级的话就不需要计算消耗
@@ -5301,7 +5080,8 @@ if (repeatTime === 0) {
 				});
 				grou_dragonWeapon.appendChild(grouItemObj.id, 108 + cell * 510, 980);
 			}
-
+			grou_dragonWeapon.objects['grou_dragonWeapon_cell_' + cell].objects['obj_dragonWeaponIcon'].vars_.itemId = itemId;
+			grou_dragonWeapon.objects['grou_dragonWeapon_cell_' + cell].objects['obj_通用_道具框_白_dragonWeapon'].changeSprite("role_quality_" + Number(itemQuality) + "_default");
 			qyengine.guardId('grou_dragonWeapon_cell_' + cell).objects['obj_dragonWeaponIcon'].changeSprite("obj_" + itemIcon + "_default");
 			qyengine.guardId('grou_dragonWeapon_cell_' + cell).objects['txt_dragonWeaponItemName'].text = itemName;
 			var nowHaveItemNum = calNowHaveItem(Number(itemId));
@@ -5315,365 +5095,18 @@ if (repeatTime === 0) {
 				self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem = [];
 			}
 			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem.push([itemNum, nowHaveItemNum, itemId]);
-		}
-	}
-	//计算拥有item的数量
-	function calNowHaveItem(id) {
-		for (item in game.vars_.userInfo.packageInfo.packGood) {
-			if (game.vars_.userInfo.packageInfo.packGood[item].id == id) {
-				return game.vars_.userInfo.packageInfo.packGood[item].num;
-			}
-		}
-		return 0;
-	}
-	//计算龙魂武器等级
-	function calDragonLevel() {
-		for (var i = 0; i < game.vars_.userInfo.roles.length; i++) {
-			if (game.vars_.userInfo.roles[i].type == (self.vars_.nowTab + 1)) {
-				return game.vars_.userInfo.roles[i].loongWeapon;
-			}
-		}
-		return false;
-	}
 
-
-
-	//obj_龙魂武器_选择框_01_dragonWeapon   tab上的点击事件
-	if (self.vars_.canType == false) {
-		return;
-	}
-	qyengine.guardId("grou_dragonWeapon").dispatchMessage({
-		"type": "message",
-		"message": "rechangeStatus",
-		"argument0": self.vars_.buttonType
-	});
-	//obj_通用_按钮_02_dragonWeapon  激活、锤炼、进化按钮上的点击事件
-	if (self.vars_.buttonType == 1) {
-		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-		KBEngine.app.player().baseCall("reqActiveLoongWeapon", game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].uuid);
-	} else {
-		//判断材料
-		for (var i = 0; i < 2; i++) {
-			if (self.vars_.consumeItem[i][0] > self.vars_.consumeItem[i][1]) {
-				current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "材料不足!");
-				game.scripts["al_scr_" + "actionlist_getway"](null, null, self.vars_.consumeItem[i][2]);
-				return;
-			}
-		}
-		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-		KBEngine.app.player().baseCall("reqCultureLoongWeapon", game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].uuid);
-	}
-
-	//激活成功的回调
-	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
-	if (data == 1) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "激活成功!");
-		console.log("激活成功", game.vars_.userInfo.roles[0].loongWeapon);
-		KBEngine.app.player().roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = 1;
-		game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = 1;
-		//更新界面
-		qyengine.guardId("grou_dragonWeapon").dispatchMessage({
-			"type": "message",
-			"message": "rechangeStatus",
-			"argument0": grou_dragonWeapon.vars_.nowTab
-		});
-		console.log("--------------------");
-	} else {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "激活失败!");
-
-	}
-	//锤炼进化等的回调
-	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
-	if (data[0] == 0) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "升级失败!");
-	} else {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "升级成功!");
-		KBEngine.app.player().roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = Number(data[1]);
-		game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon = Number(data[1]);
-		//更新界面
-		qyengine.guardId("grou_dragonWeapon").dispatchMessage({
-			"type": "message",
-			"message": "rechangeStatus",
-			"argument0": grou_dragonWeapon.vars_.nowTab
-		});
-	}
-
-
-
-	//从龙魂途径购买材料后执行来更新界面
-	qyengine.getInstancesByType("grou_dragonWeapon").length > 0 && qyengine.getInstancesByType("grou_dragonWeapon")[0].dispatchMessage({
-		"types": "message",
-		"message": "rechangeStatus",
-		"argument0": grou_dragonWeapon.vars_.nowTab
-	});
-	//更新龙魂武器界面的龙魂
-
-	//获取当前的龙魂值
-	var roleLoongNum = game.vars_.userInfo.loong;
-
-	//当前龙魂的上限
-	var roleLoongNumMax = getConfig('dragon_soul_num', game.vars_.userInfo.level, 'limit');
-
-	//当前龙魂的每分钟产量
-	var roleLoongYieldNum = getConfig('dragon_soul_num', game.vars_.userInfo.level, 'yield');
-	grou_dragonWeapon.objects['txt_dragonLevelDec_1'].text = "产出速度" + roleLoongYieldNum + "/每分钟，随玩家等级提升";
-	grou_dragonWeapon.objects['txt_dragonWeaponProgress'].text = "" + roleLoongNum + "/" + roleLoongNumMax;
-	//龙魂所在阶级
-	//game.configs.dragon_soul_up
-	var loongNum = game.vars_.userInfo.roles[self.vars_.nowTab].loong[0];
-	if (loongNum == 0) {
-		self.objects['txt_dragonLevelDec'].hide();
-	} else {
-		var loongLevelName = game.configs.dragon_soul_up[loongNum].name;
-		self.objects['txt_dragonLevelDec'].text = "龙魂等级达到" + loongLevelName;
-	}
-	//2916294819
-	//2056357057
-	//2430446953
-	current_game.scripts['al_scr_' + "createDragonWeaponScene"].call(this, undefined, this);
-
-	current_game.scripts['al_scr_' + "buyLoongWeaponItemBack"].call(this, undefined, this);
-
-
-
-
-
-
-
-	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "龙魂需要达到3级");
-
-
-	//判断龙魂等级是否能足够升级
-	var target_loongLevel = function judgeLoongIsCanUpdate() {
-		var nowLoongLevel = game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loong[0];
-		var nowLoongweaponLevel = game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon;
-		var data_dragon_weapon = game.configs.dragon_weapon;
-		for (cell in data_dragon_weapon) {
-			if (Number(data_dragon_weapon[cell].level) == nowLoongweaponLevel && Number(data_dragon_weapon[cell].type) == (grou_dragonWeapon.vars_.nowTab + 1)) {
-				var matchId = cell;
-				self.vars_.needLoongLevel = Number(data_dragon_weapon[Number(cell) + 1].dragon_level);
-				return Number(data_dragon_weapon[Number(cell) + 1].dragon_level) > nowLoongLevel ? false : true;
-			}
-		}
-		//return false;
-	}
-	if (!target_loongLevel()) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "需要龙魂等级为" + self.vars_.needLoongLevel);
-		return;
-	}
-	//龙魂武器满级的判断
-	var needShowAndHide_满级 = ["obj_龙魂武器_炉子_dragonWeapon", "obj_龙魂武器_龙魂炉子_dragonWeapon", "obj_龙魂武器_激活_dragonWeapon", "obj_通用_按钮_02_dragonWeapon",
-		"txt_dragonLevelDec"];
-	if (game.vars_.userInfo.roles[grou_dragonWeapon.vars_.nowTab].loongWeapon >= 100) {
-		grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].show();
-		needShowAndHide_满级.forEach(function (e) {
-			grou_dragonWeapon.objects[e].hide();
-		});
-	} else {
-		grou_dragonWeapon.objects['obj_龙魂武器_已满级_dragonWeapon'].hide();
-	}
-
-	//loongWeaponIconByLevel  返回所在等级龙魂武器的icon  tab level
-	current_game.scripts['al_scr_' + "loongWeaponIconByLevel"].call(this, undefined, this);
-
-
-
-
-
-
-
-
-
-	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "锤炼");
-
-
-
-
-
-
-
-
-
-
-
-
-	//跨服购买成功回调
-	current_game.scripts['al_scr_' + "buyLoongWeaponItemBack"].call(this, undefined, this);
-
-
-	for (haha in game.vars_.userInfo.packageInfo.packGood) {
-		if (Number(game.vars_.userInfo.packageInfo.packGood[haha].id) == 90020) {
-			console.log("现在90020的数目----------------", game.vars_.userInfo.packageInfo.packGood[haha].nums);
 		}
 	}
 
-	var dragonLevel = 5;
-	var dragonLevelPlace = Number(dragonLevel.toString()[dragonLevel.toString().length - 1]);
-	var lastNum = dragonLevelPlace;
 
 
 
 
 
 
+	grou_shop_goodDetail.objects.txt_shop_goodsDetailName.setFontColor(quColour[markQuality - 1]);
 
 
 
-	//obj_通用_按钮_02_dragonWeapon  激活、锤炼、进化按钮上的点击事件
-	var nowRolesPlace = backRolesTypePlace();
-	if (self.vars_.buttonType == 1) {
-		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-		KBEngine.app.player().baseCall("reqActiveLoongWeapon", game.vars_.userInfo.roles[nowRolesPlace].uuid);
-	} else {
-		//判断材料
-		for (var i = 0; i < 2; i++) {
-			if (self.vars_.consumeItem[i][0] > self.vars_.consumeItem[i][1]) {
-				current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "材料不足!");
-				game.scripts["al_scr_" + "actionlist_getway"](null, null, Number(self.vars_.consumeItem[i][2]), 6);
-				return;
-			}
-		}
-		//判断龙魂等级是否能足够升级
-		var target_loongLevel = function judgeLoongIsCanUpdate() {
-			var nowLoongLevel = game.vars_.userInfo.roles[nowRolesPlace].loong[0];
-			var nowLoongweaponLevel = game.vars_.userInfo.roles[nowRolesPlace].loongWeapon;
-			var data_dragon_weapon = game.configs.dragon_weapon;
-			for (cell in data_dragon_weapon) {
-				if (Number(data_dragon_weapon[cell].level) == nowLoongweaponLevel && Number(data_dragon_weapon[cell].type) == (grou_dragonWeapon.vars_.nowTab + 1)) {
-					var matchId = cell;
-					self.vars_.needLoongLevel = Number(data_dragon_weapon[Number(cell)].dragon_level);
-					return Number(data_dragon_weapon[Number(cell)].dragon_level) > nowLoongLevel ? false : true;
-				}
-			}
-			//return false;
-		}
-		if (!target_loongLevel()) {
-			current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "需要龙魂等级为" + self.vars_.needLoongLevel);
-			return;
-		}
-		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-		KBEngine.app.player().baseCall("reqCultureLoongWeapon", game.vars_.userInfo.roles[nowRolesPlace].uuid);
-	}
-
-	//返回当前的tab在roles中的位置
-	function backRolesTypePlace() {
-		for (_temp in game.vars_.userInfo.roles) {
-			if (game.vars_.userInfo.roles[_temp].type == (grou_dragonWeapon.vars_.nowTab + 1)) {
-				return _temp;
-			}
-		}
-		console.error("****************");
-	}
-
-
-
-
-
-	//创建武器的特效
-	current_game.scripts['al_scr_' + "createSliceAniByLoongWeapon"].call(this, undefined, this,
-		"obj_粒子界面特效", "-战士大刀_武器", [455, 470], true, [1, 1], 0.85);
-
-
-
-
-	if (self.vars_.nowTab == 1) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, '下周三隆重开启');
-		return;
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//激活成功的回调
-	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
-
-	if (data == 1) {
-		var nowRolesPlace = backRoleTypePlace();
-		//current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "激活成功!");
-		console.log("激活成功", game.vars_.userInfo.roles[0].loongWeapon);
-		KBEngine.app.player().roles[nowRolesPlace].loongWeapon = 1;
-		game.vars_.userInfo.roles[nowRolesPlace].loongWeapon = 1;
-		//更新界面
-		qyengine.guardId("grou_dragonWeapon").dispatchMessage({
-			"type": "message",
-			"message": "rechangeStatus",
-			"argument0": grou_dragonWeapon.vars_.nowTab
-		});
-
-
-		//创建特效
-		current_game.scripts['al_scr_' + "createLoongWeaponEffect"].call(this, undefined, this, 0);
-
-
-		console.log("--------------------");
-	} else {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "激活失败!");
-
-	}
-	//返回当前的tab在roles中的位置
-	function backRoleTypePlace() {
-		for (_temp in game.vars_.userInfo.roles) {
-			if (game.vars_.userInfo.roles[_temp].type == (grou_dragonWeapon.vars_.nowTab + 1)) {
-				return _temp;
-			}
-		}
-		console.error("****************");
-	}
-
-
-
-
-
-
-
-
-
-	//锤炼进化等的回调
-	current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
-	if (data[0] == 0) {
-		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "升级失败!");
-	} else {
-		var nowRolesPlace = backRolePlace();
-		//current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "升级成功!");
-		KBEngine.app.player().roles[nowRolesPlace].loongWeapon = Number(data[1]);
-		game.vars_.userInfo.roles[nowRolesPlace].loongWeapon = Number(data[1]);
-		//更新界面
-		qyengine.guardId("grou_dragonWeapon").dispatchMessage({
-			"type": "message",
-			"message": "rechangeStatus",
-			"argument0": grou_dragonWeapon.vars_.nowTab
-		});
-		current_game.scripts['al_scr_' + "createLoongWeaponEffect"].call(this, undefined, this, 1);
-	}
-
-	//返回当前的tab在roles中的位置
-	function backRolePlace() {
-		for (_temp in game.vars_.userInfo.roles) {
-			if (game.vars_.userInfo.roles[_temp].type == (grou_dragonWeapon.vars_.nowTab + 1)) {
-				return _temp;
-			}
-		}
-		console.error("****************");
-	}
-
-
-
-
-
-
-
-
-	qyengine.guardId("role_frightingNum").setText(game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].fighting);
-
-	qyengine.getInstancesByType("role_panel").length > 0 && qyengine.guardId("role_frightingNum").setText(game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].fighting);
-
-		current_game.scripts['al_scr_'+"RefreshRoleInfo"].call(this,undefined,this);
+//凤凰城:169  洛杉矶:185
