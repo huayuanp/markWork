@@ -5016,97 +5016,196 @@ if (repeatTime === 0) {
 
 	}
 
-	//角色模型的代码更改了部分~~~
+	//时间轴   heroSearchEnemy
+
+
+	if (self.vars_.skillCdList[self.vars_.currentSkillIndex] == 0) {
+
+		self.vars_.skillCdList[self.vars_.currentSkillIndex] = Number(getConfig("skill", self.vars_.currentSkillID, "cd"));
+
+		if (self.vars_.currentState != "攻击") {
+
+			self.currentAnim.setSliceAnimationAction(getConfig("heroAction", self.vars_.currentDirection, "attack"), true);
+			self.current_game.setSpeed(2);
+			self.vars_.currentState = "攻击";
+		}
+
+		if (self.vars_.currentSkillIndex == 0) {
+
+			self.vars_.currentSkillNum++;
+
+		} else {
+
+			self.vars_.oldSkillID = self.vars_.currentSkillIndex;
+
+			self.vars_.currentSkillNum = 0;
+		}
+
+		game.scripts["al_scr_calculateHurt"].call(self, null, null, self.vars_.currentSkillID, 1);
+	}
+
+	//     calculateHurt
 
 
 
 
-	if (grou_activityMain_new.vars_.nowAtTab == 1) {
-		grou_activityLimitTime.objects['obj_活动_限时折扣3'].changeSprite("obj_" + "活动_龙武觉醒3_default");
-		grou_activityLimitTime.objects['obj_活动_人物1'].changeSprite("obj_活动_人物2_default");
-		grou_activityLimitTime.objects['obj_活动_人物1'].x = 6;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//切换方向和动作
+	//切换方向和动作
+	if (endPos[1] == startPos[1]) {
+
+		endPos[1] += 1;
+	}
+
+	if (endPos[0] == startPos[0]) {
+
+		endPos[0] += 1;
+	}
+
+	var angle = Math.ceil(360 * Math.atan((endPos[1] - startPos[1]) / (endPos[0] - startPos[0])) / (2 * Math.PI));
+
+
+	//右边区域
+	if (endPos[0] > startPos[0]) {
+
+		angle += 90;
+
+	} else {
+
+		angle += 270;
+	}
+
+	var configList = game.configs.heroAction;
+
+	local.currentDirection = self.vars_.currentDirection;
+
+	local.currentAction = action;
+
+	local.currentDirectionNum = null;
+
+	for (var item in configList) {
+
+		var angleInfo = configList[item].directionEnum.split(",");
+
+		if (angle > Number(angleInfo[0])) {
+
+			if (angle < Number(angleInfo[1])) {
+
+				local.currentDirectionNum = configList[item].directionNum;
+
+				local.currentDirection = item;
+
+				break;
+			}
+		}
 	}
 
 
+	if (local.currentDirectionNum == null) {
+
+		local.currentDirectionNum = configList["back"].directionNum;
+
+		local.currentDirection = "back";
+	}
 
 
+	if (self.vars_.currentDirection == local.currentDirection) {
 
+		if (self.vars_.currentState != local.currentAction) {
 
-	obj_活动_龙武觉醒
+			self.currentAnim.setAction(local.currentAction);
 
-
-	current_game.scripts['al_scr_' + "popGoodDetailInfoUI"].call(this, undefined, this, self.vars_.itemId, 6);
-
-
-
-
-
-
-
-	//计算消耗的材料
-	function calConsoleItem(id) {
-		//满级的话就不需要计算消耗
-		if (Number(game.configs.dragon_weapon[id].level) >= 100) {
-			qyengine.forEach(function () {
-				this.destroy();
-			}, 'grou_dragonWeapon_cell');
-			return;
+			self.vars_.currentState = local.currentAction;
 		}
-		var dragonItemInfo = game.configs.dragon_weapon[id].cost.split(";");
-		if (self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem) {
-			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem.length = 0;
-		}
-		//判断消耗品的组合UI是否原本已经存在
-		var judge_dragonWeapon_cell = function judgeExist() {
-			if (!qyengine.guardId("grou_dragonWeapon_cell_0") || qyengine.guardId("grou_dragonWeapon_cell_0").destroyed_) {
-				return false;
-			}
-			return true;
-		}
-		var isExistCell = judge_dragonWeapon_cell();
-		for (cell in dragonItemInfo) {
-			var itemId = dragonItemInfo[cell].split("|")[0];
-			var itemNum = dragonItemInfo[cell].split("|")[1];
-			var itemName = game.configs.item[itemId].name,
-				itemIcon = game.configs.item[itemId].icon,
-				itemQuality = game.configs.item[itemId].quality;
-			if (isExistCell) {
-				console.log("**********************");
+
+	} else {
+
+		self.currentAnim.setAction(local.currentAction);
+
+		self.vars_.currentState = local.currentAction;
+	}
+
+	self.currentAnim.setDirection(local.currentDirectionNum);
+
+	self.currentAnim.setSpeed(self.vars_.currentActionSpeed);
+
+	self.vars_.currentDirection = local.currentDirection;
+
+
+
+
+	self.currentAnim.setDirection(game.configs.heroAction[self.vars_.currentDirection].directionNum);
+	self.currentAnim.setAction("待机");
+	self.currentAnim.setSpeed(2);
+	self.vars_.currentState = "待机";
+
+
+
+
+
+
+
+
+
+
+	//createSceneOtherPlayerShow
+
+
+	//基金活动的数据绑定   按钮状态  未购买0  未达成1  未领取:2 已领取:3
+	var fundInfo = game.configs.activity_fund[(grou_activityGrowthGold.vars_.nowTab + 1)];
+	if (grou_activityGrowthGold.vars_.nowTab != 3) {
+		var needvip = Number(fundInfo.viplevel);
+		grou_activityGrowthGold.vars_.needRmb = Number(fundInfo.price);
+		fundInfo = fundInfo.gold_level.split(";");
+		for (cell in fundInfo) {
+			var levelAndGold = fundInfo[cell].split("|"),
+				needLevel = Number(levelAndGold[0]),
+				gold = Number(levelAndGold[1]),
+				needlevelDec = "等级达到" + needLevel + "级可领取",
+				receivepic = "obj_活动_领取奖励_1_inTest_default",
+				buttonstatus = 0;
+
+			if (grou_activityGrowthGold.vars_.isBuy) {  //是否已经购买
+				if (needLevel > game.vars_.userInfo.level) {  //等级不够
+					receivepic = "obj_活动_未达成_default";
+					buttonstatus = 1;
+				} else {
+					//这里需要判断是否已经领取
+				}
 			} else {
-				var grouItemObj = qyengine.instance_create(0, 0, "grou_dragonWeapon_cell", {
-					"type": "grou_dragonWeapon_cell",
-					"id": "grou_dragonWeapon_cell_" + cell,
-					"zIndex": 5
-				});
-				grou_dragonWeapon.appendChild(grouItemObj.id, 108 + cell * 510, 980);
+				receivepic = "obj_成长基金_未购买_字_default";
+				buttonstatus = 0;
 			}
-			grou_dragonWeapon.objects['grou_dragonWeapon_cell_' + cell].objects['obj_dragonWeaponIcon'].vars_.itemId = itemId;
-			grou_dragonWeapon.objects['grou_dragonWeapon_cell_' + cell].objects['obj_通用_道具框_白_dragonWeapon'].changeSprite("role_quality_" + Number(itemQuality) + "_default");
-			qyengine.guardId('grou_dragonWeapon_cell_' + cell).objects['obj_dragonWeaponIcon'].changeSprite("obj_" + itemIcon + "_default");
-			qyengine.guardId('grou_dragonWeapon_cell_' + cell).objects['txt_dragonWeaponItemName'].text = itemName;
-			var nowHaveItemNum = calNowHaveItem(Number(itemId));
-			qyengine.guardId('grou_dragonWeapon_cell_' + cell).objects['txt_dragonWeaponItemNum'].text = "" + itemNum + "/" + nowHaveItemNum;
-			//材料不足
-			qyengine.guardId('grou_dragonWeapon_cell_' + cell).objects['txt_dragonWeaponItemNum'].setFontColor("#ffffff");
-			if (itemNum > nowHaveItemNum) {
-				qyengine.guardId('grou_dragonWeapon_cell_' + cell).objects['txt_dragonWeaponItemNum'].setFontColor("#fa0808");
+			game.configs.config_activityGrowthGold[Number(cell) + 1] = {
+				"id": Number(cell) + 1,
+				"goldnum": gold,
+				"needlevel": needLevel,
+				"singleneedvip": 0,
+				"needlevelDec": needlevelDec,
+				"needpeople": 0,
+				"singleneedvipdec": 0,
+				"receivepic": "",
+				"buttonstatus": buttonstatus
 			}
-			if (!self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem) {
-				self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem = [];
-			}
-			self.objects['obj_通用_按钮_02_dragonWeapon'].vars_.consumeItem.push([itemNum, nowHaveItemNum, itemId]);
-
 		}
+	} else {  //全民福利
+
 	}
 
 
 
 
 
-
-
-	grou_shop_goodDetail.objects.txt_shop_goodsDetailName.setFontColor(quColour[markQuality - 1]);
-
-
-
-//凤凰城:169  洛杉矶:185
