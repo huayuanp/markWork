@@ -5164,6 +5164,55 @@ if (repeatTime === 0) {
 	//createSceneOtherPlayerShow
 
 
+
+
+
+
+
+
+	//基金界面的创建事件中
+	qyengine.forEach(function () {
+		this.dispatchMessage({
+			"type": "message",
+			"message": "changeStatus",
+			"argument0": self.vars_.nowTab
+		});
+	}, "obj_成长基金活动_按钮1");
+	self.vars_.lastTab = self.vars_.nowTab;
+	qyengine.getInstancesByType("grou_activityGrowthGold_up2").length > 0 && qyengine.getInstancesByType("grou_activityGrowthGold_up2")[0].destroy();
+	qyengine.getInstancesByType("grou_activityGrowthGold_up").length > 0 && qyengine.getInstancesByType("grou_activityGrowthGold_up")[0].destroy();
+
+	var createObj = self.vars_.nowTab == 3 ? "grou_activityGrowthGold_up2" : "grou_activityGrowthGold_up";
+	var objPos = self.vars_.nowTab == 3 ? [-34, -44] : [-109, -34];
+	qyengine.instance_create(0, 0, createObj, {
+		"type": createObj,
+		"id": createObj,
+		"zIndex": 5,
+		"scene": "main_scene",
+		"layer": "layer_headerfeet"
+	});
+	grou_activityGrowthGold.appendChild(createObj, objPos[0], objPos[1]);
+	//请求成长基金(活动10)的数据
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqClickActivityTen");
+	//obj_成长基金活动_按钮1 的消息changeStatus事件中
+	if (self.vars_.buttonType == event.argument0) {
+		self.changeSprite("obj_活动_成长基金2_default");
+		if (grou_activityGrowthGold.vars_.lastTab) {
+			grou_activityGrowthGold.objects["obj_成长基金活动_按钮1_" + grou_activityGrowthGold.vars_.lastTab].changeSprite("obj_成长基金活动_按钮1_default");
+		}
+	}
+
+	//   onRespClickActivityTen的回调
+	grou_activityGrowthGold.vars_.data = data[0];
+	grou_activityGrowthGold.vars_.buyPeopleNum = data[1];
+	var upObj = null;
+	if (grou_activityGrowthGold.vars_.nowTab == 3) {
+		upObj = grou_activityGrowthGold.objects[grou_activityGrowthGold_up2];
+		//已经购买的人数
+		upObj.objects['txt_growthGoldAlreadyBuyNum'].text = grou_activityGrowthGold.vars_.buyPeopleNum;
+	}
+
 	//基金活动的数据绑定   按钮状态  未购买0  未达成1  未领取:2 已领取:3
 	var fundInfo = game.configs.activity_fund[(grou_activityGrowthGold.vars_.nowTab + 1)];
 	if (grou_activityGrowthGold.vars_.nowTab != 3) {
@@ -5177,13 +5226,20 @@ if (repeatTime === 0) {
 				needlevelDec = "等级达到" + needLevel + "级可领取",
 				receivepic = "obj_活动_领取奖励_1_inTest_default",
 				buttonstatus = 0;
-
+			grou_activityGrowthGold.vars_.isBuy = JudgeSelectTabIsBuy(grou_activityGrowthGold.vars_.nowTab);
 			if (grou_activityGrowthGold.vars_.isBuy) {  //是否已经购买
 				if (needLevel > game.vars_.userInfo.level) {  //等级不够
 					receivepic = "obj_活动_未达成_default";
 					buttonstatus = 1;
 				} else {
 					//这里需要判断是否已经领取
+					if (JudgeSelectTabIsReceive(grou_activityGrowthGold.vars_.nowTab, Number(cell))) {
+						receivepic = "obj_成长基金_已领取_字_default";
+						buttonstatus = 3;
+					} else {
+						receivepic = "obj_活动_领取奖励_1_inTest_default";
+						buttonstatus = 2;
+					}
 				}
 			} else {
 				receivepic = "obj_成长基金_未购买_字_default";
@@ -5204,8 +5260,32 @@ if (repeatTime === 0) {
 	} else {  //全民福利
 
 	}
-
-
-
+	//判断是否已经购买
+	function JudgeSelectTabIsBuy(nowTab) {
+		if (grou_activityGrowthGold.vars_.data.length == 0) {
+			return false;
+		}
+		for (cell in grou_activityGrowthGold.vars_.data) {
+			var markKey = Object.keys(grou_activityGrowthGold.vars_.data[cell])[0];
+			if (Number(markKey) == (nowTab + 1)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	//判断是否已经领取(只有已经购买才会进入)
+	function JudgeSelectTabIsReceive(nowTab, index) {
+		for (cell in grou_activityGrowthGold.vars_.data) {
+			var markKey = Object.keys(grou_activityGrowthGold.vars_.data[cell])[0];
+			if (Number(markKey) == (nowTab + 1)) {
+				for (item in grou_activityGrowthGold.vars_.data[cell][nowTab]) {
+					if (grou_activityGrowthGold.vars_.data[cell][nowTab][item] == (index + 1)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
 
