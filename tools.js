@@ -323,3 +323,91 @@ vs的快捷键
 
 
 
+//绘制 角色的形象
+// wh 加
+var roleId = data[0][0];
+var rolesSurtId;
+var rolesWeapenId;
+var rolesWingLv;
+var roleInfo = {};
+
+console.log("data:" + data);
+
+roleInfo["id"] = roleId;
+roleInfo["equips"] = [];
+roleInfo["wing"] = {};
+
+if (data[0][1] != 0) {
+	rolesSurtId = data[0][1];
+	var equipData = {};
+	equipData["id"] = rolesSurtId;
+	equipData["type"] = 3;
+	roleInfo["equips"].push(equipData);
+}
+if (data[0][2] != 0) {
+	rolesWeapenId = data[0][2];
+	var equipData = {};
+	equipData["id"] = rolesWeapenId;
+	equipData["type"] = 1;
+	roleInfo["equips"].push(equipData);
+}
+
+rolesWingLv = data[0][3];
+roleInfo.wing["level"] = rolesWingLv;
+
+
+
+
+if (qyengine.getInstancesByType("grou_ranking").length > 0) {
+
+	console.log("roleInfo=" + roleInfo);
+	//（参数1，角色数据，参数二，需要换装的对象）
+	grou_ranking.vars_.heroObjShow = game.scripts["al_scr_" + "changeShowObjModel"](null, null, roleInfo, grou_ranking.vars_.heroObjShow);
+	grou_ranking.vars_.heroObjShow.setScale(0.4, 0.4);
+	grou_ranking.vars_.heroObjShow.show();
+	//grou_ranking.vars_.heroObjShow.x = 308;
+	//grou_ranking.vars_.heroObjShow.y = 170;
+	grou_show_hero_panel.appendChild(grou_ranking.vars_.heroObjShow.id, -42, -204);
+	grou_ranking.vars_.nowHeroInfo = roleInfo;
+}
+else {
+
+	grou_foes_details.vars_.heroObjShow = qyengine.instance_create(0, 0, 'heroObjShow', {
+		"type": 'heroObjShow',
+		"id": 'heroObjShow',
+		"zIndex": 0,
+	});
+	grou_foes_details.vars_.heroObjShow.setScale(0.8, 0.8);
+	foesSprite.appendChild("heroObjShow", foesSprite.width / 2, foesSprite.height / 2);
+
+
+	//（参数1，角色数据，参数二，需要换装的对象）
+	game.scripts["al_scr_" + "changeShowObjModel"](null, null, roleInfo, grou_foes_details.vars_.heroObjShow);
+
+}
+
+
+
+
+
+
+
+
+
+
+grou_ranking.vars_.heroObjShow = game.scripts["al_scr_" + "changeShowObjModel"](null, null, grou_ranking.vars_.nowHeroInfo);
+grou_ranking.vars_.heroObjShow.setScale(0.4, 0.4);
+grou_ranking.vars_.heroObjShow.show();
+//grou_ranking.vars_.heroObjShow.x = 308;
+//grou_ranking.vars_.heroObjShow.y = 170;
+grou_show_hero_panel.appendChild(grou_ranking.vars_.heroObjShow.id, -42, -204);
+
+
+
+
+
+
+
+if(grou_ranking.vars_.heroObjShow&&!grou_ranking.vars_.heroObjShow.isVisible){
+      grou_ranking.vars_.heroObjShow.isVisible= true;
+}

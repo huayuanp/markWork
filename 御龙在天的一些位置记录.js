@@ -4851,441 +4851,211 @@ if (repeatTime === 0) {
 
 
 
-
-
-
-
-
-
-
-	if (Number(event.argument0) === grou_activityMain_new.vars_.nowAtTab) {
-		return;
-	} else {
-		//var allActivityTab = ["grou_activityInTest", "grou_activityConsume", "grou_levelgift", "grou_activityCharts", "grou_activityLuckyWheel", "grou_leichonggift"];
-		var allActivityTab = ["grou_activitySingleTimeBack", "grou_activityLimitTime", "grou_activityLuckyWheel", "grou_activityConsume", "grou_activityCharts", "grou_leichonggift", "grou_levelgift", "grou_activityInTest", "grou_activityLimitTime"];
-		var whichGroup = allActivityTab[grou_activityMain_new.vars_.nowAtTab];
-		var nextCreateGroup = allActivityTab[Number(event.argument0)];
-		//qyengine.guardId(whichGroup).length > 0 && qyengine.guardId(whichGroup).destroy();
-		var selectSprite = ["obj_活动_单充回馈2", "obj_活动_限时折扣2", "obj_活动_积分转轮2", "obj_活动_累计消耗2", "obj_活动_王者争霸2", "obj_活动_累计充值2", "obj_活动_等级礼包2", "obj_活动_封测特权2", "obj_活动_限时折扣2"];
-		//var selectSprite = ["obj_活动_封测特权2", "obj_活动_累计消耗2", "obj_活动_等级礼包2", "obj_活动_王者争霸2", "obj_活动_积分转轮2", "obj_活动_累计充值2"];
-		//var initSprite = ["obj_活动_封测特权1_activiy_new", "obj_活动_累计消耗1", "obj_活动_等级礼包1", "obj_活动_王者争霸1", "obj_活动_积分转轮1", "obj_活动_累计充值1","obj_活动_限时折扣1"];
-		var initSprite = ["obj_活动_单充回馈1", "obj_活动_限时折扣1", "obj_活动_积分转轮1", "obj_活动_累计消耗1", "obj_活动_王者争霸1", "obj_活动_累计充值1", "obj_活动_等级礼包1", "obj_活动_封测特权1_activiy_new", "obj_活动_限时折扣1"];
-		qyengine.guardId("grou_activityMainTab_cell_" + grou_activityMain_new.vars_.nowAtTab).objects["obj_活动_封测特权1"].changeSprite(initSprite[grou_activityMain_new.vars_.nowAtTab] + "_default");
-		qyengine.guardId("grou_activityMainTab_cell_" + grou_activityMain_new.vars_.nowAtTab).objects["obj_活动_框未选中"].changeSprite("obj_活动_框未选中_activity_new_default");
-		qyengine.guardId("grou_activityMainTab_cell_" + Number(event.argument0)).objects["obj_活动_封测特权1"].changeSprite(selectSprite[Number(event.argument0)] + "_default");
-		qyengine.guardId("grou_activityMainTab_cell_" + Number(event.argument0)).objects["obj_活动_框未选中"].changeSprite("obj_活动_框已选中_default");
-
-		qyengine.getInstancesByType(whichGroup)[0].destroy();
-		grou_activityMain_new.vars_.nowAtTab = Number(event.argument0);
-
-		if (Number(event.argument0) == 4 + 2 || Number(event.argument0) == 3 + 2) {  //等级礼包和累计充值
-			if (Number(event.argument0) == 3 + 2) {
-				current_game.scripts['al_scr_' + "reqActivitySix"].call(this, undefined, this);
-			} else {
-				current_game.scripts['al_scr_' + "act_levelgift_open"].call(this, undefined, this);
-			}
-		} else {
-			qyengine.instance_create(176, 436, nextCreateGroup, {
-				"type": nextCreateGroup,
-				"id": nextCreateGroup,
-				"zIndex": 5,
-				"scene": "main_scene",
-				"layer": "layer_headerfeet"
-			});
-			grou_activityMain_new.appendChild(nextCreateGroup, 176, 436);
-			console.log("ahehehehheheheheh");
-		}
-	}
-
-
-
-
-
-
-
-	//创建主角,初始化主角模块
-	var rolesInfo = game.vars_.userInfo.roles;
-	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
-
-	for (var i = 0; i < rolesInfo.length; i++) {
-
-		var heroObj = null;
-
-		if (i == 0) {
-
-			heroObj = qyengine.instance_create(750, 900, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
-
-			//主角
-			current_scene.vars_.heroObj = heroObj;
-
-			heroObj.setFollowView();
-
-		} else {
-
-			//其他角色
-			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
-		}
-
-
-		//先只有法杖
-		if (rolesInfo[i].id == 10003) {
-			heroObj.currentSprite.setFill("");
-			RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
-			roleAnimation = new RoleAnimation(rolesNameJson[10003]);
-			roleAnimation.setAction("待机");
-			//设置方向
-			roleAnimation.setCostume(1).setWeapon(1).setDirection(5);
-			roleAnimation.setPosition(160, 150);
-			heroObj.currentSprite.addChild(roleAnimation);
-			roleAnimation.stop();
-			roleAnimation.setLoop(true);
-			roleAnimation.play();
-		}
-		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
-
-		current_scene.vars_.heroObjArr.push(heroObj);
-
-		//换装
-		if (rolesInfo[i].id != 10003) {
-
-			game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
-		}
-
-
-	}
-
-
-
-
-
-
-	//创建主角,初始化主角模块
-	var rolesInfo = game.vars_.userInfo.roles;
-	var rolesNameJson = { "10001": "男战士", "10002": "女战士", "10003": "男法师", "10004": "女法师", "10005": "男道士", "10006": "女道士" };
-	for (var i = 0; i < rolesInfo.length; i++) {
-
-		var heroObj = null;
-
-		if (i == 0) {
-
-			heroObj = qyengine.instance_create(750, 900, "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 10, "layer": "layer_fight" });
-
-			//主角
-			current_scene.vars_.heroObj = heroObj;
-
-			heroObj.setFollowView();
-
-		} else {
-
-			//其他角色
-			heroObj = qyengine.instance_create(random_range(current_scene.vars_.heroObj.x - 200, current_scene.vars_.heroObj.x + 200), random_range(current_scene.vars_.heroObj.y - 200, current_scene.vars_.heroObj.y + 200), "heroObj_" + rolesInfo[i].id, { "id": "heroObj_" + rolesInfo[i].id, "zIndex": 9, "layer": "layer_fight" });
-		}
-		heroObj.currentSprite.setFill('');
-		if (window.currentHeroObjPIXI) {
-			for (var nameItem in window.currentHeroObjPIXI) {
-
-				if (nameItem == rolesNameJson[rolesInfo[i].id]) {
-
-					heroObj.currentAnim = window.currentHeroObjPIXI[nameItem];
-
-					break;
-				}
-			}
-		} else {
-			window.currentHeroObjPIXI = {};
-		}
-		if (!heroObj.currentAnim) {
-			RoleAnimation.rootFolder = "/qiyun/lxjt_roleanim/";
-			roleAnimation = new RoleAnimation(rolesNameJson[rolesInfo[i].id]);
-			heroObj.currentAnim = roleAnimation;
-			roleAnimation.setAction("待机");
-			roleAnimation.setPosition(160, 150);
-			//设置方向武器等
-			//roleAnimation.setCostume(1).setWeapon(1).setDirection(5);
-			heroObj.currentSprite.appendChild(roleAnimation)
-			roleAnimation.setLoop(true);
-			roleAnimation.play();
-		}
-
-		game.scripts["al_scr_sceneSetHeroInfo"](null, null, heroObj, rolesInfo[i]);
-
-		current_scene.vars_.heroObjArr.push(heroObj);
-
-		//换装
-		game.scripts["al_scr_changeObjModel"](null, null, rolesInfo[i], heroObj);
-
-	}
-
-	//时间轴   heroSearchEnemy
-
-
-	if (self.vars_.skillCdList[self.vars_.currentSkillIndex] == 0) {
-
-		self.vars_.skillCdList[self.vars_.currentSkillIndex] = Number(getConfig("skill", self.vars_.currentSkillID, "cd"));
-
-		if (self.vars_.currentState != "攻击") {
-
-			self.currentAnim.setSliceAnimationAction(getConfig("heroAction", self.vars_.currentDirection, "attack"), true);
-			self.current_game.setSpeed(2);
-			self.vars_.currentState = "攻击";
-		}
-
-		if (self.vars_.currentSkillIndex == 0) {
-
-			self.vars_.currentSkillNum++;
-
-		} else {
-
-			self.vars_.oldSkillID = self.vars_.currentSkillIndex;
-
-			self.vars_.currentSkillNum = 0;
-		}
-
-		game.scripts["al_scr_calculateHurt"].call(self, null, null, self.vars_.currentSkillID, 1);
-	}
-
-	//     calculateHurt
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//切换方向和动作
-	//切换方向和动作
-	if (endPos[1] == startPos[1]) {
-
-		endPos[1] += 1;
-	}
-
-	if (endPos[0] == startPos[0]) {
-
-		endPos[0] += 1;
-	}
-
-	var angle = Math.ceil(360 * Math.atan((endPos[1] - startPos[1]) / (endPos[0] - startPos[0])) / (2 * Math.PI));
-
-
-	//右边区域
-	if (endPos[0] > startPos[0]) {
-
-		angle += 90;
-
-	} else {
-
-		angle += 270;
-	}
-
-	var configList = game.configs.heroAction;
-
-	local.currentDirection = self.vars_.currentDirection;
-
-	local.currentAction = action;
-
-	local.currentDirectionNum = null;
-
-	for (var item in configList) {
-
-		var angleInfo = configList[item].directionEnum.split(",");
-
-		if (angle > Number(angleInfo[0])) {
-
-			if (angle < Number(angleInfo[1])) {
-
-				local.currentDirectionNum = configList[item].directionNum;
-
-				local.currentDirection = item;
-
-				break;
-			}
-		}
-	}
-
-
-	if (local.currentDirectionNum == null) {
-
-		local.currentDirectionNum = configList["back"].directionNum;
-
-		local.currentDirection = "back";
-	}
-
-
-	if (self.vars_.currentDirection == local.currentDirection) {
-
-		if (self.vars_.currentState != local.currentAction) {
-
-			self.currentAnim.setAction(local.currentAction);
-
-			self.vars_.currentState = local.currentAction;
-		}
-
-	} else {
-
-		self.currentAnim.setAction(local.currentAction);
-
-		self.vars_.currentState = local.currentAction;
-	}
-
-	self.currentAnim.setDirection(local.currentDirectionNum);
-
-	self.currentAnim.setSpeed(self.vars_.currentActionSpeed);
-
-	self.vars_.currentDirection = local.currentDirection;
-
-
-
-
-	self.currentAnim.setDirection(game.configs.heroAction[self.vars_.currentDirection].directionNum);
-	self.currentAnim.setAction("待机");
-	self.currentAnim.setSpeed(2);
-	self.vars_.currentState = "待机";
-
-
-
-
-
-
-
-
-
-
-	//createSceneOtherPlayerShow
-
-
-
-
-
-
-
-
-	//基金界面的创建事件中
-	qyengine.forEach(function () {
-		this.dispatchMessage({
-			"type": "message",
-			"message": "changeStatus",
-			"argument0": self.vars_.nowTab
-		});
-	}, "obj_成长基金活动_按钮1");
-	self.vars_.lastTab = self.vars_.nowTab;
-	qyengine.getInstancesByType("grou_activityGrowthGold_up2").length > 0 && qyengine.getInstancesByType("grou_activityGrowthGold_up2")[0].destroy();
-	qyengine.getInstancesByType("grou_activityGrowthGold_up").length > 0 && qyengine.getInstancesByType("grou_activityGrowthGold_up")[0].destroy();
-
-	var createObj = self.vars_.nowTab == 3 ? "grou_activityGrowthGold_up2" : "grou_activityGrowthGold_up";
-	var objPos = self.vars_.nowTab == 3 ? [-34, -44] : [-109, -34];
-	qyengine.instance_create(0, 0, createObj, {
-		"type": createObj,
-		"id": createObj,
-		"zIndex": 5,
-		"scene": "main_scene",
+	//创建红装的界面
+	qyengine.instance_create(0, 0, "grou_redEquip", {
+		"type": "grou_redEquip",
+		"id": "grou_redEquip",
+		"zIndex": 2,
 		"layer": "layer_headerfeet"
 	});
-	grou_activityGrowthGold.appendChild(createObj, objPos[0], objPos[1]);
-	//请求成长基金(活动10)的数据
-	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
-	KBEngine.app.player().baseCall("reqClickActivityTen");
-	//obj_成长基金活动_按钮1 的消息changeStatus事件中
-	if (self.vars_.buttonType == event.argument0) {
-		self.changeSprite("obj_活动_成长基金2_default");
-		if (grou_activityGrowthGold.vars_.lastTab) {
-			grou_activityGrowthGold.objects["obj_成长基金活动_按钮1_" + grou_activityGrowthGold.vars_.lastTab].changeSprite("obj_成长基金活动_按钮1_default");
-		}
-	}
+	//grou_redEquip的创建事件
+	//现在选中的是哪一个装备位
+	grou_redEquip.vars_.nowSelectPlace = 0;
+	//每个装备位是有多个状态的  0,装备位无红装1,已拥有未穿戴 2,有红装并且已经穿戴
 
-	//   onRespClickActivityTen的回调
-	grou_activityGrowthGold.vars_.data = data[0];
-	grou_activityGrowthGold.vars_.buyPeopleNum = data[1];
-	var upObj = null;
-	if (grou_activityGrowthGold.vars_.nowTab == 3) {
-		upObj = grou_activityGrowthGold.objects[grou_activityGrowthGold_up2];
-		//已经购买的人数
-		upObj.objects['txt_growthGoldAlreadyBuyNum'].text = grou_activityGrowthGold.vars_.buyPeopleNum;
-	}
+	for (var i = 0; i < 4; i++) {
+		for (var j = 0; j < 2; j++) {
+			var pos_x = -3 + j * (532 + 3),
+				pos_y = 238 + (388 - 238) * i,
+				id_后缀 = j + i * 2;
+			var iconArr_灰 = [["obj_装备_杀猪刀_灰_redEquip", "obj_装备_法杖_灰_redEquip", "obj_装备_羽扇_灰_redEquip"],
+				"obj_装备_霸王项链_灰_redEquip", "obj_装备_霸王衣服_灰_redEquip", "obj_装备_霸王头盔_灰_redEquip",
+				"obj_装备_霸王手环_灰_redEquip", "obj_装备_霸王手环_灰_redEquip", "obj_装备_戒指_灰_redEquip", "obj_装备_戒指_灰_redEquip"];
+			local.itemObj = qyengine.instance_create(pos_x, pos_y, "grou_redEquip_cell", {
+				"type": "grou_redEquip_cell",
+				"id": "grou_redEquip_cell" + id_后缀,
+				"zIndex": 2,
+				"layer": "layer_headerfeet"
+			});
+			grou_redEquip.appendChild(local.itemObj.id, pos_x, pos_y);
+			//需要先隐藏一部分元素
+			["obj_通用_加号_绿色_redEquip", "txt_redEquip_cell_chuan", "txt_redEquip_cell_chuan", "txt_redEquip_cell_star", "txt_redEquip_cell_num"].forEach(function (e) {
 
-	//基金活动的数据绑定   按钮状态  未购买0  未达成1  未领取:2 已领取:3
-	var fundInfo = game.configs.activity_fund[(grou_activityGrowthGold.vars_.nowTab + 1)];
-	if (grou_activityGrowthGold.vars_.nowTab != 3) {
-		var needvip = Number(fundInfo.viplevel);
-		grou_activityGrowthGold.vars_.needRmb = Number(fundInfo.price);
-		fundInfo = fundInfo.gold_level.split(";");
-		for (cell in fundInfo) {
-			var levelAndGold = fundInfo[cell].split("|"),
-				needLevel = Number(levelAndGold[0]),
-				gold = Number(levelAndGold[1]),
-				needlevelDec = "等级达到" + needLevel + "级可领取",
-				receivepic = "obj_活动_领取奖励_1_inTest_default",
-				buttonstatus = 0;
-			grou_activityGrowthGold.vars_.isBuy = JudgeSelectTabIsBuy(grou_activityGrowthGold.vars_.nowTab);
-			if (grou_activityGrowthGold.vars_.isBuy) {  //是否已经购买
-				if (needLevel > game.vars_.userInfo.level) {  //等级不够
-					receivepic = "obj_活动_未达成_default";
-					buttonstatus = 1;
-				} else {
-					//这里需要判断是否已经领取
-					if (JudgeSelectTabIsReceive(grou_activityGrowthGold.vars_.nowTab, Number(cell))) {
-						receivepic = "obj_成长基金_已领取_字_default";
-						buttonstatus = 3;
-					} else {
-						receivepic = "obj_活动_领取奖励_1_inTest_default";
-						buttonstatus = 2;
-					}
-				}
+				local.itemObj.objects[e] && local.itemObj.objects[e].hide();
+			});
+			//改变各部位灰色的图标‘
+
+			if (i == 0 && j == 0) {
+				local.itemObj.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite(iconArr_灰[id_后缀][game.vars_.userInfo.curryRoleIndex] + "_default");
 			} else {
-				receivepic = "obj_成长基金_未购买_字_default";
-				buttonstatus = 0;
+				local.itemObj.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite(iconArr_灰[id_后缀] + "_default");
 			}
-			game.configs.config_activityGrowthGold[Number(cell) + 1] = {
-				"id": Number(cell) + 1,
-				"goldnum": gold,
-				"needlevel": needLevel,
-				"singleneedvip": 0,
-				"needlevelDec": needlevelDec,
-				"needpeople": 0,
-				"singleneedvipdec": 0,
-				"receivepic": "",
-				"buttonstatus": buttonstatus
-			}
+			//记录当前的位置
+			local.itemObj.objects['obj_通用_道具框_白_redEquip'].vars_.place = id_后缀;
 		}
-	} else {  //全民福利
+	}
+	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, grou_redEquip.vars_.nowSelectPlace);
+	//CreateRedEquipProperty 动作序列
+	//状态判断    0,装备位无红装1,已拥有未穿戴 2,有红装并且已经穿戴
+	local.status = 0;
+	var createObjStr = (local.status == 0 || local.status == 1) ? "grou_redEquipProperty" : "grou_redEquipPropertyCompare";
+	local.propertyDetail = qyengine.instance_create(0, 0, createObjStr, {
+		"type": createObjStr,
+		"id": createObjStr,
+		"zIndex": 2,
+		"layer": "layer_headerfeet"
+	});
+	if (local.status != 0 && local.status != 1) {
+		local.propertyDetailCompare = qyengine.instance_create(0, 0, "grou_redEquip_cell", {
+			"type": "grou_redEquip_cell",
+			"id": "grou_redEquip_cell_9",
+			"zIndex": 2,
+			"layer": "layer_headerfeet"
+		});
+		local.propertyDetail.appendChild(local.propertyDetailCompare.id, 14 + 185 + 50, 15);
+	} else {
+		var equipInfo = BackRedEquipInfo(now_place);
+		local.propertyDetail.objects["grou_redEquip_cell_8"].objects["txt_redEquip_cell_level"].text = equipInfo.level;
+		local.propertyDetail.objects["txt_redEquip_equipName"].text = equipInfo.name;
+		local.propertyDetail.objects["grou_redEquip_cell_8"].objects["obj_装备_杀猪刀_灰_redEquip"].changeSprite("obj_" + equipInfo.icon + "_default");
+	}
+	grou_redEquip.appendChild(local.propertyDetail.id, 149, 302);
 
-	}
-	//判断是否已经购买
-	function JudgeSelectTabIsBuy(nowTab) {
-		if (grou_activityGrowthGold.vars_.data.length == 0) {
-			return false;
+	local.propertyDetail.objects['grou_redEquip_cell_8'].objects["obj_通用_道具框_白_redEquip"].changeSprite("obj_红装_红装外框_redEquip_default");
+	local.propertyDetail
+	// 隐藏不需要的元素
+	var needHideEle = ["txt_redEquip_cell", "txt_redEquip_cell_star", "txt_redEquip_cell_num", "obj_通用_加号_绿色_redEquip"];
+	for (_hideIndex in needHideEle) {
+		local.propertyDetail.objects['grou_redEquip_cell_8'].objects[needHideEle[_hideIndex]].hide();
+		if (local.propertyDetailCompare) {
+			local.propertyDetail.objects['grou_redEquip_cell_9'].objects[needHideEle[_hideIndex]].hide();
 		}
-		for (cell in grou_activityGrowthGold.vars_.data) {
-			var markKey = Object.keys(grou_activityGrowthGold.vars_.data[cell])[0];
-			if (Number(markKey) == (nowTab + 1)) {
-				return true;
-			}
-		}
-		return false;
 	}
-	//判断是否已经领取(只有已经购买才会进入)
-	function JudgeSelectTabIsReceive(nowTab, index) {
-		for (cell in grou_activityGrowthGold.vars_.data) {
-			var markKey = Object.keys(grou_activityGrowthGold.vars_.data[cell])[0];
-			if (Number(markKey) == (nowTab + 1)) {
-				for (item in grou_activityGrowthGold.vars_.data[cell][nowTab]) {
-					if (grou_activityGrowthGold.vars_.data[cell][nowTab][item] == (index + 1)) {
-						return true;
-					}
+	//绘制 合成或者进化的组合UI按钮
+	var buttonArr = ["grou_redEquipCombine", "grou_redEquipWear", "grou_redEquipEvolution"];
+
+	var combineButtonByStatus = qyengine.instance_create(0, 0, buttonArr[local.status], {
+		"type": buttonArr[local.status],
+		"id": buttonArr[local.status],
+		"zIndex": 2,
+		"layer": "layer_headerfeet"
+	});
+	grou_redEquip.appendChild(combineButtonByStatus.id, 150, 882);
+
+	//var select
+	function BackRedEquipInfo(equip_place) {
+		var mark_type = -1;
+		if (equip_place == 4 || equip_place == 5) {
+			mark_type = 4;
+		}
+		if (equip_place == 6 || equip_place == 7) {
+			mark_type = 5;
+		}
+		for (cell in game.configs.equipment) {
+
+			if (mark_type == -1 && Number(game.configs.equipment[cell].type) == (equip_place + 1)) {
+				if (Number(game.configs.equipment[cell].level) >= game.vars_.userInfo.level) {
+
+					return game.configs.equipment[cell];
+				}
+			} else if (mark_type != -1 && Number(game.configs.equipment[cell].type) == (mark_type + 1)) {
+				if (Number(game.configs.equipment[cell].level) >= game.vars_.userInfo.level) {
+					return game.configs.equipment[cell];
 				}
 			}
 		}
 		return false;
 	}
+
+
+	//获取碎片的点击事件
+	current_game.scripts['al_scr_' + "CreateRedEquipRepertory"].call(this, undefined, this);
+	//CreateRedEquipRepertory 创建红装仓库的动作序列
+	qyengine.instance_create(0, 0, "grou_redEquip_repertory", {
+		"type": "grou_redEquip_repertory",
+		"id": "grou_redEquip_repertory",
+		"zIndex": 5,
+		"layer": "layer_headerfeet"
+	});
+	//grou_redEquip_repertory 的创建事件中
+	game.configs.config_redEquip_repertory = {};
+	for (var i = 0; i < 20; i++) {
+		var name = "超超妹子",
+			level = 100,
+			reward = 100,
+			isRecommend = 1,
+			icon = "obj_" + 20003 + "_default",
+			outFrame = "obj_" + "红装_红装外框_redEquip_default",
+			buttonInfo = { "id": i, "itemId": 20003 };
+		game.configs.config_redEquip_repertory[i + 1] = {
+			"id": i + 1,
+			"level": level,
+			"reward": "分解获得" + reward + "红装碎片",
+			"isRecommend": isRecommend ? "推荐分解" : "",
+			"icon": icon,
+			"outFrame": outFrame,
+			"buttonInfo": buttonInfo
+		};
+	}
+	scro_redEquip_repertory && scro_redEquip_repertory.refreshRelations();
+
+	//获取途径的点击事件
+	//活动途径
+	qyengine.getInstancesByType("grou_redEquip_repertory")[0].destroy();
+	grou_fight.objects['obj_PVEicon_活动'].dispatchMessage({
+		"type": "message",
+		"message": "openActivity"
+	});
+
+	//创建寻宝界面   CreateFindGem
+	if (qyengine.getInstancesByType("grou_findGem").length > 0) {
+		return;
+	}
+	qyengine.instance_create(0, 0, "grou_findGem", {
+		"type": "grou_findGem",
+		"id": "grou_findGem",
+		"zIndex": 5,
+		"layer": "layer_headerfeet",
+		"scene": "main_scene"
+	});
+	//grou_findGem(寻宝界面的创建事件)
+	for (var i = 0; i < 5; i++) {
+		var _obj = qyengine.instance_create(20, 413, "grou_activity_rewardInfo_cell", {
+			"type": "grou_activity_rewardInfo_cell",
+			"id": "grou_activity_rewardInfo_cell_" + i,
+			"zIndex": 5,
+			"layer": "layer_headerfeet"
+		});
+		grou_findGem.appendChild(_obj.id, -20 + (132 * i), 493);
+	}
+	game.configs.config_findGemLog = {};
+	for (var logIndex = 0; logIndex < 10; logIndex++) {
+		var name = "超超妹子",
+			vip = "[VIP0]",
+			itemName = "麻痹戒指",
+			level = "Lv.100",
+			profession = "羽扇";
+		var txt = name + "<font  color='#ffffff'>" + vip + " 获得 " + "</font>" + "<font  color='#ffffff'>" + itemName + "[" + level + " " + profession + "</font>";
+		game.configs.config_findGemLog[logIndex + 1] = {
+			"id": logIndex,
+			"txt": txt
+		};
+	}
+	scro_findGem.refreshRelations();
+
+	qyengine.getInstancesByType("grou_redEquip").length > 0 && qyengine.getInstancesByType("grou_redEquip")[0].destroy();
+	//(130,822)
+
+
+
+
+	qyengine.getInstancesByType("grou_redEquip_repertory").length > 0 && qyengine.getInstancesByType("grou_redEquip_repertory")[0].destroy(); \
+
+
+	for (var i = 1; i < 5; i++) {
+		qyengine.guardId("grou_activity_rewardInfo_cell_" + i).x += 10;
+	}
+
+
 
 
