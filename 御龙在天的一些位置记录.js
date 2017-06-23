@@ -4892,13 +4892,42 @@ if (repeatTime === 0) {
 			}
 			//记录当前的位置
 			local.itemObj.objects['obj_通用_道具框_白_redEquip'].vars_.place = id_后缀;
+			local.itemObj.objects['obj_装备_杀猪刀_灰_redEquip'].vars_.place = id_后缀;
 		}
 	}
 	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, grou_redEquip.vars_.nowSelectPlace);
 	//CreateRedEquipProperty 动作序列
 	//状态判断    0,装备位无红装1,已拥有未穿戴 2,有红装并且已经穿戴
+	function HaveCanWearRed(which_place) {
+		var matchRedByPlace = [];
+		for (var a = 0; a < game.vars_.userInfo.packageInfo.packRedEquip.length; a++) {
+			var oneEquipInfo = game.vars_.userInfo.packageInfo.packRedEquip[a];
+			if ((which_place == 4 || which_place == 5) && Number(oneEquipInfo.type) == 5) {
+				matchRedByPlace.push(oneEquipInfo);
+				continue;
+			}
+			if ((which_place == 6 || which_place == 7) && Number(oneEquipInfo.type) == 6) {
+				matchRedByPlace.push(oneEquipInfo);
+				continue;
+			}
+			if(which_place){
+
+			}
+		}
+	}
 	local.status = 0;
+	//判断是否已经穿戴
+	for (_pIndex in game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips) {
+		var markItemInfo = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[_pIndex];
+		if (Number(markItemInfo.data) == Number(now_place) && Number(markItemInfo.quality) == 6) {
+			local.status = 2;
+		}
+	}
+	//判断是否有可穿戴的
 	var createObjStr = (local.status == 0 || local.status == 1) ? "grou_redEquipProperty" : "grou_redEquipPropertyCompare";
+	qyengine.getInstancesByType("grou_redEquipProperty").length > 0 && qyengine.getInstancesByType("grou_redEquipProperty")[0].destroy();
+	qyengine.getInstancesByType("grou_redEquipPropertyCompare").length > 0 && qyengine.getInstancesByType("grou_redEquipPropertyCompare")[0].destroy();
+
 	local.propertyDetail = qyengine.instance_create(0, 0, createObjStr, {
 		"type": createObjStr,
 		"id": createObjStr,
@@ -5007,6 +5036,13 @@ if (repeatTime === 0) {
 		"message": "openActivity"
 	});
 
+	/**
+	 * grou_redEquip_cell 的点击事件,切换红装的装备位
+	 */
+	grou_redEquip.vars_.nowSelectPlace = self.vars_.place;
+	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, grou_redEquip.vars_.nowSelectPlace);
+
+
 	//创建寻宝界面   CreateFindGem
 	if (qyengine.getInstancesByType("grou_findGem").length > 0) {
 		return;
@@ -5035,7 +5071,7 @@ if (repeatTime === 0) {
 			itemName = "麻痹戒指",
 			level = "Lv.100",
 			profession = "羽扇";
-		var txt = name + "<font  color='#ffffff'>" + vip + " 获得 " + "</font>" + "<font  color='#ffffff'>" + itemName + "[" + level + " " + profession + "</font>";
+		var txt = name + "<font  color='#ffffff'>" + vip + " 获得 " + "</font>" + "<font  color='#ffd101'>" + itemName + "[" + level + " " + profession + "</font>";
 		game.configs.config_findGemLog[logIndex + 1] = {
 			"id": logIndex,
 			"txt": txt
@@ -5043,18 +5079,44 @@ if (repeatTime === 0) {
 	}
 	scro_findGem.refreshRelations();
 
-	qyengine.getInstancesByType("grou_redEquip").length > 0 && qyengine.getInstancesByType("grou_redEquip")[0].destroy();
-	//(130,822)
 
 
-
-
-	qyengine.getInstancesByType("grou_redEquip_repertory").length > 0 && qyengine.getInstancesByType("grou_redEquip_repertory")[0].destroy(); \
-
-
-	for (var i = 1; i < 5; i++) {
-		qyengine.guardId("grou_activity_rewardInfo_cell_" + i).x += 10;
+	//对勾框的点击事件
+	var gouObj = grou_findGem.objects['obj_通用_对勾_findGem'];
+	if (gouObj.isVisible) {
+		gouObj.isVisible = false;
+	} else {
+		gouObj.isVisible = true;
 	}
+	obj_通用_按钮_01_findGem_0.vars_.autoSmelt = gouObj.isVisible;
+	obj_通用_按钮_01_findGem_1.vars_.autoSmelt = gouObj.isVisible;
+
+	//对勾框的创建事件
+	setTimeout(function () {
+		obj_通用_按钮_01_findGem_0.vars_.autoSmelt = gouObj.isVisible;
+		obj_通用_按钮_01_findGem_1.vars_.autoSmelt = gouObj.isVisible;
+	}, 100);
+	//寻宝的购买抽奖按钮
+	//game.vars_.userInfo.packageInfo.packEquip   game.vars_.expansion
+	//判断金子
+	if ((self.vars_.buttonType == 1 && game.vars_.userInfo.gold < 100) || (self.vars_.buttonType == 2 && game.vars_.userInfo.gold < 1000)) {
+		var showText = "金子不足，是否前去充值？";
+		current_game.scripts['al_scr_' + "CreateCommonTip"].call(this, undefined, this, "popRechargeUI", showText);
+		return;
+	}
+	//判断背包剩下的格子
+	if (Number(game.vars_.expansion) - game.vars_.userInfo.packageInfo.packEquip.length < 10) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "背包空间不足");
+		return;
+	}
+	//去购买
+	//创建购买成功后的界面
+
+
+
+
+
+
 
 
 
