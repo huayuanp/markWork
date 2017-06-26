@@ -4860,7 +4860,15 @@ if (repeatTime === 0) {
 	});
 	//grou_redEquip的创建事件
 	//现在选中的是哪一个装备位
-	grou_redEquip.vars_.nowSelectPlace = 0;
+	if (event.message && event.message == "updateNowRedScene") {
+		//event.argument0;
+		var needRefreshGroup = self.objects['grou_redEquip_cell' + current_scene.vars_.nowSelectPlace];
+		needRefreshGroup.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite("obj_" + event.argument0.icon + "_default");
+		needRefreshGroup.objects["obj_通用_道具框_白_redEquip"].changeSprite("obj_红装_红装外框_redEquip");
+		current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, current_scene.vars_.nowSelectPlace, true);
+		return;
+	}
+	current_scene.vars_.nowSelectPlace = 0;
 	//每个装备位是有多个状态的  0,装备位无红装1,已拥有未穿戴 2,有红装并且已经穿戴
 
 	for (var i = 0; i < 4; i++) {
@@ -4895,39 +4903,39 @@ if (repeatTime === 0) {
 			local.itemObj.objects['obj_装备_杀猪刀_灰_redEquip'].vars_.place = id_后缀;
 		}
 	}
-	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, grou_redEquip.vars_.nowSelectPlace);
+	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, current_scene.vars_.nowSelectPlace);
 	//CreateRedEquipProperty 动作序列
-	//状态判断    0,装备位无红装1,已拥有未穿戴 2,有红装并且已经穿戴
-	function HaveCanWearRed(which_place) {
-		var matchRedByPlace = [];
-		for (var a = 0; a < game.vars_.userInfo.packageInfo.packRedEquip.length; a++) {
-			var oneEquipInfo = game.vars_.userInfo.packageInfo.packRedEquip[a];
-			if ((which_place == 4 || which_place == 5) && Number(oneEquipInfo.type) == 5) {
-				matchRedByPlace.push(oneEquipInfo);
-				continue;
+	//状态判断    0,装备位无红装,并且无可穿戴的 1,已拥有未穿戴 2,有红装并且已经穿戴
+	if (!isWear) {
+		var haveCanWearArr = current_game.scripts['al_scr_' + "GetCanWearRedByplace"].call(this, undefined, this, now_place);			//当前装备位上可替换的红装
+		local.status = 0;
+		//是否顶级
+		local.isFinalLevel = false;
+		//判断是否已经穿戴
+		for (_pIndex in game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips) {
+			var markItemInfo = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[_pIndex];
+			if (Number(markItemInfo.data) == Number(now_place) && Number(markItemInfo.quality) == 6) {
+				local.status = 2;
+				break;
 			}
-			if ((which_place == 6 || which_place == 7) && Number(oneEquipInfo.type) == 6) {
-				matchRedByPlace.push(oneEquipInfo);
-				continue;
-			}
-			if(which_place){
+		}
+		if (local.status != 2 && haveCanWearArr.length == 0) {  //
+			local.status = 0;
+		} else if (local.status != 2 && haveCanWearArr.length > 0) {
+			local.status = 1;
+		}
+	} else {
+		local.status = 2;
+	}
 
-			}
-		}
-	}
-	local.status = 0;
-	//判断是否已经穿戴
-	for (_pIndex in game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips) {
-		var markItemInfo = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[_pIndex];
-		if (Number(markItemInfo.data) == Number(now_place) && Number(markItemInfo.quality) == 6) {
-			local.status = 2;
-		}
-	}
+
 	//判断是否有可穿戴的
 	var createObjStr = (local.status == 0 || local.status == 1) ? "grou_redEquipProperty" : "grou_redEquipPropertyCompare";
 	qyengine.getInstancesByType("grou_redEquipProperty").length > 0 && qyengine.getInstancesByType("grou_redEquipProperty")[0].destroy();
 	qyengine.getInstancesByType("grou_redEquipPropertyCompare").length > 0 && qyengine.getInstancesByType("grou_redEquipPropertyCompare")[0].destroy();
-
+	if (qyengine.guardId("grou_redEquip_cell_9") && !grou_redEquip_cell_9.destroyed_) {
+		grou_redEquip_cell_9.destroy();
+	}
 	local.propertyDetail = qyengine.instance_create(0, 0, createObjStr, {
 		"type": createObjStr,
 		"id": createObjStr,
@@ -4941,17 +4949,34 @@ if (repeatTime === 0) {
 			"zIndex": 2,
 			"layer": "layer_headerfeet"
 		});
-		local.propertyDetail.appendChild(local.propertyDetailCompare.id, 14 + 185 + 50, 15);
-	} else {
-		var equipInfo = BackRedEquipInfo(now_place);
-		local.propertyDetail.objects["grou_redEquip_cell_8"].objects["txt_redEquip_cell_level"].text = equipInfo.level;
-		local.propertyDetail.objects["txt_redEquip_equipName"].text = equipInfo.name;
-		local.propertyDetail.objects["grou_redEquip_cell_8"].objects["obj_装备_杀猪刀_灰_redEquip"].changeSprite("obj_" + equipInfo.icon + "_default");
+		local.propertyDetail.appendChild(local.propertyDetailCompare.id, 14 + 185 + 30, 15);
 	}
-	grou_redEquip.appendChild(local.propertyDetail.id, 149, 302);
+	var equipInfo = BackRedEquipInfo(now_place);
+	local.equipInfo = equipInfo;
+	local.propertyDetail.objects["grou_redEquip_cell_8"].objects["txt_redEquip_cell_level"].text = equipInfo.level;
+	local.propertyDetail.objects["txt_redEquip_equipName"].text = equipInfo.name;
+	local.propertyDetail.objects["grou_redEquip_cell_8"].objects["obj_装备_杀猪刀_灰_redEquip"].changeSprite("obj_" + equipInfo.icon + "_default");
+	var all_属性展示 = calProperty(local.equipInfo);
+	showProperty("txt_redEquip_equipProperty_", all_属性展示);
+	local.propertyDetail.objects['txt_redEquip_equipPropertyTitle'].text = "评分：" + calScores(all_属性展示);
 
+	grou_redEquip.appendChild(local.propertyDetail.id, 149, 302);
+	//初始化进阶后的装备显示  并判断是否达到了顶级
+	if (local.propertyDetailCompare) {
+		var equipInfo_next = BackRedEquipInfo_next(now_place, equipInfo.level);
+		if (equipInfo_next) {
+			local.propertyDetailCompare.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite("obj_" + equipInfo_next.icon + "_default");
+			local.propertyDetailCompare.objects['txt_redEquip_cell_level'].text = equipInfo_next.level;
+			local.propertyDetailCompare.objects['obj_通用_道具框_白_redEquip'].changeSprite("obj_红装_红装外框_redEquip_default");
+			var all_属性展示 = calProperty(equipInfo_next);
+			showProperty("txt_redEquip_equipProperty_compare_", all_属性展示);
+			//var equipInfo_next_评分 = 
+			local.propertyDetail.objects['txt_redEquip_equipPropertyTitle_2'].text = "评分：" + calScores(all_属性展示);
+		} else {
+			print("已经达到顶级了");
+		}
+	}
 	local.propertyDetail.objects['grou_redEquip_cell_8'].objects["obj_通用_道具框_白_redEquip"].changeSprite("obj_红装_红装外框_redEquip_default");
-	local.propertyDetail
 	// 隐藏不需要的元素
 	var needHideEle = ["txt_redEquip_cell", "txt_redEquip_cell_star", "txt_redEquip_cell_num", "obj_通用_加号_绿色_redEquip"];
 	for (_hideIndex in needHideEle) {
@@ -4970,9 +4995,72 @@ if (repeatTime === 0) {
 		"layer": "layer_headerfeet"
 	});
 	grou_redEquip.appendChild(combineButtonByStatus.id, 150, 882);
-
+	//计算评分
+	function calScores(property_all) {
+		var rule_评分规则 = { "攻击": 4, "生命": 1, "物防": 11, "法防": 11, "命中": 3, "闪避": 13, "暴击": 9, "抗暴": 3 };
+		var temp = Object.keys(property_all);
+		var total_评分 = 0;
+		for (tempIndex in temp) {
+			var scoreNum = Number(property_all[temp[tempIndex]].split("+")[0]) + Number(property_all[temp[tempIndex]].split("+")[1]);
+			total_评分 += scoreNum * rule_评分规则[temp[tempIndex]];
+		}
+		return total_评分;
+	}
+	//展示真实的属性
+	function showProperty(text_first, all_property) {
+		var temp = Object.keys(all_property);
+		for (keyIndex in temp) {
+			local.propertyDetail.objects[text_first + keyIndex].text = temp[keyIndex] + "：" + all_property[temp[keyIndex]];
+		}
+		for (var hideIndex = 0; hideIndex < 6; hideIndex++) {
+			if (hideIndex > temp.length) {
+				local.propertyDetail.objects[text_first + hideIndex].hide();
+			}
+		}
+	}
+	//计算属性
+	function calProperty(equipment_info) {
+		//hp   atk pdef mdef hit dodge cri rcri 
+		var key_value_property = { "hp": "生命", "atk": "攻击", "pdef": "物防", "mdef": "法防", "hit": "命中", "dodge": "闪避", "cri": "暴击", "rcri": "抗暴" };
+		var key_value_propertyNum = {};
+		var keyArr = Object.keys(key_value_property);
+		for (var k = 0; k < keyArr.length; k++) {
+			var splitArr = equipment_info[keyArr[k]].split(";");
+			if (splitArr[splitArr.length - 1] == "-1" || splitArr[splitArr.length - 1] == -1) {
+				continue;
+			}
+			var xxx_基础值和附加值 = splitArr[splitArr.length - 1].split("|");
+			key_value_propertyNum[key_value_property[keyArr[k]]] = "" + Number(xxx_基础值和附加值[0]) + "+" + Number(xxx_基础值和附加值[1]);
+		}
+		return key_value_propertyNum;
+	}
+	function BackRedEquipInfo_next(equip_place, nowEquipLevel) {
+		var mark_type = -1;
+		if (equip_place == 4 || equip_place == 5) {
+			mark_type = 4;
+		}
+		if (equip_place == 6 || equip_place == 7) {
+			mark_type = 5;
+		}
+		for (infoIndex in game.configs.equipment) {
+			var itemIndexInfo = game.configs.equipment[infoIndex];
+			if (Number(itemIndexInfo.type) == mark_type && Number(itemIndexInfo.level) > nowEquipLevel) {
+				return itemIndexInfo;
+			}
+		}
+		return false;  //说明已经顶级了~~·
+	}
 	//var select
 	function BackRedEquipInfo(equip_place) {
+		if (local.status == 2) {
+			var roleEquips = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips;
+			for (cell in roleEquips) {
+				if (Number(equip_place) == Number(roleEquips[cell].data)) {
+					return game.configs.equipment[roleEquips.id];
+				}
+			}
+			return false;
+		}
 		var mark_type = -1;
 		if (equip_place == 4 || equip_place == 5) {
 			mark_type = 4;
@@ -4995,6 +5083,77 @@ if (repeatTime === 0) {
 		}
 		return false;
 	}
+	qyengine.guardId(buttonArr[local.status]).dispatchMessage({
+		"type": "message",
+		"message": "updateShowRedInfo",
+		"argument0": local.status == 0 ? equipInfo : equipInfo_next
+	});
+
+
+
+
+	/**
+	 * grou_redEquipCombine 收到updateShowRedInfo消息
+	 */
+	var combine_需要碎片 = event.argument0.compose,
+		now_现在拥有 = game.vars_.userInfo.fragment;
+	self.objects['txt_redEquipConsume_1'].text = now_现在拥有;
+	self.objects['txt_redEquipConsume'].text = "/" + combine_需要碎片;
+	if (combine_需要碎片 > now_现在拥有) {  //碎片不足
+		self.objects['txt_redEquipNotEnough'].show();
+		self.objects['txt_redEquipConsume_1'].setFontColor("ea1100");
+		//碎片不足
+		self.objects['obj_通用_按钮_01_redEquip'].vars_.status = 0;
+
+	} else {
+		self.objects['txt_redEquipNotEnough'].hide();
+		self.objects['txt_redEquipConsume_1'].setFontColor("19a814");
+		self.objects['obj_通用_按钮_01_redEquip'].vars_.status = 1;
+	}
+	self.objects['obj_通用_按钮_01_redEquip'].vars_.itemId = event.argument0.id;
+	/**
+	 * grou_redEquipEvolution 收到收到updateShowRedInfo消息
+	 */
+	var combine_需要碎片 = event.argument0.compose,
+		now_现在拥有 = game.vars_.userInfo.fragment;
+	self.objects['txt_redEquipConsume_0'].text = now_现在拥有;
+	self.objects['txt_redEquipConsume'].text = "/" + combine_需要碎片;
+	if (combine_需要碎片 > now_现在拥有) {  //碎片不足
+		self.objects['txt_redEquipConsume_0'].setFontColor("ea1100");
+		//碎片不足
+		self.objects['obj_通用_按钮_01_redEquip_evolution_1'].vars_.status = 0;
+	} else {
+		self.objects['txt_redEquipConsume_0'].setFontColor("19a814");
+		self.objects['obj_通用_按钮_01_redEquip_evolution_1'].vars_.status = 1;
+	}
+
+	/**
+	 * 点击合成按钮
+	 */
+	if (qyengine.getInstancesByType("grou_redEquipCombine").length > 0) {
+		if (self.vars_.status == 1) {
+			current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+			KBEngine.app.player().baseCall("reqRedEquiqCompound", self.vars_.itemId);
+		} else {
+			current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "碎片不足");
+		}
+	}
+	/**
+	 * onRespEquipCompound  合成红装成功
+	 */
+	console.log("红装合成成功");
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "合成成功");
+
+	game.vars_.userInfo.fragment = data[1];
+	local.info = data[0];
+	setTimeout(function () {
+		current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+		qyengine.getInstancesByType("grou_redEquip").length > 0 && grou_redEquip.dispatchMessage({
+			"type": "message",
+			"message": "updateNowRedScene",
+			"argument0": local.info
+		});
+	}, 100);
 
 
 	//获取碎片的点击事件
@@ -5008,16 +5167,21 @@ if (repeatTime === 0) {
 	});
 	//grou_redEquip_repertory 的创建事件中
 	game.configs.config_redEquip_repertory = {};
-	for (var i = 0; i < 20; i++) {
-		var name = "超超妹子",
-			level = 100,
-			reward = 100,
-			isRecommend = 1,
-			icon = "obj_" + 20003 + "_default",
+	//对红装进行排序
+	current_game.scripts['al_scr_' + "SortRedEquip"].call(this, undefined, this);
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packRedEquip.length; i++) {
+		var singleItemInfo = game.vars_.userInfo.packageInfo.packRedEquip[i];
+		var name = singleItemInfo.name,
+			level = singleItemInfo.level,
+			reward = singleItemInfo.resolve,
+			isRecommend = game.vars_.userInfo.level > Number(level) ? 1 : 0,
+			icon = "obj_" + singleItemInfo.icon + "_default",
 			outFrame = "obj_" + "红装_红装外框_redEquip_default",
-			buttonInfo = { "id": i, "itemId": 20003 };
+			buttonInfo = { "id": i, "itemId": singleItemInfo.id, "uuid": singleItemInfo.uuid };
+		//注意在何种条件下，装备被推荐分解
 		game.configs.config_redEquip_repertory[i + 1] = {
 			"id": i + 1,
+			"name": name,
 			"level": level,
 			"reward": "分解获得" + reward + "红装碎片",
 			"isRecommend": isRecommend ? "推荐分解" : "",
@@ -5027,6 +5191,28 @@ if (repeatTime === 0) {
 		};
 	}
 	scro_redEquip_repertory && scro_redEquip_repertory.refreshRelations();
+
+	/**
+	 * 分解红装按钮的点击事件
+	 */
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	current_scene.vars_.resolveCellId = self.vars_.info.id;
+	KBEngine.app.player().baseCall("reqRedEquipResolve", self.vars_.info.uuid);
+	/**
+	 * 分解红装的回调用 onRespResult107  或者进化失败  或者合成成功
+	 */
+	localStorage.data = data;
+	setTimeout(function () {
+		current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+		var showTextArr = ["合成失败", "合成成功", "分解成功", "分解失败", "进化失败"];
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, showTextArr[local.data]);
+		if (local.data == 2) {  //分解红装成功
+			qyengine.guardId('scro_redEquip_repertory').removeOneCell && qyengine.guardId('scro_redEquip_repertory').removeOneCell(current_scene.vars_.resolveCellId - 1, 1 - 1);
+			delete game.configs.config_redEquip_repertory[current_scene.vars_.resolveCellId];
+			current_scene.vars_.resolveCellId = null;
+		}
+	}, 100);
+
 
 	//获取途径的点击事件
 	//活动途径
@@ -5039,8 +5225,8 @@ if (repeatTime === 0) {
 	/**
 	 * grou_redEquip_cell 的点击事件,切换红装的装备位
 	 */
-	grou_redEquip.vars_.nowSelectPlace = self.vars_.place;
-	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, grou_redEquip.vars_.nowSelectPlace);
+	current_scene.vars_.nowSelectPlace = self.vars_.place;
+	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, current_scene.vars_.nowSelectPlace);
 
 
 	//创建寻宝界面   CreateFindGem
@@ -5113,6 +5299,17 @@ if (repeatTime === 0) {
 	//创建购买成功后的界面
 
 
+
+
+
+
+
+
+
+	qyengine.guardId("role_closeBtn").dispatchMessage({
+		"type": "message",
+		"message": "shutDownButton"
+	});
 
 
 
