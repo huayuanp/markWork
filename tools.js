@@ -407,7 +407,23 @@ grou_show_hero_panel.appendChild(grou_ranking.vars_.heroObjShow.id, -42, -204);
 
 
 
-
+heroObjShow.hide();
 if(grou_ranking.vars_.heroObjShow&&!grou_ranking.vars_.heroObjShow.isVisible){
       grou_ranking.vars_.heroObjShow.isVisible= true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

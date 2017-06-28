@@ -4849,9 +4849,20 @@ if (repeatTime === 0) {
 	}
 
 
-
-
+	/**
+	 * 补全其余的属性  
+	 */
+	var oneEquip = game.configs.equipment[needAddObj.id];
+	for (buIndex in oneEquip) {
+		if (!needAddObj[buIndex]) {
+			needAddObj[buIndex] = oneEquip[buIndex];
+		}
+	}
 	//创建红装的界面
+	qyengine.getInstancesByType("obj_特效红装框").length > 0 && qyengine.forEach(function () {
+		this.hide();
+	}, "obj_特效红装框");
+
 	qyengine.instance_create(0, 0, "grou_redEquip", {
 		"type": "grou_redEquip",
 		"id": "grou_redEquip",
@@ -4860,17 +4871,40 @@ if (repeatTime === 0) {
 	});
 	//grou_redEquip的创建事件
 	//现在选中的是哪一个装备位
-	if (event.message && event.message == "updateNowRedScene") {
+	if (event.message && event.message == "updateNowRedScene" && event.argument0) {
 		//event.argument0;
 		var needRefreshGroup = self.objects['grou_redEquip_cell' + current_scene.vars_.nowSelectPlace];
-		needRefreshGroup.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite("obj_" + event.argument0.icon + "_default");
-		needRefreshGroup.objects["obj_通用_道具框_白_redEquip"].changeSprite("obj_红装_红装外框_redEquip");
+		var newObj = current_game.scripts['al_scr_' + "CompletionAllProperty"].call(this, undefined, this, event.argument0);
+		needRefreshGroup.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite("obj_" + newObj.icon + "_default");
+		needRefreshGroup.objects["obj_通用_道具框_白_redEquip"].changeSprite("obj_红装_红装外框_redEquip_default");
+		needRefreshGroup.objects['txt_redEquip_cell_level'].text = "Lv." + newObj.level;
 		current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, current_scene.vars_.nowSelectPlace, true);
 		return;
 	}
-	current_scene.vars_.nowSelectPlace = 0;
+	if (!current_scene.vars_.nowSelectPlace) {
+		current_scene.vars_.nowSelectPlace = 0;
+	}
 	//每个装备位是有多个状态的  0,装备位无红装1,已拥有未穿戴 2,有红装并且已经穿戴
+	var isWear = 0;
+	var isAlreadyCreateRedCell = false;   //红装的cell是否已经创建
+	function judgeNowPlaceHaveRed(needVarPlace) {
+		var markNowSelectPlaceObj = null;
+		var temp = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips;
+		for (var k = 0; k < temp.length; k++) {
+			if (needVarPlace == temp[k].data && temp[k].quality == 5) {
+				markNowSelectPlaceObj = temp[k];
+				return markNowSelectPlaceObj;
+			}
+		}
+		return markNowSelectPlaceObj;
+	}
 
+	if (qyengine.getInstancesByType("grou_redEquip_cell").length == 0) {
+		isAlreadyCreateRedCell = false;
+	} else {
+		isAlreadyCreateRedCell = true;
+	}
+	isWear = judgeNowPlaceHaveRed(current_scene.vars_.nowSelectPlace) ? 1 : 0;
 	for (var i = 0; i < 4; i++) {
 		for (var j = 0; j < 2; j++) {
 			var pos_x = -3 + j * (532 + 3),
@@ -4879,18 +4913,26 @@ if (repeatTime === 0) {
 			var iconArr_灰 = [["obj_装备_杀猪刀_灰_redEquip", "obj_装备_法杖_灰_redEquip", "obj_装备_羽扇_灰_redEquip"],
 				"obj_装备_霸王项链_灰_redEquip", "obj_装备_霸王衣服_灰_redEquip", "obj_装备_霸王头盔_灰_redEquip",
 				"obj_装备_霸王手环_灰_redEquip", "obj_装备_霸王手环_灰_redEquip", "obj_装备_戒指_灰_redEquip", "obj_装备_戒指_灰_redEquip"];
-			local.itemObj = qyengine.instance_create(pos_x, pos_y, "grou_redEquip_cell", {
-				"type": "grou_redEquip_cell",
-				"id": "grou_redEquip_cell" + id_后缀,
-				"zIndex": 2,
-				"layer": "layer_headerfeet"
-			});
-			grou_redEquip.appendChild(local.itemObj.id, pos_x, pos_y);
+			if (!isAlreadyCreateRedCell) {
+				local.itemObj = qyengine.instance_create(pos_x, pos_y, "grou_redEquip_cell", {
+					"type": "grou_redEquip_cell",
+					"id": "grou_redEquip_cell" + id_后缀,
+					"zIndex": 2,
+					"layer": "layer_headerfeet"
+				});
+				grou_redEquip.appendChild(local.itemObj.id, pos_x, pos_y);
+			} else {
+				local.itemObj = qyengine.guardId("grou_redEquip_cell" + id_后缀);
+			}
+
+
 			//需要先隐藏一部分元素
 			["obj_通用_加号_绿色_redEquip", "txt_redEquip_cell_chuan", "txt_redEquip_cell_chuan", "txt_redEquip_cell_star", "txt_redEquip_cell_num"].forEach(function (e) {
 
 				local.itemObj.objects[e] && local.itemObj.objects[e].hide();
 			});
+			local.itemObj.objects['txt_redEquip_cell_level'].text = "";
+			local.itemObj.objects['obj_通用_道具框_白_redEquip'].changeSprite("obj_通用_道具框_白_redEquip_default");
 			//改变各部位灰色的图标‘
 
 			if (i == 0 && j == 0) {
@@ -4901,28 +4943,39 @@ if (repeatTime === 0) {
 			//记录当前的位置
 			local.itemObj.objects['obj_通用_道具框_白_redEquip'].vars_.place = id_后缀;
 			local.itemObj.objects['obj_装备_杀猪刀_灰_redEquip'].vars_.place = id_后缀;
+			var nowShowObj = judgeNowPlaceHaveRed(id_后缀);
+			if (nowShowObj) {
+				local.itemObj.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite("obj_" + nowShowObj.icon + "_default");
+				local.itemObj.objects['obj_通用_道具框_白_redEquip'].changeSprite("obj_红装_红装外框_redEquip_default");
+				local.itemObj.objects['txt_redEquip_cell_level'].text = "Lv." + nowShowObj.level;
+			} else {
+				local.itemObj.objects['txt_redEquip_cell_level'].text = "";
+			}
 		}
 	}
-	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, current_scene.vars_.nowSelectPlace);
+	current_game.scripts['al_scr_' + "CreateRedEquipProperty"].call(this, undefined, this, current_scene.vars_.nowSelectPlace, isWear);
 	//CreateRedEquipProperty 动作序列
 	//状态判断    0,装备位无红装,并且无可穿戴的 1,已拥有未穿戴 2,有红装并且已经穿戴
+
 	if (!isWear) {
 		var haveCanWearArr = current_game.scripts['al_scr_' + "GetCanWearRedByplace"].call(this, undefined, this, now_place);			//当前装备位上可替换的红装
+		local.haveCanWearArr = haveCanWearArr;
 		local.status = 0;
 		//是否顶级
 		local.isFinalLevel = false;
-		//判断是否已经穿戴
-		for (_pIndex in game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips) {
-			var markItemInfo = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[_pIndex];
-			if (Number(markItemInfo.data) == Number(now_place) && Number(markItemInfo.quality) == 6) {
-				local.status = 2;
-				break;
-			}
-		}
+
 		if (local.status != 2 && haveCanWearArr.length == 0) {  //
 			local.status = 0;
 		} else if (local.status != 2 && haveCanWearArr.length > 0) {
 			local.status = 1;
+		}
+		//判断是否已经穿戴
+		for (_pIndex in game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips) {
+			var markItemInfo = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[_pIndex];
+			if (Number(markItemInfo.data) == Number(now_place) && Number(markItemInfo.quality) == 5) {
+				local.status = 2;
+				break;
+			}
 		}
 	} else {
 		local.status = 2;
@@ -4950,10 +5003,17 @@ if (repeatTime === 0) {
 			"layer": "layer_headerfeet"
 		});
 		local.propertyDetail.appendChild(local.propertyDetailCompare.id, 14 + 185 + 30, 15);
+		qyengine.instance_create(0, 0, "txt_redEquip_equipName", {
+			"type": "txt_redEquip_equipName",
+			"id": "txt_redEquip_equipName_1",
+			"zIndex": 2,
+			"layer": "layer_headerfeet"
+		});
+		local.propertyDetailCompare.appendChild("txt_redEquip_equipName_1", -8, -16);
 	}
 	var equipInfo = BackRedEquipInfo(now_place);
 	local.equipInfo = equipInfo;
-	local.propertyDetail.objects["grou_redEquip_cell_8"].objects["txt_redEquip_cell_level"].text = equipInfo.level;
+	local.propertyDetail.objects["grou_redEquip_cell_8"].objects["txt_redEquip_cell_level"].text = "Lv." + equipInfo.level;
 	local.propertyDetail.objects["txt_redEquip_equipName"].text = equipInfo.name;
 	local.propertyDetail.objects["grou_redEquip_cell_8"].objects["obj_装备_杀猪刀_灰_redEquip"].changeSprite("obj_" + equipInfo.icon + "_default");
 	var all_属性展示 = calProperty(local.equipInfo);
@@ -4966,14 +5026,15 @@ if (repeatTime === 0) {
 		var equipInfo_next = BackRedEquipInfo_next(now_place, equipInfo.level);
 		if (equipInfo_next) {
 			local.propertyDetailCompare.objects['obj_装备_杀猪刀_灰_redEquip'].changeSprite("obj_" + equipInfo_next.icon + "_default");
-			local.propertyDetailCompare.objects['txt_redEquip_cell_level'].text = equipInfo_next.level;
+			local.propertyDetailCompare.objects['txt_redEquip_cell_level'].text = "Lv." + equipInfo_next.level;
 			local.propertyDetailCompare.objects['obj_通用_道具框_白_redEquip'].changeSprite("obj_红装_红装外框_redEquip_default");
 			var all_属性展示 = calProperty(equipInfo_next);
 			showProperty("txt_redEquip_equipProperty_compare_", all_属性展示);
 			//var equipInfo_next_评分 = 
 			local.propertyDetail.objects['txt_redEquip_equipPropertyTitle_2'].text = "评分：" + calScores(all_属性展示);
+			qyengine.guardId("txt_redEquip_equipName_1").text = equipInfo_next.name;
 		} else {
-			print("已经达到顶级了");
+			console.log("已经达到顶级了");
 		}
 	}
 	local.propertyDetail.objects['grou_redEquip_cell_8'].objects["obj_通用_道具框_白_redEquip"].changeSprite("obj_红装_红装外框_redEquip_default");
@@ -4987,7 +5048,9 @@ if (repeatTime === 0) {
 	}
 	//绘制 合成或者进化的组合UI按钮
 	var buttonArr = ["grou_redEquipCombine", "grou_redEquipWear", "grou_redEquipEvolution"];
-
+	buttonArr.forEach(function (e) {
+		qyengine.getInstancesByType(e).length > 0 && qyengine.guardId(e).destroy();
+	});
 	var combineButtonByStatus = qyengine.instance_create(0, 0, buttonArr[local.status], {
 		"type": buttonArr[local.status],
 		"id": buttonArr[local.status],
@@ -5035,58 +5098,103 @@ if (repeatTime === 0) {
 		return key_value_propertyNum;
 	}
 	function BackRedEquipInfo_next(equip_place, nowEquipLevel) {
-		var mark_type = -1;
+		var mark_type = equip_place;
 		if (equip_place == 4 || equip_place == 5) {
 			mark_type = 4;
 		}
 		if (equip_place == 6 || equip_place == 7) {
 			mark_type = 5;
 		}
+		var level_生成装备 = GenerateLevel();
+		if (level_生成装备 == local.equipInfo.level) {
+			level_生成装备 = level_生成装备 + 10;
+			if (level_生成装备 > 150) {
+				local.isFinalLevel = true;
+			}
+		}
+		var nowProfession = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].type;
 		for (infoIndex in game.configs.equipment) {
 			var itemIndexInfo = game.configs.equipment[infoIndex];
-			if (Number(itemIndexInfo.type) == mark_type && Number(itemIndexInfo.level) > nowEquipLevel) {
+			if (Number(itemIndexInfo.type) == (mark_type + 1) && Number(itemIndexInfo.level) == level_生成装备 && nowProfession == Number(game.configs.equipment[infoIndex].profession)) {
 				return itemIndexInfo;
 			}
 		}
 		return false;  //说明已经顶级了~~·
 	}
+	function GenerateLevel() {
+		var level_位数 = game.vars_.userInfo.level.toString().length;
+		var level_生成等级 = 1;
+		if (level_位数 == 1) {
+			level_生成等级 = 1;
+		} else if (level_位数 == 2) {
+			level_生成等级 = 10 * Math.floor(game.vars_.userInfo.level / (10))
+		} else if (level_位数 == 3) {
+			level_十位数 = game.vars_.userInfo.level - 100 * Math.floor(game.vars_.userInfo.level / (100));
+			level_生成等级 = 100 * Math.floor(game.vars_.userInfo.level / (100)) + 10 * Math.floor(level_十位数 / (10))
+		}
+		return level_生成等级;
+	}
 	//var select
 	function BackRedEquipInfo(equip_place) {
 		if (local.status == 2) {
+
 			var roleEquips = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips;
+
 			for (cell in roleEquips) {
 				if (Number(equip_place) == Number(roleEquips[cell].data)) {
-					return game.configs.equipment[roleEquips.id];
+					//进化需要传uuid
+					local.uuid = roleEquips[cell].uuid;
+					return game.configs.equipment[roleEquips[cell].id];
 				}
 			}
 			return false;
 		}
-		var mark_type = -1;
+		if (local.status == 1) {   //需要判断拥有的等级是否符合穿戴
+			var maxGearscoreEquip = null;
+			//找出最大评分
+			for (cell in local.haveCanWearArr) {
+				if (cell == 0) {
+					maxGearscoreEquip = local.haveCanWearArr[cell];
+				} else if (maxGearscoreEquip.gearscore < local.haveCanWearArr[cell].gearscore) {
+					maxGearscoreEquip = local.haveCanWearArr[cell];
+				}
+			}
+			game.vars_.onRespResult3 = maxGearscoreEquip;
+			local.uuid = maxGearscoreEquip.uuid;
+			return game.configs.equipment[maxGearscoreEquip.id];
+		}
+		var mark_type = 0;
 		if (equip_place == 4 || equip_place == 5) {
 			mark_type = 4;
 		}
 		if (equip_place == 6 || equip_place == 7) {
 			mark_type = 5;
 		}
+
+		var level_生成等级 = GenerateLevel();
+
+		var nowProfession = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].type;
 		for (cell in game.configs.equipment) {
 
-			if (mark_type == -1 && Number(game.configs.equipment[cell].type) == (equip_place + 1)) {
-				if (Number(game.configs.equipment[cell].level) >= game.vars_.userInfo.level) {
+			if (mark_type == 0 && Number(game.configs.equipment[cell].type) == (equip_place + 1) && nowProfession == Number(game.configs.equipment[cell].profession)) {
+				if (Number(game.configs.equipment[cell].level) == level_生成等级) {
 
 					return game.configs.equipment[cell];
 				}
-			} else if (mark_type != -1 && Number(game.configs.equipment[cell].type) == (mark_type + 1)) {
-				if (Number(game.configs.equipment[cell].level) >= game.vars_.userInfo.level) {
+			} else if (mark_type != 0 && Number(game.configs.equipment[cell].type) == (mark_type + 1) && nowProfession == Number(game.configs.equipment[cell].profession)) {
+				if (Number(game.configs.equipment[cell].level) == level_生成等级) {
 					return game.configs.equipment[cell];
 				}
 			}
 		}
 		return false;
 	}
+
 	qyengine.guardId(buttonArr[local.status]).dispatchMessage({
 		"type": "message",
 		"message": "updateShowRedInfo",
-		"argument0": local.status == 0 ? equipInfo : equipInfo_next
+		"argument0": (local.status == 0 || local.status == 1) ? equipInfo : equipInfo_next,   //equipInfo_next
+		"argument1": local.uuid ? local.uuid : 0
 	});
 
 
@@ -5126,7 +5234,8 @@ if (repeatTime === 0) {
 		self.objects['txt_redEquipConsume_0'].setFontColor("19a814");
 		self.objects['obj_通用_按钮_01_redEquip_evolution_1'].vars_.status = 1;
 	}
-
+	self.objects['obj_通用_按钮_01_redEquip_evolution_1'].vars_.itemUuid = event.argument1;
+	self.objects['obj_通用_按钮_01_redEquip_evolution_1'].vars_.needLevel = event.argument0.level;
 	/**
 	 * 点击合成按钮
 	 */
@@ -5139,13 +5248,40 @@ if (repeatTime === 0) {
 		}
 	}
 	/**
-	 * onRespEquipCompound  合成红装成功
+	 * 点击进化 事件
 	 */
-	console.log("红装合成成功");
-	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "合成成功");
+	if (self.vars_.needLevel > game.vars_.userInfo.level) {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "角色等级不足");
+		return;
+	}
+	if (self.vars_.status == 1) {
+		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+		KBEngine.app.player().baseCall("onRespRedEquipUpGrade", self.vars_.itemUuid);
+	} else {
+		current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, "碎片不足");
+	}
+	/**
+	 * 点击穿戴 点击
+	 * 
+	 */
+	if (qyengine.getInstancesByType("grou_redEquipWear").length > 0) {
+		current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+		game.vars_.onRespResult2 = current_scene.vars_.nowSelectPlace;
+		KBEngine.app.player().baseCall("reqReplaceEquip", game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].uuid, current_scene.vars_.nowSelectPlace, self.vars_.itemUuid);
+	}
 
+	/**
+	 * 进化成功的回调事件      onRespRedEquipUpGrade
+	 */
+	console.log("进化成功");
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "进化成功");
+	local.info = current_game.scripts['al_scr_' + "CompletionAllProperty"].call(this, undefined, this, data[0]);
 	game.vars_.userInfo.fragment = data[1];
-	local.info = data[0];
+	game.vars_.onRespResult3 = local.info;
+	game.vars_.onRespResult2 = current_scene.vars_.nowSelectPlace;
+	current_game.scripts['al_scr_' + "onRespResult15"].call(this, undefined, this, 1);
+	//KBEngine.app.player().baseCall("reqReplaceEquip", game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].uuid, current_scene.vars_.nowSelectPlace, local.info.uuid);
+	/*
 	setTimeout(function () {
 		current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
 		qyengine.getInstancesByType("grou_redEquip").length > 0 && grou_redEquip.dispatchMessage({
@@ -5154,6 +5290,32 @@ if (repeatTime === 0) {
 			"argument0": local.info
 		});
 	}, 100);
+	*/
+	/**
+	 * onRespEquipCompound  合成红装成功
+	 */
+	console.log("红装合成成功");
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "合成成功");
+
+	game.vars_.userInfo.fragment = data[1];
+	local.info = current_game.scripts['al_scr_' + "CompletionAllProperty"].call(this, undefined, this, data[0]);
+	game.vars_.onRespResult3 = local.info;
+	game.vars_.onRespResult2 = current_scene.vars_.nowSelectPlace;
+	//  game.vars_.onRespResult1 
+	//current_game.scripts['al_scr_' + "onRespResult15"].call(this, undefined, this, 1);
+	//current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	game.vars_.onRespResult2 = current_scene.vars_.nowSelectPlace;
+	KBEngine.app.player().baseCall("reqReplaceEquip", game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].uuid, current_scene.vars_.nowSelectPlace, local.info.uuid);
+	/*
+	setTimeout(function () {
+		current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
+		qyengine.getInstancesByType("grou_redEquip").length > 0 && grou_redEquip.dispatchMessage({
+			"type": "message",
+			"message": "updateNowRedScene",
+			"argument0": local.info
+		});
+	}, 100);
+	*/
 
 
 	//获取碎片的点击事件
@@ -5177,7 +5339,7 @@ if (repeatTime === 0) {
 			isRecommend = game.vars_.userInfo.level > Number(level) ? 1 : 0,
 			icon = "obj_" + singleItemInfo.icon + "_default",
 			outFrame = "obj_" + "红装_红装外框_redEquip_default",
-			buttonInfo = { "id": i, "itemId": singleItemInfo.id, "uuid": singleItemInfo.uuid };
+			buttonInfo = { "id": i + 1, "itemId": singleItemInfo.id, "uuid": singleItemInfo.uuid };
 		//注意在何种条件下，装备被推荐分解
 		game.configs.config_redEquip_repertory[i + 1] = {
 			"id": i + 1,
@@ -5201,15 +5363,16 @@ if (repeatTime === 0) {
 	/**
 	 * 分解红装的回调用 onRespResult107  或者进化失败  或者合成成功
 	 */
-	localStorage.data = data;
+	local.data = data;
 	setTimeout(function () {
 		current_game.scripts["al_scr_" + "actionlist_destroyLoadingCircle"].call(this, undefined, this);
 		var showTextArr = ["合成失败", "合成成功", "分解成功", "分解失败", "进化失败"];
 		current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, showTextArr[local.data]);
 		if (local.data == 2) {  //分解红装成功
-			qyengine.guardId('scro_redEquip_repertory').removeOneCell && qyengine.guardId('scro_redEquip_repertory').removeOneCell(current_scene.vars_.resolveCellId - 1, 1 - 1);
+			//qyengine.guardId('scro_redEquip_repertory').removeOneCell && qyengine.guardId('scro_redEquip_repertory').removeOneCell(current_scene.vars_.resolveCellId - 1, 1 - 1);
 			delete game.configs.config_redEquip_repertory[current_scene.vars_.resolveCellId];
 			current_scene.vars_.resolveCellId = null;
+			scro_redEquip_repertory && scro_redEquip_repertory.refreshRelations();
 		}
 	}, 100);
 
@@ -5314,7 +5477,13 @@ if (repeatTime === 0) {
 
 
 
+	qyengine.getInstancesByType("grou_redEquip").length > 0 && grou_redEquip.dispatchMessage({
+		"type": "message",
+		"message": "updateNowRedScene"
+	});
 
-
+	qyengine.forEach(function () {
+		this.destroy();
+	}, "obj_特效红装框");
 
 
