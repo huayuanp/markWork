@@ -5769,12 +5769,26 @@ if (repeatTime === 0) {
 		return total_tou_gold;
 	}
 
+	function ConvertWang(_value) {
+		var showGoldTxt = "";
+		if (_value >= 10000) {
+			if (_value >= 1000000) {
+				showGoldTxt = ((_value / 10000).toString().split('.')[0] + "万")
+			} else {
+				showGoldTxt = (_value / 10000) + "万";
+			}
+		} else {
+			showGoldTxt = _value;
+		}
+		return showGoldTxt;
+	}
 	var gold_bank_data = game.configs.activity_gold;
 	//返还总量
 	var back_gold = 0;
 	//需要5天来领取奖励
 	var need_day = 5;
 	self.vars_.alreadyBuyTimes = 0;
+	self.vars_.storageBankData = [event.argument0, event.argument1, event.argument2];
 	var temp = current_game.scripts['al_scr_' + "rechangeActivityTime"].call(this, undefined, this, 10);
 	self.objects['txt_inTestTime_title_1'].text = temp[0] + temp[1];
 	switch (self.vars_.bankStatus) {
@@ -5787,8 +5801,9 @@ if (repeatTime === 0) {
 			self.objects['txt_activity_plusTime_3'].text = event.argument1.length;
 			self.vars_.alreadyBuyTimes = event.argument1.length;
 			var get_gold_sale = CalTotalTouZi(event.argument1);
-			self.objects['txt_activity_touZiNum'].text = get_gold_sale[0];
-			self.objects['txt_activity_touZiNum_1'].text = get_gold_sale[1];
+
+			self.objects['txt_activity_touZiNum'].text = ConvertWang(get_gold_sale[0]);
+			self.objects['txt_activity_touZiNum_1'].text = ConvertWang(get_gold_sale[1]);
 			back_gold = get_gold_sale[1];
 		case 3:
 			if (self.vars_.bankStatus == 3) {
@@ -5810,14 +5825,14 @@ if (repeatTime === 0) {
 			self.objects['txt_activity_touZiNum'].x -= 50;
 			self.objects['obj_通用_金子_advaced_2'].x -= 50;
 			if (self.vars_.bankStatus == 2) {
-				self.objects['txt_activity_plusTimeNum'].hide();
+				self.objects['txt_activity_plusTimeNum'].text = event.argument0 + "天";
 				self.objects['txt_activity_touZiNum'].text = 0;
 				self.objects['txt_activity_touZiNum_1'].text = 0;
 			} else {
 				self.objects['txt_activity_plusTimeNum'].text = event.argument0 + "天";
 				var get_gold_sale = CalTotalTouZi(event.argument1);
-				self.objects['txt_activity_touZiNum'].text = get_gold_sale[0];
-				self.objects['txt_activity_touZiNum_1'].text = get_gold_sale[1];
+				self.objects['txt_activity_touZiNum'].text = ConvertWang(get_gold_sale[1] / 5);
+				self.objects['txt_activity_touZiNum_1'].text = ConvertWang(get_gold_sale[1]);
 				back_gold = get_gold_sale[1];
 			}
 			break;
@@ -5850,6 +5865,7 @@ if (repeatTime === 0) {
 		}
 	} else if (self.vars_.bankStatus == 1) {
 		var everyDayBack = Math.floor(back_gold / 5);
+
 		//判断有没有几日后可领取
 		for (var j = 1; j <= need_day; j++) {
 			var xxx_几天可领 = j - 1 + event.argument0 - 5;
@@ -5863,6 +5879,7 @@ if (repeatTime === 0) {
 			}
 			if (isAlreadyReward) {
 				buttonFramePic = "obj_活动_已领取按钮_单充_default";
+				buttonPic = "obj_活动_已领取_1_inTest_default";
 			}
 			game.configs.config_goldBank[j] = {
 				"id": j + 1,
@@ -5904,7 +5921,7 @@ if (repeatTime === 0) {
 	if (grou_activityGoldBank.vars_.bankStatus == 2) {  //未进行投资
 		var needHide = ["obj_活动_聚宝投资字_goldBank", "obj_活动_小按钮框1_touZi", "txt_limitLevelSingle_growthGold",
 			"txt_activity_goldBank_dingJin_1", "obj_通用_金子_advaced", "txt_activity_goldBank_hongLi", "txt_activity_goldBank_hongLi_2",
-			"obj_通用_金子_advaced_1"];
+			"obj_通用_金子_advaced_1", "txt_activity_goldBank_hongLi_1"];
 		needHide.forEach(function (e) {
 			self.objects[e].hide();
 		});
@@ -5922,6 +5939,12 @@ if (repeatTime === 0) {
 			self.objects['obj_通用_金子_advaced_1'].x += (textRealWidth - 4) * 12;
 		}
 	} else if (grou_activityGoldBank.vars_.bankStatus == 0 || grou_activityGoldBank.vars_.bankStatus == 3) {
+		if (grou_activityGoldBank.vars_.bankStatus == 0) {
+			if (grou_activityGoldBank.vars_.alreadyBuyTimes >= 10) {
+				self.objects['obj_活动_聚宝投资字_goldBank'].changeSprite("obj_活动_聚宝钱庄_投资结束_default");
+				self.objects["obj_活动_小按钮框1_touZi"].hide();
+			}
+		}
 		self.objects['obj_活动_小按钮框1_touZi'].vars_.buttonInfo.needRecharge && self.objects['txt_limitLevelSingle_growthGold'].setFontColor("#ff030b");
 		var textRealWidth = self.objects['txt_activity_goldBank_hongLi_3'].text.length;
 		if (textRealWidth > 4) {
@@ -5943,7 +5966,7 @@ if (repeatTime === 0) {
 			}
 			if (self.vars_.buttonInfo.vip > game.vars_.userInfo.vip) {
 
-				current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this, self.vars_.buttonInfo.itemId);
+				current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
 				return;
 			}
 			var needGold = game.configs.activity_gold[self.vars_.buttonInfo.itemId].sale;
@@ -5951,6 +5974,7 @@ if (repeatTime === 0) {
 				current_game.scripts['al_scr_' + "CreateCommonTip"].call(this, undefined, this, "popRechargeUI", "金子不足，是否充值？");
 				return;
 			}
+			grou_activityGoldBank.vars_.justTouchObj = self;
 			current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
 			KBEngine.app.player().baseCall("reqLayoutJuBaoQianZhuang", self.vars_.buttonInfo.itemId);
 			break;
@@ -5978,11 +6002,44 @@ if (repeatTime === 0) {
 	current_game.scripts['al_scr_' + "createCommonFlutterTxt_other"].call(this, undefined, this, showTxt[data]);
 	if (data == 1) {  //投资成功
 		grou_activityGoldBank.vars_.alreadyBuyTimes++;
+		grou_activityGoldBank.objects['txt_activity_plusTime_3'].text = grou_activityGoldBank.vars_.alreadyBuyTimes;
+		grou_activityGoldBank.vars_.storageBankData[1].push(grou_activityGoldBank.vars_.justTouchObj.vars_.buttonInfo.itemId);
+		var needRechangeTex = ['txt_activity_touZiNum', 'txt_activity_touZiNum_1'];
+		var total_tou_gold = [0, 0];
+		for (var i = 0; i < grou_activityGoldBank.vars_.storageBankData[1].length; i++) {
+			total_tou_gold[0] += Number(game.configs.activity_gold[grou_activityGoldBank.vars_.storageBankData[1][i]].sale);
+			total_tou_gold[1] += Number(game.configs.activity_gold[grou_activityGoldBank.vars_.storageBankData[1][i]].gold);
+		}
+		for (_cell in needRechangeTex) {
+			grou_activityGoldBank.objects[needRechangeTex[_cell]].text = ConvertWang(total_tou_gold[_cell]);
+		}
+		//var parent_obj = grou_activityGoldBank.vars_.justTouchObj.currentSprite.parent.qyobj;
+		if (grou_activityGoldBank.vars_.alreadyBuyTimes >= 10) {
+			qyengine.forEach(function () {
+				this.objects['obj_活动_聚宝投资字_goldBank'].changeSprite("obj_活动_聚宝钱庄_投资结束_default");
+				this.objects["obj_活动_小按钮框1_touZi"].hide();
+			}, "grou_activityGoldBank_cell");
+		}
+		function ConvertWang(_value) {
+			var showGoldTxt = "";
+			if (_value >= 10000) {
+				if (_value >= 1000000) {
+					showGoldTxt = ((_value / 10000).toString().split('.')[0] + "万")
+				} else {
+					showGoldTxt = (_value / 10000) + "万";
+				}
+			} else {
+				showGoldTxt = _value;
+			}
+			return showGoldTxt;
+		}
 	} else if (data == 2) {  //领取成功
 		var parent_obj = grou_activityGoldBank.vars_.justTouchObj.currentSprite.parent.qyobj;
-		parent_obj.objects['obj_活动_聚宝投资字_goldBank'].changeSprite("obj_活动_已领取按钮_单充_default");
+		parent_obj.objects['obj_活动_聚宝投资字_goldBank'].changeSprite("obj_活动_已领取_1_inTest_default");
 		parent_obj.objects["obj_活动_小按钮框1_touZi"].hide();
 	}
+
+
 
 
 	grou_activityGoldBank.vars_.bankStatus = 1;
@@ -6006,5 +6063,94 @@ if (repeatTime === 0) {
 
 
 	//15
+	//onRespCrossServerExchequerInfo args
+	console.log(args);
+	if (args === undefined) { } else {
+		game.vars_.breakout_Info = args;
+	}
+	if (args && args.length === 0) {
+		//暂未开放
+		current_game.scripts["al_scr_" + 'createCommonFlutterTxt'].call(this, undefined, this, "暂未开放！");
+		return;
+	}
+	if (current_scene.vars_.currentWavesType >= 2) {
+		return;
+	}
+	//根据服务器由小到大进行排序
+	SortBreakout_Info();
+	args = game.vars_.breakout_Info[0];
+
+	if (qyengine.getInstancesByType("grou_breakout_frame").length > 0) {
+
+	} else {
+		qyengine.instance_create(-100, 0, "grou_breakout_frame", {
+			"id": "grou_breakout_frame",
+			"zIndex": 5,
+			"layer": "layer_headerfeet"
+		});
+		for (var i = 0; i < args.length; i++) {
+			qyengine.instance_create(-100, 0, "grou_breakout_cell", {
+				"id": "grou_breakout_cell_" + i,
+				"zIndex": 5,
+				"layer": "layer_headerfeet"
+			});
+
+			scro_breakout_list.appendChild("grou_breakout_cell_" + i, 0, 0, i, 1 - 1, false, true);
+
+		}
+
+	}
+	current_scene.vars_.guideInfo = args;
+	txt_breakout_left.setText(KBEngine.app.player().power);
+	var list = qyengine.getInstancesByType("grou_breakout_cell");
+	for (var i = 0; i < list.length; i++) {
+		list[i].objects.txt_breakout_celltitle.setText(args[i].server.slice(1) + "服"); //服务器名
+		var money = Number(args[i].reserves);
+		if ((money / 100000000) >= 1) {
+			money = ((money / 100000000).toFixed(1)) + "亿";
+		} else {
+			money = ((money / 10000).toFixed(1)) + "万";
+		}
+
+		list[i].objects.txt_breakout_goldleft.setText(money); //国库储量
+		list[i].objects.obj_南蛮入侵_前往掠夺文字.vars_.num = i;
+		for (var j = 0; j < args[i].defends.length; j++) {
+
+			if (args[i].defends[j][9] === "0") {
+				list[i].objects["txt_breakout_guardstate_" + (Number(args[i].defends[j][0]) + 1)].setText("可攻击");
+			} else {
+				list[i].objects["txt_breakout_guardstate_" + (Number(args[i].defends[j][0]) + 1)].setText("已被击破");
+			}
+
+		}
+
+	}
+
+	if (qyengine.getInstancesByType("grou_breakot_guoku").length > 0 || game.breakout_guoku_jump === true) {
+
+		//current_game.scripts["al_scr_" + 'breakout_lueduo'].call(this, undefined, this, game.vars_.guokuNum);
+		current_game.scripts["al_scr_" + 'breakout_lueduo'].call(this, undefined, this, CalArgumentNum());
+		game.breakout_guoku_jump = false;
+
+	}
+	current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
 
 
+
+	//
+	//SortBreakout_Info();
+	function CalArgumentNum() {
+		var temp_data = game.vars_.breakout_Info[0];
+		for (var m = 0; m < temp_data.length; m++) {
+			if (temp_data[m].server == game.vars_.guokuNum) {
+				return m;
+			}
+		}
+	}
+
+	//准备克隆出去龙纹王者之前;
+["pwangrd_qiyun/lwwzH5_登录到主场景","kwanrd_qiyun/lwwzH5_充值","kwanrd_qiyun/lwwzH5_商城","kwanrd_qiyun/lwwzH5_battle","pwangrd_qiyun/lwwzH5_bag_pk_faction",
+"kwanrd_qiyun/lwwzH5_聊天","pwangrd_qiyun/lwwzH5_称号","pwangrd_qiyun/lwwzH5_notice","pwangrd_qiyun/lwwzH5_role","kwanrd_qiyun/lwwzH5_任务","kwanrd_qiyun/lwwzH5_MailBox",
+"pwangrd_qiyun/lwwzH5_dazao","kwanrd_qiyun/lwwzH5_ranking","pwangrd_qiyun/lwwzH5_factionFlag","kwanrd_qiyun/lwwzH5_押镖","kwanrd_qiyun/lwwzH5_member",
+"kwanrd_qiyun/lwwzH5_家族排行","pwangrd_qiyun/lwwzH5_arena","pwangrd_qiyun/lwwzH5_lookOtherRoleInfo","kwanrd_qiyun/lwwzH5_获取途径","kwanrd_qiyun/lwwzH5_货币兑换",
+"pwangrd_qiyun/lwwzH5_xinshouyindao","pwangrd_qiyun/lwwzH5_activity","kwanrd_qiyun/lwwzH5_月卡",""]

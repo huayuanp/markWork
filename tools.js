@@ -47,6 +47,8 @@ current_scene.setTimeline('tm_1', {
 game.vars_.timeOutHander && game.vars_.timeOutHander.forEach(function (hd) {
 	window.clearTimeout(hd);
 })
+//文本占用的宽度
+self.currentSprite.realWidth
 //刷新列表容器
 list_wantStrong.refreshView();
 //跳转场景
@@ -408,8 +410,8 @@ grou_show_hero_panel.appendChild(grou_ranking.vars_.heroObjShow.id, -42, -204);
 
 
 heroObjShow.hide();
-if(grou_ranking.vars_.heroObjShow&&!grou_ranking.vars_.heroObjShow.isVisible){
-      grou_ranking.vars_.heroObjShow.isVisible= true;
+if (grou_ranking.vars_.heroObjShow && !grou_ranking.vars_.heroObjShow.isVisible) {
+	grou_ranking.vars_.heroObjShow.isVisible = true;
 }
 
 
