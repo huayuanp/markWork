@@ -5090,7 +5090,7 @@ if (repeatTime === 0) {
 			local.propertyDetail.objects[text_first + keyIndex].text = temp[keyIndex] + "：" + all_property[temp[keyIndex]];
 		}
 		for (var hideIndex = 0; hideIndex < 6; hideIndex++) {
-			if (hideIndex > temp.length) {
+			if (hideIndex >= temp.length) {
 				local.propertyDetail.objects[text_first + hideIndex].hide();
 			}
 		}
@@ -6062,95 +6062,700 @@ if (repeatTime === 0) {
 
 
 
-	//15
-	//onRespCrossServerExchequerInfo args
-	console.log(args);
-	if (args === undefined) { } else {
-		game.vars_.breakout_Info = args;
-	}
-	if (args && args.length === 0) {
-		//暂未开放
-		current_game.scripts["al_scr_" + 'createCommonFlutterTxt'].call(this, undefined, this, "暂未开放！");
-		return;
-	}
-	if (current_scene.vars_.currentWavesType >= 2) {
-		return;
-	}
-	//根据服务器由小到大进行排序
-	SortBreakout_Info();
-	args = game.vars_.breakout_Info[0];
 
-	if (qyengine.getInstancesByType("grou_breakout_frame").length > 0) {
 
+
+
+
+
+
+
+
+
+
+	if (KBEngine.app.player().level < getConfig("function", 8, "level")) {
+		game.scripts["al_scr_" + 'createCommonFlutterTxt'] && current_game.scripts["al_scr_" + 'createCommonFlutterTxt'].call(this, undefined, this, getConfig("function", 8, "level") + "级开启!");
+		return false;
+	}
+
+
+
+
+	var pos = getConfig('UIConfig', 'grou_arena', 'position').split(',');
+	var zIndex = getConfig('UIConfig', 'grou_arena', 'zIndex');
+	var layer = getConfig('UIConfig', 'grou_arena', 'layer');
+
+
+	if (z) {
+		zIndex += z;
+	}
+
+	qyengine.instance_create(pos[0], pos[1], 'grou_arena', {
+		"id": 'grou_arena',
+		"layer": layer,
+		"zIndex": zIndex
+	});
+
+
+
+
+
+	//             tm_arena_challenge_time 时间轴
+	KBEngine.app.player().baseCall("reqPvpActiveSport");
+
+	grou_arena.vars_.itemInfo;
+
+	grou_arena.vars_.itemCount = 0;
+
+	grou_arena.vars_.itemCountMax = 0;
+
+	grou_arena.vars_.challengeCount = 10;
+
+	grou_arena.vars_.listItemCount = 0;
+
+	grou_arena.vars_.buyId = 0;
+
+	grou_arena.vars_.buyCount = 0;
+
+	grou_arena.vars_.durTime = 0;
+
+
+
+
+
+
+
+
+	//onRespPvpActiveSportRankResult
+	console.log(data);
+	console.log(data[0]);
+	grou_arena.vars_.itemInfo = data[3];
+	grou_arena.vars_.curData = data[5];
+	if (data[0] == 0) {
+		return;
 	} else {
-		qyengine.instance_create(-100, 0, "grou_breakout_frame", {
-			"id": "grou_breakout_frame",
-			"zIndex": 5,
-			"layer": "layer_headerfeet"
-		});
-		for (var i = 0; i < args.length; i++) {
-			qyengine.instance_create(-100, 0, "grou_breakout_cell", {
-				"id": "grou_breakout_cell_" + i,
-				"zIndex": 5,
-				"layer": "layer_headerfeet"
-			});
+		arena_rank.text = data[1];
 
-			scro_breakout_list.appendChild("grou_breakout_cell_" + i, 0, 0, i, 1 - 1, false, true);
+		grou_arena.vars_.challengeCount = (10 - data[2]);
 
+		arena_count.text = grou_arena.vars_.challengeCount + "/10";
+
+		if (grou_arena.vars_.challengeCount > 0) {
+			arena_state.text = "可挑战";
 		}
-
-	}
-	current_scene.vars_.guideInfo = args;
-	txt_breakout_left.setText(KBEngine.app.player().power);
-	var list = qyengine.getInstancesByType("grou_breakout_cell");
-	for (var i = 0; i < list.length; i++) {
-		list[i].objects.txt_breakout_celltitle.setText(args[i].server.slice(1) + "服"); //服务器名
-		var money = Number(args[i].reserves);
-		if ((money / 100000000) >= 1) {
-			money = ((money / 100000000).toFixed(1)) + "亿";
+		if (data[4] >= 30) {
+			grou_arena.vars_.durTime = 0;
 		} else {
-			money = ((money / 10000).toFixed(1)) + "万";
+			grou_arena.vars_.durTime = data[4];
+		}
+		KBEngine.app.player().baseCall("reqPvpSportRefreshList");
+	}
+	obj_竞技场_天下第一.hide();
+	if (data[1] == 1) {
+		obj_竞技场_天下第一.show();
+	}
+
+	arena_honor.text = KBEngine.app.player().sportHonor + "";
+
+
+	//购买竞技场的挑战次数
+	//购买次数的价格
+	//current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	current_game.scripts['al_scr_' + "CreateCommonTip"].call(this, undefined, this, "BuyTimeByArena", "是否消耗20钻石购买1次本服竞技场挑战次数？");
+	//  BuyTimeByArena 购买竞技场的次数
+	if (game.vars_.userInfo.gold < 20) {
+		current_game.scripts['al_scr_' + "popRechargeUI"].call(this, undefined, this);
+		return;
+	}
+	current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+	KBEngine.app.player().baseCall("reqPvpBuySportFightTime");
+
+
+
+
+
+
+
+
+	//console.log("111111");
+	//console.log("33333");
+	var CDTime = 30 - grou_arena.vars_.durTime;
+
+	if (grou_arena.vars_.durTime != 0 && CDTime > 0) {
+		//console.log("444444");
+		var pos = getConfig('UIConfig', 'grou_arena_buy_time', 'position').split(',');
+		var zIndex = getConfig('UIConfig', 'grou_arena_buy_time', 'zIndex');
+		var layer = getConfig('UIConfig', 'grou_arena_buy_time', 'layer');
+
+		qyengine.instance_create(pos[0], pos[1], 'grou_arena_buy_time', {
+			"id": 'grou_arena_buy_time',
+			"layer": layer,
+			"zIndex": zIndex
+		});
+
+		return;
+	}
+
+	if (grou_arena.vars_.challengeCount <= 0) {
+		//console.log("222222");
+		var pos = getConfig('UIConfig', 'grou_arena_buy_count', 'position').split(',');
+		var zIndex = getConfig('UIConfig', 'grou_arena_buy_count', 'zIndex');
+		var layer = getConfig('UIConfig', 'grou_arena_buy_count', 'layer');
+
+		qyengine.instance_create(pos[0], pos[1], 'grou_arena_buy_count', {
+			"id": 'grou_arena_buy_count',
+			"layer": layer,
+			"zIndex": zIndex
+		});
+
+		return;
+	}
+
+	if (current_scene.vars_.currentWavesType >= 2) {
+
+		//在其它的战斗中,提示已在战斗中
+		game.scripts["al_scr_" + "showText"](null, null, "你正在战斗中!请稍后再操作");
+		return;
+	}
+
+	//console.log("555555");
+	if (game.vars_.inArena == true) {
+		//console.log("6666666");
+		game.scripts["al_scr_" + "showText"](null, null, "你正在挑战别人!");
+		return;
+	}
+	//console.log("77777777");
+
+	game.vars_.arenaRole = game.vars_.userInfo.roles;
+
+	game.vars_.enemyRoleIcon = self.vars_.icon;
+
+	game.vars_.enemyRoleFighting = self.vars_.fighting;
+
+	game.vars_.enemyRoleServer = self.vars_.server;
+
+	game.vars_.enemyRoleName = self.vars_.item_name;
+
+	game.vars_.inArena = true;
+
+	console.log("self.vars_.uuid=", self.vars_.uuid);
+	KBEngine.app.player().baseCall("reqPvpSportFight", self.vars_.uuid);
+	//console.log("888888888888");
+
+
+
+	//updateRankingArenaInArena
+
+	var pos = getConfig('UIConfig', 'grou_arena_rank', 'position').split(',');
+	var zIndex = getConfig('UIConfig', 'grou_arena_rank', 'zIndex');
+	var layer = getConfig('UIConfig', 'grou_arena_rank', 'layer');
+
+	qyengine.instance_create(pos[0], pos[1], 'grou_arena_rank', {
+		"id": 'grou_arena_rank',
+		"layer": layer,
+		"zIndex": zIndex
+	});
+
+	if (my_data[0] == 0) {
+		arena_rank_myrank.text = "未上榜";
+	} else {
+		arena_rank_myrank.text = my_data[0];
+	}
+
+	var data_reward = getConfig("reward_pk");
+	var list_reward = [];
+
+	for (var i = 0; i < configDataLength("reward_pk"); i++) {
+		list_reward.push(data_reward[i + 1].rank);
+	}
+
+	for (var i = 0; i < list_reward.length; i++) {
+		if (my_data[0] == 0) {
+			arena_rank_silver.text = 0;
+			arena_rank_honor.text = 0;
+			break;
+
+		} else
+			if (my_data[0] <= list_reward[i]) {
+				arena_rank_silver.text = data_reward[i + 1].silver;
+				arena_rank_honor.text = data_reward[i + 1].score;
+				break;
+			}
+	}
+
+
+	var setDate = function (a) {
+		a++;
+		for (var i = 0; i < list_reward.length; i++) {
+			if (a <= list_reward[i]) {
+				return {
+					"silver": data_reward[i + 1].silver,
+					"score": data_reward[i + 1].score
+				};
+
+			}
+		}
+	};
+
+
+	// var reward = getConfig("misc", "pk_reward_v", "value");
+	// var rewards = reward.split("|");
+	// var honorReward = rewards[0];
+	// var silverReward = rewards[1];
+
+	// arena_rank_silver.text = silverReward + "";
+	// arena_rank_honor.text = honorReward + "";
+
+
+
+
+
+	//updateRankingArenaInArena
+
+	var pos = getConfig('UIConfig', 'grou_arena_rank', 'position').split(',');
+	var zIndex = getConfig('UIConfig', 'grou_arena_rank', 'zIndex');
+	var layer = getConfig('UIConfig', 'grou_arena_rank', 'layer');
+
+	qyengine.instance_create(pos[0], pos[1], 'grou_arena_rank', {
+		"id": 'grou_arena_rank',
+		"layer": layer,
+		"zIndex": zIndex
+	});
+
+	if (my_data[0] == 0) {
+		arena_rank_myrank.text = "未上榜";
+	} else {
+		arena_rank_myrank.text = my_data[0];
+	}
+
+	var data_reward = getConfig("reward_pk");
+	var list_reward = [];
+
+	for (var i = 0; i < configDataLength("reward_pk"); i++) {
+		list_reward.push(data_reward[i + 1].rank);
+	}
+
+	for (var i = 0; i < list_reward.length; i++) {
+		if (my_data[0] == 0) {
+			arena_rank_silver.text = 0;
+			arena_rank_honor.text = 0;
+			break;
+
+		} else
+			if (my_data[0] <= list_reward[i]) {
+				arena_rank_silver.text = data_reward[i + 1].silver;
+				arena_rank_honor.text = data_reward[i + 1].score;
+				break;
+			}
+	}
+
+
+	var setDate = function (a) {
+		a++;
+		for (var i = 0; i < list_reward.length; i++) {
+			if (a <= list_reward[i]) {
+				return {
+					"silver": data_reward[i + 1].silver,
+					"score": data_reward[i + 1].score
+				};
+
+			}
+		}
+	};
+
+
+	// var reward = getConfig("misc", "pk_reward_v", "value");
+	// var rewards = reward.split("|");
+	// var honorReward = rewards[0];
+	// var silverReward = rewards[1];
+
+	// arena_rank_silver.text = silverReward + "";
+	// arena_rank_honor.text = honorReward + "";
+
+
+	for (var i = data.length; i < grou_arena.vars_.itemCountMax; ++i) {
+		qyengine.guardId('arena_rank_item' + i).hide();
+	}
+
+
+	if (data.length <= 0) {
+		grou_arena.vars_.itemCount = 0;
+		return;
+	}
+
+	itemNum = 0;
+	for (var i = 0; i < data.length; ++i) {
+		qyengine.instance_create(0, 0, "grou_arena_rank_item", {
+			"type": "grou_arena_rank_item",
+			"id": 'arena_rank_item' + i,
+			"zIndex": 0
+		});
+		scro_arena_rank_list.appendChild("arena_rank_item" + i, 87, 25, itemNum++, 0, false, false);
+	}
+
+
+	console.log("arena data:", data);
+	for (var i = 0; i < data.length; ++i) {
+
+		qyengine.guardId('arena_rank_item' + i).show();
+		//qyengine.guardId("item" + i).objects.ranking_item_btn.setVar("select_uuid",data[i][1]);
+
+		if (i == 1) {
+			qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_rankIcon.changeSprite("obj_排序_2_default");
+		} else if (i == 2) {
+			qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_rankIcon.changeSprite("obj_排序_3_default");
+		} else if (i > 2) {
+			qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_rankIcon.hide();
+			qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_rankText.show();
+			qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_rankText.text = "" + (i + 1);
 		}
 
-		list[i].objects.txt_breakout_goldleft.setText(money); //国库储量
-		list[i].objects.obj_南蛮入侵_前往掠夺文字.vars_.num = i;
-		for (var j = 0; j < args[i].defends.length; j++) {
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_icon.changeSprite("obj_square_" + data[i][2] + "_default");
 
-			if (args[i].defends[j][9] === "0") {
-				list[i].objects["txt_breakout_guardstate_" + (Number(args[i].defends[j][0]) + 1)].setText("可攻击");
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_icon.setScale(0.6, 0.6);
+
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_vip.text = "vip." + data[i][3];
+
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_name.text = data[i][6] + " " + data[i][4];
+
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_power.text = data[i][7];
+
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_level.text = "lv." + data[i][5];
+
+		//qyengine.guardId("item" + i).objects.ranking_item_power.text = "竞技排名:"+i;
+
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_silver.text = setDate(i).silver;
+
+		qyengine.guardId("arena_rank_item" + i).objects.arena_rank_item_honor.text = setDate(i).score;
+	}
+
+	grou_arena.vars_.itemCount = data.length;
+
+
+	//(622,202)*(0.99,1)   (13,38)
+
+
+
+	console.log("data[]   " + data[0]);
+
+	var pos = getConfig('UIConfig', 'grou_arena_detail', 'position').split(',');
+	var zIndex = getConfig('UIConfig', 'grou_arena_detail', 'zIndex');
+	var layer = getConfig('UIConfig', 'grou_arena_detail', 'layer');
+
+	qyengine.instance_create(pos[0], pos[1], 'grou_arena_detail', {
+		"id": 'grou_arena_detail',
+		"layer": layer,
+		"zIndex": zIndex
+	});
+
+	var item_index = 0;
+
+	if (data[0].length == 0) {
+		arena_detail_no_detail_text.show();
+		return;
+	}
+	else {
+		arena_detail_no_detail_text.hide();
+	}
+
+	for (var i = data[0].length - 1; i >= 0; --i) {
+		var datas = eval(data[0][i]);
+		var info_str;
+
+		var time = datas[3];
+		var other_name = datas[2];
+		var server_name = datas[5];
+		var date_obj = new Date(time * 1000);
+		var successAndFailed = true;
+		var year = date_obj.getFullYear(),
+			month = date_obj.getMonth() + 1,
+			day = date_obj.getDate(),
+			hour = date_obj.getHours(),
+			minutes = date_obj.getMinutes(),
+			seconds = date_obj.getSeconds();
+		var ranking_text = "";
+
+		info_str = year + "-" + month + "-" + day + "- " + hour + ":" + minutes + ":" + seconds;
+
+		if (datas[0] == 0) {
+
+			if (datas[1] == 0) {
+				//失败
+				ranking_text = "不变";
+				successAndFailed = false;
+			}
+			else {
+				//胜利上升
+				successAndFailed = true;
+				ranking_text = (grou_arena.vars_.myRank > datas[4] ? ("<font  color='#fbd5ff'>" + grou_arena.vars_.myRank + "</font>" + "-->" + "<font  color='#9dff11'>" + datas[4] + "</font>") : "不变");
+			}
+		}
+		else {
+			if (datas[1] == 0) {
+				//你失败了,你的排名下降至
+				successAndFailed = false;
+				ranking_text = datas[4] > (grou_arena.vars_.myRank ? ("<font  color='#fbd5ff'>" + grou_arena.vars_.myRank + "</font>" + "-->" + "<font  color='#ff1122'>" + datas[4] + "</font>") : "不变");
+			}
+			else {
+				//胜利不变
+				ranking_text = "不变";
+				successAndFailed = true;
+			}
+		}
+
+		item_index++;
+		game.configs.arena_detail[item_index] = {
+			"id": item_index,
+			"name": name,
+			"time": info_str,
+			"ranking": ranking_text,
+			"result_icon": successAndFailed ? "obj_龙纹_进攻胜利图标_arena_detail_default" : "obj_龙纹_进攻失败图标_arena_detail_default"
+		};
+	}
+
+	scro_arena_detail_list.refreshRelations();
+
+
+
+
+	//obj_popUI_bg     grou_packagePopUp
+	if (qyengine.getInstanceCount("grou_packagePopUp") == 0) {
+		txt_canSaleAndFusionWord.setPosition(-45, 310);
+	}
+	qyengine.guardId("txt_PorpUpWord").setText(current_scene['nowSaleButton'].vars_.Name);
+	qyengine.guardId("txt_equipNeedLevel").setText("等级 " + current_scene['nowSaleButton'].vars_.level);
+	qyengine.guardId("txt_equipScore").setText("评分 " + current_scene['nowSaleButton'].vars_.allProperty.gearscore);
+	var temp_part = ["武器", "项链", "衣服", "头盔", "手环", "戒指"];
+	qyengine.guardId("txt_equipPart").setText("部位 " + temp_part[current_scene['nowSaleButton'].vars_.type - 1]);
+	//qyengine.guardId("txt_equipAttack").setText("攻击:"+300+"+"+current_scene['nowSaleButton'].vars_.allProperty.atk);
+	qyengine.guardId("grou_packagePopUp").objects['cont_packagePopUp'].objects['obj_equipImage'].changeSprite("obj_" + game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id].icon + "_default");
+	//qyengine.guardId("grou_packagePopUp").objects['cont_packagePopUp'].objects['obj_packEquipProperty'].changeSprite("obj_packEquipProperty_A" + Number(game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id].profession));
+	//职业
+	var profressId = Number(game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id].profession);
+	qyengine.guardId("txt_equip_profession").text = "职业 " + game.vars_.userInfo.profession_mapping_name[profressId];
+	var propertyToName = {
+		'atk': '攻击力',
+		'cri': '暴击',
+		'dodge': '闪避',
+		'hit': '命中',
+		'hp': '血量',
+		'mdef': '法防',
+		'pdef': '物防',
+		'rcri': '抗暴'
+	};
+	calAllProperty();
+	function calAllProperty() {
+		var loneText = '';
+		for (loneValue in propertyToName) {
+			if (current_scene['nowSaleButton'].vars_.allProperty[loneValue] != 0) {
+				if (game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id][loneValue].split(';')[current_scene['nowSaleButton'].vars_.allProperty.quality] == '-1') {
+					continue;
+				}
+				var baseProperty = game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id][loneValue].split(';')[current_scene['nowSaleButton'].vars_.allProperty.quality].split('|')[0];
+				var increaseProperty = Number(current_scene['nowSaleButton'].vars_.allProperty[loneValue]) - Number(baseProperty);
+				if (increaseProperty <= 0) {
+					increaseProperty = 0;
+					continue;
+				}
+				loneText = loneText + propertyToName[loneValue] + ': ' + baseProperty + '+' + increaseProperty + '\n';
+			}
+		}
+		qyengine.guardId("txt_equipAttack").setText(loneText);
+	}
+
+
+
+	current_game.scripts["al_scr_" + "setColorAccordingQuality"].call(this, undefined, this, "txt_PorpUpWord", current_scene['nowSaleButton'].vars_.allProperty.quality + 1);
+
+
+
+	KBEngine.app.player().baseCall('reqLockAndUnlockEquip', current_scene['nowSaleButton'].vars_.uuid);
+	// 霸刀 法杖 羽扇
+
+
+
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+		if (game.vars_.userInfo.packageInfo.packEquip[i].uuid == self.vars_.uuid) {
+			if (current_scene["isAdd"]) {
+				game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion = true;
 			} else {
-				list[i].objects["txt_breakout_guardstate_" + (Number(args[i].defends[j][0]) + 1)].setText("已被击破");
-			}
-
-		}
-
-	}
-
-	if (qyengine.getInstancesByType("grou_breakot_guoku").length > 0 || game.breakout_guoku_jump === true) {
-
-		//current_game.scripts["al_scr_" + 'breakout_lueduo'].call(this, undefined, this, game.vars_.guokuNum);
-		current_game.scripts["al_scr_" + 'breakout_lueduo'].call(this, undefined, this, CalArgumentNum());
-		game.breakout_guoku_jump = false;
-
-	}
-	current_game.scripts["al_scr_" + 'actionlist_destroyLoadingCircle'].call(this, undefined, this);
-
-
-
-	//
-	//SortBreakout_Info();
-	function CalArgumentNum() {
-		var temp_data = game.vars_.breakout_Info[0];
-		for (var m = 0; m < temp_data.length; m++) {
-			if (temp_data[m].server == game.vars_.guokuNum) {
-				return m;
+				delete game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion;
 			}
 		}
 	}
 
-	//准备克隆出去龙纹王者之前;
-["pwangrd_qiyun/lwwzH5_登录到主场景","kwanrd_qiyun/lwwzH5_充值","kwanrd_qiyun/lwwzH5_商城","kwanrd_qiyun/lwwzH5_battle","pwangrd_qiyun/lwwzH5_bag_pk_faction",
-"kwanrd_qiyun/lwwzH5_聊天","pwangrd_qiyun/lwwzH5_称号","pwangrd_qiyun/lwwzH5_notice","pwangrd_qiyun/lwwzH5_role","kwanrd_qiyun/lwwzH5_任务","kwanrd_qiyun/lwwzH5_MailBox",
-"pwangrd_qiyun/lwwzH5_dazao","kwanrd_qiyun/lwwzH5_ranking","pwangrd_qiyun/lwwzH5_factionFlag","kwanrd_qiyun/lwwzH5_押镖","kwanrd_qiyun/lwwzH5_member",
-"kwanrd_qiyun/lwwzH5_家族排行","pwangrd_qiyun/lwwzH5_arena","pwangrd_qiyun/lwwzH5_lookOtherRoleInfo","kwanrd_qiyun/lwwzH5_获取途径","kwanrd_qiyun/lwwzH5_货币兑换",
-"pwangrd_qiyun/lwwzH5_xinshouyindao","pwangrd_qiyun/lwwzH5_activity","kwanrd_qiyun/lwwzH5_月卡",""]
+	var markSelectNum = 0;
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+		if (game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion) {
+			markSelectNum++;
+		}
+	}
+	if (markSelectNum >= 9) {
+		qyengine.guardId("obj_选择装备_确定").dispatchMessage({
+			"type": 'message',
+			"message": "sureFusion"
+		});
+	};
+
+
+
+	var markSelectNum = 0;
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+		if (game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion) {
+			markSelectNum++;
+		}
+	}
+	grou_packageFusionSelcet.objects['txt_package_select_num'].text = "已选 " + markSelectNum + "/9";
+
+	//bs_obj.find_all('img',{'height':100,'width':100,'src':})
+
+
+
+
+
+
+
+	//检查背包当中有没有戒指的碎片
+	function CheckHasRingPieces(picIDstr) {
+		var picArr = picIDstr.split(":");
+
+		for (var i = 0; i < game.vars_.userInfo.packageInfo["packGood"].length; i++) {
+			var picObj = game.vars_.userInfo.packageInfo["packGood"][i];
+			//装备位置
+			if (picArr[0] == picObj.id) {
+				if (picObj.num > 0) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+
+
+
+	//点击了戒指
+	for (var i = 0; i < 4; i++) {
+		if (self.id == "role_ringgroup_Icon_" + i) {
+			role_panel.vars_.TouchEquipmentId = (i + 1);
+			game.vars_.TouchRingIndex = i;
+
+			//检测当前的戒指槽 有没有戒指
+			if (game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].rings[i] == 0) {
+				//没有戒指
+				//检测有没戒指碎片
+				if (CheckHasRingPieces(getConfig('ring', (i + 1), 'cost')) == false) {
+					game.scripts["al_scr_" + "getRingInfo"](null, null);
+					//qyengine.guardId("item" + i).objects.revenge_btn.setVar("select_id", i);
+					//没有戒指没有戒指碎片 进入获取途径界面
+					qyengine.instance_create(0, 0, 'specialRingAchievingPanel', {
+						"type": 'specialRingAchievingPanel', "id": 'specialRingAchievingPanel', "zIndex": 5,
+						"layer": "layer_headerfeet",
+					});
+
+				} else {
+					//有戒指碎片 进入合成界面
+					game.scripts["al_scr_" + "getRingInfo"](null, null);
+					qyengine.instance_create(0, 0, 'specialRingCompoundPanel', {
+						"type": 'specialRingCompoundPanel', "id": 'specialRingCompoundPanel', "zIndex": 5,
+						"layer": "layer_headerfeet",
+					});
+
+				}
+			} else {
+				//有戒指 进入突破界面
+				game.scripts["al_scr_" + "getRingInfo"](null, null);
+				qyengine.instance_create(0, 0, 'specialRingBroken1Panel', {
+					"type": 'specialRingBroken1Panel', "id": 'specialRingBroken1Panel', "zIndex": 5,
+					"layer": "layer_headerfeet",
+				});
+
+			}
+			//红装特效隐藏
+			role_panel.dispatchMessage({
+				"type": "message",
+				"message": "hideRedEffect"
+			});
+			return;
+		}
+	}
+
+	var curryProfession = 0;
+	var equipmentArr = [];
+	var posionArr = { "10001": 1, "10002": 1, "10003": 2, "10004": 2, "10005": 3, "10006": 3 };
+
+
+	//装备位置是 12345566  装备位键值对
+	var equipDic = { "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 5, "7": 6, "8": 6 };
+
+
+
+
+
+	//点击了其他的装备
+
+	for (var i = 0; i < 8; i++) {
+		if (self.id == "role_bracelet_Icon_" + i) {
+			role_panel.vars_.Touchindex = i;
+			//找出所有对应键位的装备
+			for (var i = 0; i < game.vars_.userInfo.packageInfo["packEquip"].length; i++) {
+				var eqObj = game.vars_.userInfo.packageInfo["packEquip"][i];
+				if (eqObj.profession == game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].type && eqObj.type == equipDic[(role_panel.vars_.Touchindex + 1)]) {
+					if (eqObj.level <= game.vars_.userInfo.level) {
+						equipmentArr.push(eqObj);
+					}
+				}
+			}
+
+			//检查当前的位置有没有装备
+			for (var j = 0; j < game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips.length; j++) {
+				//装备槽上有装备
+				if (role_panel.vars_.Touchindex == game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[j].data) {
+
+					role_panel.vars_.TouchEquipment = game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[j];
+					//红装判断
+					if (Number(game.vars_.userInfo.roles[game.vars_.userInfo.curryRoleIndex].equips[j].quality) == 5) {
+						current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'] && current_game.scripts["al_scr_" + 'actionlist_createLoadingCircle'].call(this, undefined, this);
+						current_scene.vars_.alreadySelectPlace = role_panel.vars_.Touchindex;
+						//current_game.scripts['al_scr_' + "CreateRedEquip"].call(this, undefined, this, role_panel.vars_.Touchindex);
+						KBEngine.app.player().baseCall("reqClickRedEquip");
+						return;
+					}
+					/*
+					if (equipmentArr.length >= 1) {
+						//打开替换界面
+						role_panel.vars_.TouchEquipmenListLeng = 1;
+						qyengine.instance_create(0, 0, 'equipmentInfoPanel', {
+							"type": 'equipmentInfoPanel', "id": 'equipmentInfoPanel', "zIndex": 6,
+							"layer": "layer_headerfeet",
+						});
+
+					} else {
+						role_panel.vars_.TouchEquipmenListLeng = 0;
+						qyengine.instance_create(0, 0, 'equipmentInfoPanel', {
+							"type": 'equipmentInfoPanel', "id": 'equipmentInfoPanel', "zIndex": 6,
+							"layer": "layer_headerfeet",
+						});
+					}
+
+					*/
+					return;
+				}
+
+			}
+			role_panel.vars_.TouchEquipment = null;
+			game.scripts["al_scr_" + 'createCommonFlutterTxt'] && current_game.scripts["al_scr_" + 'createCommonFlutterTxt'].call(this, undefined, this, "当前未穿戴装备!");
+
+			return;
+		}
+
+	}
+
+
+
+
+
+	current_game.scripts['al_scr_' + "createCommonFlutterTxt"].call(this, undefined, this, "当前未穿戴装备");
+
+
+	//26-8.5
