@@ -242,6 +242,14 @@ qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
 this.moveTo(691, 859, 'time', 1000);
 //移动至,按速度
 qyengine.guardId("obj_3").moveTo(100 + qyengine.guardId("obj_3").x, qyengine.guardId("obj_3").y, 200, 1);
+
+//改变实例的唯一标识符
+var temp_obj = nowPondObjArr[cell];
+temp_obj.id = "obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id;
+window["obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id] = temp_obj;
+
+//判断唯一唯一性标识的实例是否被定义且未被销毁
+qyengine.isInstanceValid(instance)
 //游戏中资源的路径
 //http://zuoyouxi.gamemei.com/geng957/longxiaojiutian_role/assets/image/role/wing/wings_1.png
 //关闭cache
@@ -284,8 +292,9 @@ $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
  * 
  */
 
-
-
+//希望GameMei能增加的功能  
+1, 比如对象的批量加后缀
+2, 滚轴在改变单元格的宽度的时候太慢了,甚至会导致浏览器卡死
 /*
 yulongzaitianH5_pre_lxjt   新增加的
 //chrome调试地址
