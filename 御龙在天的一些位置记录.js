@@ -4418,102 +4418,213 @@ if (repeatTime === 0) {
 	//ShareIngBasePanel
 
 	//obj_Main_interface_qirimubiao_fanye_1  左右方向的点击事件
+
 	if (!grou_sevenTargetMain.vars_.nowTab) {
-		grou_sevenTargetMain.vars_.nowTab = 0;
+		grou_sevenTargetMain.vars_.nowTab = 1;
 	}
+	//记录下一个Tab
+	var tempTab = 0;
 	if (self.vars_.buttonType == "left") {
-		if (grou_sevenTargetMain.vars_.nowTab == 0) {
+		if (grou_sevenTargetMain.vars_.nowTab == 1) {
 			return;
 		}
-		grou_sevenTargetMain.vars_.nowTab++;
-	} else {
-		if (grou_sevenTargetMain.vars_.nowTab >= 6) {
+		tempTab = grou_sevenTargetMain.vars_.nowTab - 1;
+		if (judgeIsLock()) {
 			return;
 		}
+		//显示选中的红框 
+		qyengine.forEach(function () {
+			this.dispatchMessage({
+				"type": "message",
+				"message": "selectShow",
+				"argument0": false
+			});
+		}, "grou_sevenTarget_item");
 		grou_sevenTargetMain.vars_.nowTab--;
+	} else {
+		if (grou_sevenTargetMain.vars_.nowTab >= 7) {
+			return;
+		}
+		tempTab = grou_sevenTargetMain.vars_.nowTab + 1;
+		if (judgeIsLock()) {
+			return;
+		}
+		//显示选中的红框 
+		qyengine.forEach(function () {
+			this.dispatchMessage({
+				"type": "message",
+				"message": "selectShow",
+				"argument0": false
+			});
+		}, "grou_sevenTarget_item");
+		grou_sevenTargetMain.vars_.nowTab++;
 	}
 	qyengine.guardId("obj_Main_interface_qirimubiao_fanye_1").scrollerTo && qyengine.guardId("obj_Main_interface_qirimubiao_fanye_1").scrollerTo(0, grou_sevenTargetMain.vars_.nowTab);
-
-
+	//显示选中的红框 
+	qyengine.forEach(function () {
+		this.dispatchMessage({
+			"type": "message",
+			"message": "selectShow",
+			"argument0": true
+		});
+	}, "grou_sevenTarget_item");
+	grou_sevenTargetMain.dispatchMessage({
+		"type": "message",
+		"message": "refreshData"
+	});
+	function judgeIsLock() {
+		var tempGrouArr = qyengine.getInstancesByType("grou_sevenTarget_item");
+		for (var i = 0; i < tempGrouArr.length; i++) {
+			if (tempGrouArr[i].vars_.day == tempTab && tempGrouArr[i].vars_.isHide) {
+				return true;
+			}
+		}
+		return false;
+	}
 	//obj_Main_interface_qirimubiao_bt_01  切换天数的点击事件
 	if (self.vars_.lock == 1) {
 		game.scripts["al_scr_AddTip_1"](null, null, "第" + self.vars_.day + "天开启，敬请期待", "layer1");
 		return;
 	}
-	//创建7日目标的界面  CreateSevenTarget
-	function callBack_seven() {
-		console.log("七日目标:", arguments);
+	if (self.vars_.day == grou_sevenTargetMain.vars_.nowTab) {
+		return;
 	}
-	var grou_obj = "";
+	qyengine.forEach(function () {
+		this.dispatchMessage({
+			"type": "message",
+			"message": "selectShow",
+			"argument0": false
+		});
+	}, "grou_sevenTarget_item");
+	grou_sevenTargetMain.vars_.nowTab = self.vars_.day;
+	self.currentSprite.parent.qyobj.objects['obj_Main_interface_qirimubiao_bt_01_1'].show();
+	grou_sevenTargetMain.dispatchMessage({
+		"type": "message",
+		"message": "refreshData"
+	});
+	//创建7日目标的界面  CreateSevenTarget
+	function callBack_seven() {   //1未完成  2可领取   3已领取
+		console.log("七日目标:", arguments);
+		var receive_data = arguments[2];
+		if (receive_data.code == 200) {
+			grou_sevenTargetMain.vars_.server_data = receive_data.info;
+			var grou_obj = qyengine.guardId("grou_sevenTargetMain");
+			//更新tab  更新reward和领取情况
+			grou_obj.vars_.nowTab = 1;
+			grou_obj.objects["scro_sevenTarget"].dispatchMessage({
+				"type": "message",
+				"message": "refreshData"
+			});
+			grou_obj.dispatchMessage({
+				"type": "message",
+				"message": "refreshData"
+			});
+		} else {
+			game.scripts["al_scr_AddTip_1"](null, null, "网络异常", "layer1");
+		}
+		game.scripts["al_scr_gameloadDestroy"](null, null);
+	}
+	var grou_obj = null;
 	game.scripts["al_scr_gameloadCreate"](null, null);
 	QyRpc.get_user_seven(callBack_seven);
-	//game.scripts["al_scr_gameloadDestroy"](null, null);
+	game.configs.config_sevenTarget_bang = {};
 	if (qyengine.getInstancesByType("grou_sevenTargetMain").length > 0) {
 		grou_sevenTargetMain.show();
 		grou_obj = qyengine.guardId("grou_sevenTargetMain");
 	} else {
-		game.configs.config_sevenTarget_bang = {};
-		qyengine.instance_create(140, 0, "grou_sevenTargetMain", {
+		qyengine.instance_create(15, 0, "grou_sevenTargetMain", {
 			"type": "grou_sevenTargetMain",
 			"id": "grou_sevenTargetMain",
 			"zIndex": 9,
 			"layer": "layer0"
 		});
-		grou_obj = qyengine.guardId("grou_sevenTargetMain");
-
-		grou_obj.objects["scro_sevenTarget"].dispatchMessage({
-			"type": "message",
-			"message": "refreshData",
-			"argument0": 0
-		});
-		grou_obj.dispatchMessage({
-			"type": "message",
-			"message": "refreshData",
-			"argument0": 0
-		});
 	}
 	//scro_sevenTarget 的消息事件
 	var canGetDay = 7;
 	var lockSprite = ["obj_Main_interface_qirimubiao_bt_01_default", "obj_Main_interface_qirimubiao_bt_02_default"];
-	for (var i = 0; i < canGetDay; i++) {
+	var grou_obj = qyengine.guardId("grou_sevenTargetMain");
+	for (var i = 1; i <= canGetDay; i++) {
 		var lock = 1;  //1 是锁的 0是未被锁的
 		var pick_lick = "";
-		if (i == 0) {
-
+		if (i > grou_obj.vars_.server_data.progress) {
+			lock = 1;
 		} else {
-
+			lock = 0;
 		}
 		//isHide文字是否隐藏的变量
-		game.configs.config_sevenTarget_bang[i + 1] = {
-			"id": i + 1,
-			"day": i + 1,
+		game.configs.config_sevenTarget_bang[1] = {
+			"id": i,
+			"day": i,
 			"lock": lock,
 			"pic_lock": lockSprite[lock],
 			"isHide": lock == 1 ? 1 : 0,
-			"showText": lock == 1 ? "" : ("第" + (i + 1) + "天"),
-			"markConfigId": i + 1
+			"showText": lock == 1 ? "" : ("第" + i + "天"),
+			"markConfigId": i
 		};
 	}
 	grou_obj.objects["scro_sevenTarget"].refreshRelations();
+	//显示选中的红框 
+	qyengine.forEach(function () {
+		this.dispatchMessage({
+			"type": "message",
+			"message": "selectShow",
+			"argument0": true
+		});
+	}, "grou_sevenTarget_item");
+	/**
+	 * grou_sevenTarget_item下的selectShow  消息事件
+	 */
+	if (self.vars_.day == grou_sevenTargetMain.vars_.nowTab) {
+		if (event.argument0) {
+			self.objects["obj_Main_interface_qirimubiao_bt_01_1"].show();
+		} else {
+			self.objects["obj_Main_interface_qirimubiao_bt_01_1"].hide();
+		}
+	}
 	/**
 	 * grou_sevenTargetMain下的消息事件
 	 */
-	var selectDay = 1;
+	var selectDay = self.vars_.nowTab;
 	var config_obj = game.configs.seven;
 	//计数 >3   return 
 	var _index = 0;
 	for (item in config_obj) {
 		if (config_obj[item].day == selectDay) {
 			ReChangeSprite(config_obj[item], _index);
-			qyengine.guardId("obj_Fate_interaction_bt_05_seven" + (Number(item) - 1)).vars_.configId = Number(item);
+			//三个领取 按钮的状态
+			getRewardButtonStatus(_index);
 			//次日奖励
 			if (_index == 0) {
-				config_obj[item].tomorrow
+				var nextDayClothesId = config_obj[item].tomorrow.split("|")[1];
+				NextDayReward(Number(nextDayClothesId));
 			}
-			if (++_index) {
+			if (++_index >= 3) {
 				break;
 			}
 		}
+	}
+
+
+
+	function getRewardButtonStatus(markWhichIndex) {
+		//1前往  2领取  3已领取
+		var markStatus = self.vars_.server_data[selectDay][markWhichIndex];
+		switch (markStatus) {
+			case 1:
+				self.objects['obj_Fate_interaction_bt_05_seven' + (markWhichIndex)].changeSprite("obj_Fate_interaction_bt_06_seven_default");
+				self.objects['obj_Main_interface_qirimubiao_bt_03_' + (markWhichIndex)].changeSprite("obj_Main_interface_qirimubiao_bt_04_default");
+				self.objects['obj_Main_interface_qirimubiao_bt_03_' + (markWhichIndex)].show();
+				break;
+			case 3:
+				//obj_Bg_Active_interface_Already_receive
+				self.objects['obj_Fate_interaction_bt_05_seven' + (markWhichIndex)].changeSprite("obj_Bg_Active_interface_Already_receive_default");
+				self.objects['obj_Main_interface_qirimubiao_bt_03_' + (markWhichIndex)].hide();
+				break;
+			default:
+				self.objects['obj_Main_interface_qirimubiao_bt_03_' + (markWhichIndex)].show();
+				break;
+		}
+		self.objects['obj_Fate_interaction_bt_05_seven' + (markWhichIndex)].vars_.buttonStatus = markStatus;
 	}
 	//次日奖励的展示
 	function NextDayReward(tomorrowClothes) {
@@ -4525,22 +4636,40 @@ if (repeatTime === 0) {
 		var condition = config_obj_item.condition.split("|");
 		var reward_obj = config_obj_item.reward.split(";");
 		var parent_obj = grou_sevenTargetMain.objects;
+		var titleText = "";
 		switch (Number(condition[0])) {
 			case 1:
-				var titleText = "通关剧情" + "(" + game.configs.quest[5000].name.split("(")[1];
-
-				parent_obj["parent_obj" + which_index].text = titleText;
-				//1物品2服装3设计图4背景5礼物|编号|数量
-				for (_cell in reward_obj) {
-					var children_obj = reward_obj[_cell].split("|");
-					var children_obj_date = BackPicAndNum(children_obj);
-					parent_obj["obj_Main_interface_qirimubiao_icon" + which_index + "_" + _cell].changeSprite(children_obj_date[0]);
-					parent_obj["txt_sevenTarget_rewardNum" + which_index + "_" + _cell].text = children_obj_date[1];
+				titleText = "通关剧情" + "(" + game.configs.quest[condition[1]].name.split("(")[1];
+				//getStroyId
+				var markStoryConfigId = 0;
+				for (var _item in game.configs.story) {
+					if (game.configs.story[_item].chapterId == game.configs.quest[condition[1]].storyId) {
+						markStoryConfigId = _item;
+						break;
+					}
+				}
+				qyengine.guardId("obj_Fate_interaction_bt_05_seven" + which_index).vars_.argument0 = markStoryConfigId;
+				break;
+			default:
+				var temp_config = game.configs.config_sevenTarget_taskType[Number(condition[0])];
+				if (temp_config.dec.indexOf("%s") == -1) {
+					titleText = temp_config.dec;
+				} else {
+					titleText = temp_config.dec.replace("%s", "" + condition[1]);
 				}
 				break;
-
-			default:
-				break;
+		}
+		parent_obj["txt_sevenTarget_common_reward" + which_index].text = titleText;
+		qyengine.guardId("obj_Fate_interaction_bt_05_seven" + which_index).vars_.conditionId = Number(condition[0]);
+		//1物品2服装3设计图4背景5礼物|编号|数量
+		for (_cell in reward_obj) {
+			var children_obj = reward_obj[_cell].split("|");
+			var children_obj_date = BackPicAndNum(children_obj);
+			var iconObj = parent_obj["obj_Main_interface_qirimubiao_icon" + which_index + "_" + _cell];
+			iconObj.changeSprite(children_obj_date[0]);
+			//图纸需要缩放
+			children_obj_date.length > 2 && iconObj.setScale(children_obj_date[2][0], children_obj_date[2][1]);
+			parent_obj["txt_sevenTarget_rewardNum" + which_index + "_" + _cell].text = children_obj_date[1];
 		}
 	}
 	function BackPicAndNum(reward_child) {
@@ -4549,22 +4678,71 @@ if (repeatTime === 0) {
 		var switch_value = Number(reward_child[0]);
 		switch (switch_value) {
 			case 1:
-				needBackArr.push("obj_" + configsArr[1][reward_child[1]].smallIcon + "_default");
+				needBackArr[0] = "obj_" + configsArr[1][reward_child[1]].smallIcon + "_default";
+				break;
+			case 3:   //图纸需要缩放
+				needBackArr[2] = [0.5, 0.5];
+			case 5:
+				needBackArr[0] = "obj_" + configsArr[switch_value][reward_child[1]].icon + "_default";
 				break;
 			case 2:
-			case 3:
-			case 5:
-				needBackArr.push("obj_" + configsArr[switch_value][reward_child[1]].icon + "_default");
-				break;
 			case 4:
-				needBackArr.push("obj_" + configsArr[4][reward_child[1]].sicon + "_default");
+				needBackArr[0] = "obj_" + configsArr[switch_value][reward_child[1]].sicon + "_default";
 				break;
 			default:
 				console.error("出现了错误");
 				break;
 		}
-		needBackArr.push(Number(reward_child[2]));
+		needBackArr[1] = Number(reward_child[2]);
 		return needBackArr;
+	}
+
+	/**
+	 * JudgeSevenTargetShowAndHide  动作序列,判断7日目标按钮的隐藏和显示
+	 */
+	function callBack_show() {
+		//console.log(arguments);
+		if (arguments[1] && arguments[2].code == 200) {
+			arguments[2].flg && self.show();
+		} else {
+			console.error("请求错误~需要查看");
+		}
+	}
+	QyRpc.seven_show(callBack_show);
+
+	/**
+	 * 七日目标领取按钮的事件
+	 */
+	if (self.vars_.buttonStatus == 3) {  //已经领取
+		return;
+	}
+	if (self.vars_.buttonStatus == 1) {  //前往
+		if (self.vars_.conditionId == 1 || self.vars_.conditionId == 12) {
+			var needAction = game.configs.config_sevenTarget_taskType[self.vars_.conditionId].action0;
+			current_game.scripts['al_scr_' + needAction].call(this, undefined, this, self.vars_.argument0);
+		} else {
+			var needAction = game.configs.config_sevenTarget_taskType[self.vars_.conditionId].action0;
+			current_game.scripts['al_scr_' + needAction].call(this, undefined, this);
+		}
+
+	} else if (self.vars_.buttonStatus == 2) {
+		game.scripts["al_scr_gameloadCreate"](null, null);
+
+		function sign_callBack() {
+
+			if (arguments[1]) {  //领取成功
+				self.changeSprite("obj_Bg_Active_interface_Already_receive_default");
+				var lastPlaceNum = self.id.slice(self.id.length - 1, self.id.length);
+				//领取过后隐藏图标更改数据F
+				qyengine.guardId("obj_Main_interface_qirimubiao_bt_03_" + lastPlaceNum).hide();
+				grou_sevenTargetMain.vars_.server_data[grou_sevenTargetMain.vars_.nowTab][Number(lastPlaceNum)] = 3;
+			}
+			if (!arguments[1] || arguments[2].code != 200) {
+				game.scripts["al_scr_AddTip_1"](null, null, "领取失败", "layer1");
+			}
+			game.scripts["al_scr_gameloadDestroy"](null, null);
+		}
+		QyRpc.seven_sign(self.vars_.conditionId, sign_callBack);
 	}
 
 
@@ -4603,13 +4781,19 @@ if (repeatTime === 0) {
 			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
 		}
 
+		//连续登陆
+		if (qyengine.guardId("obj_ActiveReddot_7") != null) {
+			if (arguments[2]["continueLoginPoint"]) {
+				qyengine.guardId("obj_ActiveReddot_7").show();
+			} else {
+				qyengine.guardId("obj_ActiveReddot_7").hide();
+			}
+		}
 
 		if (qyengine.guardId("obj_ActiveReddot_1") != null) {
 			//御膳房红点
 			if (arguments[2]["receivePower"]) {
 				qyengine.guardId("obj_ActiveReddot_1").show();
-
-
 			} else {
 				qyengine.guardId("obj_ActiveReddot_1").hide();
 			}
@@ -4714,4 +4898,12 @@ if (repeatTime === 0) {
 
 	game.scripts["al_scr_gameloadCreate"](null, null);
 	QyRpc.OpenActivity(callBack);
+
+
+
+
+	//准备回退版本之前新建一个快照先~~~~~~~~~
+	//grouDredgePanel  
+	//grouDredgePanel.objects['obj_shopCleanButn_1_1'] （195,824）
+	//grouDredgePanel.objects['obj_tailours_buy_bt_queding_1_1']  (513,826)
 
