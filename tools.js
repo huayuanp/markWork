@@ -155,6 +155,7 @@ qyengine.addDataforms('dataform_1', 'id', {
 
 //获得父对象/父容器
 obj_PVEicon_首充.currentSprite.parent.qyobj
+//代码执行时间
 
 //发送消息
 qyengine.guardId("grou_redPointMore85").dispatchMessage({
@@ -303,6 +304,7 @@ $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
 2, 滚轴在改变单元格的宽度的时候太慢了, 甚至会导致浏览器卡死
 3, 导入文件的同时可以选择同步生成对象
 4, 数据绑定单个对象能查看详情(现在对象名一长就看不全)
+6, 侧边栏图层视图下支持多线操作
 /*
 yulongzaitianH5_pre_lxjt   新增加的
 //chrome调试地址
