@@ -152,7 +152,8 @@ qyengine.addDataforms('dataform_1', 'id', {
     "data": 100
 });
 
-
+//
+scro_achievementList.resetLimitPosition(true)
 //获得父对象/父容器
 obj_PVEicon_首充.currentSprite.parent.qyobj
 //代码执行时间
@@ -305,6 +306,8 @@ $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
 3, 导入文件的同时可以选择同步生成对象
 4, 数据绑定单个对象能查看详情(现在对象名一长就看不全)
 6, 侧边栏图层视图下支持多线操作
+5, 项目管理中能增加文件夹
+6, 搜索对象的时候, 增加显示对象所在的文件夹
 /*
 yulongzaitianH5_pre_lxjt   新增加的
 //chrome调试地址
