@@ -5171,8 +5171,9 @@ if (repeatTime === 0) {
 	 */
 	if (!game.vars_.playInfoJson.bulletScreen) {
 		//默认是开启弹幕  匿名状态
-		game.vars_.playInfoJson.bulletScreen = { 'start': true, 'Anonymous': true };
+		game.vars_.playInfoJson.bulletScreen = { 'start': 1, 'Anonymous': game.vars_.playInfoJson.isName, 'showing': data, 'alreadyShow': [], 'alreadyShowFriend': [] };
 	}
+	game.vars_.playInfoJson.bulletScreen.showing = data;
 	current_game.scripts['al_scr_' + "changeBulletScreenButtonStatus"].call(this, undefined, this);
 
 	var getAnonymousObjArr = qyengine.getInstancesByType("obj_Flowers_tanmu_bt_03_5");
@@ -5206,43 +5207,120 @@ if (repeatTime === 0) {
 	function backBulletScreen() {
 		console.log(arguments);
 		if (arguments[1]) {
-			current_game.scripts['al_scr_' + "InitStartAndOpenBulletScreenButton"].call(this, undefined, this);
+			//current_game.scripts['al_scr_' + "InitStartAndOpenBulletScreenButton"].call(this, undefined, this);
 			game.vars_.playInfoJson.bulletScreen.total = arguments[2].barrage;
 			if (game.vars_.playInfoJson.bulletScreen.total.length == 0) {
 				return;
 			}
+			if (!game.vars_.playInfoJson.bulletScreen.start && type && type == 1) {
+				game.scripts["al_scr_gameloadDestroy"](null, null);
+				game.scripts["al_scr_AddTip_1"](null, null, "弹幕发送成功", "layer1");
+				grou_bulletSceneMain.isVisible && inpu_bulletScreen.hide() && grou_bulletSceneMain.hide();
+				type = 2;
+				return;
+			}
+
+			if (!game.vars_.playInfoJson.bulletScreen.start) {
+				return;
+			}
+
+			if (game.vars_.playInfoJson.bulletScreen.total.length == 0) {
+				return;
+			}
 			//判断是否需要展示，在点评和闺蜜合影界面 为true
-			game.vars_.playInfoJson.bulletScreen.showing = true;
+			//game.vars_.playInfoJson.bulletScreen.showing = true;
 			if (!game.vars_.playInfoJson.bulletScreen.showing) {
 				if (game.vars_.bulletScreenShowTime) {
 					clearInterval(game.vars_.bulletScreenShowTime);
 				}
 				return;
 			}
-			if (game.vars_.playInfoJson.bulletScreen.alreadyShow && game.vars_.playInfoJson.bulletScreen.alreadyShow.length > 0) {
-				game.vars_.playInfoJson.bulletScreen.total.splice(0, game.vars_.playInfoJson.bulletScreen.alreadyShow.length - 1);
+			game.vars_.nowAlreadyShow = game.vars_.bulletScreenType == "friend" ? game.vars_.playInfoJson.bulletScreen.alreadyShowFriend : game.vars_.playInfoJson.bulletScreen.alreadyShow;
+			lengthRange30();
+			if (game.vars_.nowAlreadyShow.length >= 30) {
+				game.scripts["al_scr_gameloadDestroy"](null, null);
+				grou_bulletSceneMain.isVisible && inpu_bulletScreen.hide() && grou_bulletSceneMain.hide();
+				return;
+			}
+			if (game.vars_.nowAlreadyShow && game.vars_.nowAlreadyShow.length > 0) {
+
+				//一些容错处理
+				if (game.vars_.playInfoJson.bulletScreen.total.length < game.vars_.nowAlreadyShow.length) {
+					game.vars_.nowAlreadyShow = JSON.parse(JSON.stringify(game.vars_.playInfoJson.bulletScreen.total));
+					game.vars_.playInfoJson.bulletScreen.total.splice(0, game.vars_.nowAlreadyShow.length);
+
+					return;
+				}
+				var needRemovePos = game.vars_.playInfoJson.bulletScreen.total.length - game.vars_.nowAlreadyShow.length;
+				game.vars_.playInfoJson.bulletScreen.total.splice(needRemovePos, game.vars_.nowAlreadyShow.length);
 			} else {
-				game.vars_.playInfoJson.bulletScreen.alreadyShow = [];
+				//game.vars_.nowAlreadyShow = [];
 			}
 			showBulletScreen();
+			game.vars_.bulletScreenShowTime && clearInterval(game.vars_.bulletScreenShowTime);
 			game.vars_.bulletScreenShowTime = setInterval(function () {
 				showBulletScreen();
 			}, 4000);
-
+			if (type == 1) {
+				type = 2;
+				game.scripts["al_scr_gameloadDestroy"](null, null);
+				grou_bulletSceneMain.isVisible && inpu_bulletScreen.hide() && grou_bulletSceneMain.hide();
+			}
 		} else {
 			console.error("发生错误,需要查看~");
 		}
 	}
+
+
+	//超过30条的时候,服务端不再增加长度 本地需要判断~~~
+	function lengthRange30() {
+
+		if (game.vars_.nowAlreadyShow && game.vars_.playInfoJson.bulletScreen.total.length == game.vars_.nowAlreadyShow.length && game.vars_.playInfoJson.bulletScreen.total.length == 30) {
+			var xxx = function () {
+				/*
+				for (var p = 0; p < game.vars_.playInfoJson.bulletScreen.total.length; p++) {
+					for (var q = game.vars_.nowAlreadyShow.length - 1; q >= 0; q--) {
+						if ((p == 0) && JSON.stringify(game.vars_.nowAlreadyShow[q]) == JSON.stringify(game.vars_.playInfoJson.bulletScreen.total[p])) {
+							return 0;
+						} else if (p != 0) {
+							return random_range(1,5);
+						}
+					}
+				}
+				*/
+				return random_range(1, 5);
+			};
+			var _showNum = xxx();
+			try {
+				var alreadyShowLength = game.vars_.nowAlreadyShow.length;
+				game.vars_.nowAlreadyShow.splice(alreadyShowLength - _showNum, _showNum);
+			} catch (error) {
+				console.error(error.message);
+			}
+
+			/*
+			for (var j = 0; j < game.vars_.playInfoJson.bulletScreen.total.length; j++) {
+				var totalItem = game.vars_.playInfoJson.bulletScreen.total[j];
+				getPlaceInTotal(totalItem);
+			}
+			*/
+		}
+	}
+
+	//
 	//创建并展示弹幕
 	function showBulletScreen() {
 		var bullet_grouArr = current_game.scripts['al_scr_' + "calHideFlyGrou"].call(this, undefined, this, 0);
 
-		var oneTimeShowNum = game.vars_.playInfoJson.bulletScreen.total.length < 20 ? game.vars_.playInfoJson.bulletScreen.total.length : random_range(5, 20);
+		var oneTimeShowNum = game.vars_.playInfoJson.bulletScreen.total.length < 15 ? game.vars_.playInfoJson.bulletScreen.total.length : random_range(3, 15);
 
 		//处理vip5以下的弹幕
 		for (var _cell = 0; _cell < oneTimeShowNum; _cell++) {
 			var itemJson = game.vars_.playInfoJson.bulletScreen.total[_cell];
-			if (itemJson.vip > 5) {
+			if (!itemJson) {
+				break;
+			}
+			if (itemJson.vip >= 5) {
 				if (!game.vars_.playInfoJson.bulletScreenVip5) {
 					game.vars_.playInfoJson.bulletScreenVip5 = [];
 				}
@@ -5268,36 +5346,80 @@ if (repeatTime === 0) {
 						"type": "message",
 						"message": "delayHide"
 					});
-					_markShowObj.setPosition(100, 500 + _markShowObj.height * nowVip5Visible);
+					var placePosY = nowVip5Visible ? (500 + _markShowObj.height * nowVip5Visible + 20 * nowVip5Visible) : 500;
+					_markShowObj.setPosition(100, placePosY);
+					var markTxtObj = _markShowObj.objects['txt_flyWord_bulletScreen'];
+					if (itemJson.name) {
+						markTxtObj.text = itemJson.name + "说:" + itemJson.msg;
+					} else {
+						markTxtObj.text = "" + itemJson.msg;
+					}
+					_markShowObj.objects['txt_flyWord_bulletScreen_vip'].text = "V" + itemJson.vip;
+					_markShowObj.objects['obj_Flowers_tanmu_box_04'].width = markTxtObj.currentSprite.realWidth + 5;
 					_markShowObj.show();
 					_markShowObj.vars_.place = nowVip5Visible + 1;
-					game.vars_.playInfoJson.bulletScreen.alreadyShow.push(game.vars_.playInfoJson.bulletScreen.total.slice(_cell, 1));
+					game.vars_.nowAlreadyShow.push(game.vars_.playInfoJson.bulletScreen.total.splice(_cell, 1)[0]);
+					--_cell;
 				} else {
 					game.vars_.playInfoJson.bulletScreenVip5.push(itemJson);
+					var _needPush = game.vars_.playInfoJson.bulletScreen.total.splice(_cell, 1)[0];
+					game.vars_.nowAlreadyShow.push(_needPush);
+					--_cell;
 				}
 				continue;
 			} else if (_cell < bullet_grouArr.length) {
 				bullet_grouArr[_cell].setPosition(random_range(current_scene.width, current_scene.width + 100), random_range(0 + bullet_grouArr[_cell].height, current_scene.height - bullet_grouArr[_cell].height));
-				bullet_grouArr[_cell].objects['txt_flyWord_bulletScreen'].text = itemJson.name ? itemJson.name : "" + "说:" + itemJson.msg;
+				bullet_grouArr[_cell].setPosition(random_range(current_scene.width, current_scene.width + 100), random_range(530, 880));
+
+				var txtObj = bullet_grouArr[_cell].objects['txt_flyWord_bulletScreen'];
+				if (itemJson.name) {
+					txtObj.text = itemJson.name + "说:" + itemJson.msg;
+				} else {
+					txtObj.text = itemJson.msg;
+				}
+				bullet_grouArr[_cell].objects['obj_Flowers_tanmu_box_04'].changeSprite("obj_Flowers_tanmu_box_nolevel_default");
+				bullet_grouArr[_cell].objects['obj_Flowers_tanmu_box_04'].width = txtObj.currentSprite.realWidth + 4;
+				if (itemJson.vip != undefined && itemJson.vip > 0) {
+					txtObj.setFontColor("#cc3333");
+				} else {
+					txtObj.setFontColor("#3399ff");
+				}
+
 				bullet_grouArr[_cell].show();
-				this.setSpeed(-(random_range(100, 500)), 0);
+				//bullet_grouArr[_cell].setSpeed(-(random_range(100, 250)), 0);
+				bullet_grouArr[_cell].moveTo(-bullet_grouArr[_cell].x - current_scene.width - 1000, bullet_grouArr[_cell].y, random_range(100, 250))
+				bullet_grouArr.splice(_cell, 1);
 			} else {
-				var markShowObj = qyengine.instance_create(random_range(current_scene.width, current_scene.width + 100), random_range(0 + bullet_grouArr[_cell].height, current_scene.height - bullet_grouArr[_cell].height), "grou_bullutScreen_fly", {
+				var markShowObj = qyengine.instance_create(0, 0, "grou_bullutScreen_fly", {
 					"type": "grou_bullutScreen_fly",
 					"id": "grou_bullutScreen_fly_" + random(1000),
 					"zIndex": 10,
 					"layer": "layer0"
 				});
-				markShowObj.objects['txt_flyWord_bulletScreen'].text = itemJson.name ? itemJson.name : "" + "说:" + itemJson.msg;
-				this.setSpeed(-(random_range(100, 500)), 0);
+				markShowObj.setPosition(random_range(current_scene.width, current_scene.width + 100), random_range(530, 880));
+				var txtObj = markShowObj.objects['txt_flyWord_bulletScreen'];
+				if (itemJson.name) {
+					txtObj.text = itemJson.name + "说:" + itemJson.msg;
+				} else {
+					txtObj.text = itemJson.msg;
+				}
+				markShowObj.objects['obj_Flowers_tanmu_box_04'].changeSprite("obj_Flowers_tanmu_box_nolevel_default");
+				markShowObj.objects['obj_Flowers_tanmu_box_04'].width = txtObj.currentSprite.realWidth + 4;
+				if (itemJson.vip != undefined && itemJson.vip > 0) {
+					txtObj.setFontColor("#cc3333");
+				} else {
+					txtObj.setFontColor("#3399ff");
+				}
+				//markShowObj.setSpeed(-(random_range(100, 250)), 0);
+				markShowObj.moveTo(markShowObj.x - current_scene.width - 1000, markShowObj.y, (random_range(100, 250)));
 			}
-			game.vars_.playInfoJson.bulletScreen.alreadyShow.push(itemJson);
+			game.vars_.nowAlreadyShow.push(itemJson);
 			game.vars_.playInfoJson.bulletScreen.total.splice(_cell, 1);
 			--_cell;
 		}
 
-
 	}
+
 	function getShowVipNum() {
 		var _vip5Num = 0;
 		var _grouFlyVip = qyengine.getInstancesByType('grou_bullutScreen_fly_vip5');
@@ -5308,65 +5430,123 @@ if (repeatTime === 0) {
 		}
 		return _vip5Num;
 	}
-	QyRpc.getBarrage(backBulletScreen);
+	//type 1：从发送事件点击进来的,2:其它
+	//screenType 好友0 百花1
+	//'flower'  'friend'
+	//game.vars_.bulletScreenType = flowerInScene;
+	var bulletScreenType = game.vars_.bulletScreenType == "friend" ? 0 : 1;
+	if (type == 1) {
+		game.scripts["al_scr_gameloadCreate"](null, null);
+		QyRpc.sendBarrage(bulletScreenType, game.vars_.playInfoJson.bulletScreen.Anonymous ? 1 : 0, sendTxt, backBulletScreen);
+	} else {
+		QyRpc.getBarrage(bulletScreenType, backBulletScreen);
+	}
+	game.vars_.bulletScreenCycleTime && clearInterval(game.vars_.bulletScreenCycleTime);
 	game.vars_.bulletScreenCycleTime = setInterval(function () {
-		QyRpc.getBarrage(backBulletScreen);
-	}, 60 * 1000);
+		QyRpc.getBarrage(bulletScreenType, backBulletScreen);
+	}, 20 * 1000);
 
 
 
 	//VIP5以上的弹幕隐藏事件里面的处理
+	/**
+	 * 1,还有几个显示的 (3:还有三个显示先判断位置进行移动，再创建  2:   1)
+	 */
+	setTimeout(function () {
+		if (!game.vars_.playInfoJson.bulletScreen.showing) {
+			return;
+		}
+		self.hide();
+		hideEventCal();
+	}, 2000);
 	function hideEventCal() {
 		var bulletVip5_grouArr = qyengine.getInstancesByType("grou_bullutScreen_fly_vip5");
 		//现在界面上还显示的vip5的弹幕
 		var bulletVip5Show_grouArr = [];
-		if (self.vars_.place != 4) {  //4行4个位置
-			for (var i = 0; i < bulletVip5_grouArr.length; i++) {
-				if (bulletVip5_grouArr[i].isVisible) {
-					bulletVip5Show_grouArr.push(bulletVip5_grouArr[i]);
-				}
+		for (var i = 0; i < bulletVip5_grouArr.length; i++) {
+			if (bulletVip5_grouArr[i].isVisible) {
+				bulletVip5Show_grouArr.push(bulletVip5_grouArr[i]);
 			}
-			for (var j = 1; j <= 4; j++) {
-				if (j != self.vars_.place) {
-					var _objMove = findFlyWordPlace(j);
-					if (!_objMove) {
-						continue;
-					}
-					if (_objMove.vars_.place > self.vars_.place) {
-						_objMove.moveTo(_objMove.x, _objMove.y - _objMove.height, 'time', 80);
-						_objMove.vars_.place--;
-					}
-				}
-			}
-			//没有vip5新的弹幕return
-			if (game.vars_.playInfoJson.bulletScreenVip5.length <= 0) {
-				return;
-			}
-			var getVip5HideObj = current_game.scripts['al_scr_' + "calHideFlyGrou"].call(this, undefined, this, 1);
-			var nowCreateVipObj = null;
-			if (getVip5HideObj.length > 0) {
-				nowCreateVipObj = getVip5HideObj[0];
-
-				nowCreateVipObj.dispatchMessage({
-					"type": "message",
-					"message": "delayHide"
-				});
-
-			} else {
-				nowCreateVipObj = qyengine.instance_create(100, 500 + bulletVip5Show_grouArr.length * self.height, "grou_bullutScreen_fly_vip5", {
-					"type": "grou_bullutScreen_fly_vip5",
-					"id": "grou_bullutScreen_fly_vip5",
-					"zIndex": 20,
-					"layer": "layer0"
-				});
-			}
-			var itemJson = game.vars_.playInfoJson.bulletScreenVip5[0];
-			nowCreateVipObj.objects['txt_flyWord_bulletScreen'].text = (itemJson.name ? itemJson.name : "") + "说:" + itemJson.msg;
-			game.vars_.playInfoJson.bulletScreenVip5.splice(0, 1);
-
-			nowCreateVipObj.vars_.place = bulletVip5Show_grouArr.length + 1;
-
 		}
+		//排序
+		var minToMaxByPlace = function sortRule(a, b) {
+			return a.vars_.place - b.vars_.place;
+		}
+		bulletVip5Show_grouArr.sort(minToMaxByPlace);
+		var alreadymove = [];
+		for (var m = 1; m <= 4; m++) {
+			if (!bulletVip5Show_grouArr[m - 1]) {
+				break;
+			}
+			if (bulletVip5Show_grouArr[m - 1].vars_.place == alreadymove.length + 1) {
+				alreadymove.push(1);
+			} else if (bulletVip5Show_grouArr[m - 1].vars_.place != alreadymove.length + 1) {
+				var calPosY = 500 + bulletVip5Show_grouArr[m - 1].height * alreadymove.length + 10 * (alreadymove.length);
+				bulletVip5Show_grouArr[m - 1].moveTo(_objMove.x, calPosY, 'time', 80);
+				alreadymove.push(1);
+			}
+		}
+		for (var m = 1; m <= 4; m++) {
+			if (m > bulletVip5Show_grouArr.length) {
+				var
+			}
+		}
+
+
+
+
+
+
+
+		for (var j = 1; j <= 4; j++) {
+			if (j != self.vars_.place) {
+				var _objMove = findFlyWordPlace(j);
+				if (!_objMove) {
+					continue;
+				}
+				if (_objMove.vars_.place > self.vars_.place) {
+					_objMove.moveTo(_objMove.x, _objMove.y - _objMove.height - 10, 'time', 80);
+					_objMove.vars_.place--;
+				}
+			}
+		}
+		//没有vip5新的弹幕return
+		if (game.vars_.playInfoJson.bulletScreenVip5.length <= 0) {
+			return;
+		}
+		var getVip5HideObj = current_game.scripts['al_scr_' + "calHideFlyGrou"].call(this, undefined, this, 1);
+		var nowCreateVipObj = null;
+		if (getVip5HideObj.length > 0) {
+			nowCreateVipObj = getVip5HideObj[0];
+
+			nowCreateVipObj.dispatchMessage({
+				"type": "message",
+				"message": "delayHide"
+			});
+
+		} else {
+			nowCreateVipObj = qyengine.instance_create(400, 500 + bulletVip5Show_grouArr.length * self.height, "grou_bullutScreen_fly_vip5", {
+				"type": "grou_bullutScreen_fly_vip5",
+				"id": "grou_bullutScreen_fly_vip5",
+				"zIndex": 20,
+				"layer": "layer0"
+			});
+		}
+		var placePosY = bulletVip5Show_grouArr.length ? (500 + nowCreateVipObj.height * bulletVip5Show_grouArr.length + 10 * (bulletVip5Show_grouArr.length)) : 500;
+		nowCreateVipObj.setPosition(400, placePosY);
+		nowCreateVipObj.show();
+		var itemJson = game.vars_.playInfoJson.bulletScreenVip5[0];
+		var itemTxtObj = nowCreateVipObj.objects['txt_flyWord_bulletScreen'];
+		itemTxtObj.text = itemJson.name ? itemJson.name + "说:" : "" + itemJson.msg;
+		nowCreateVipObj.objects['txt_flyWord_bulletScreen_vip'].text = "V" + itemJson.vip;
+		nowCreateVipObj.objects['obj_Flowers_tanmu_box_04'].changeSprite("obj_Flowers_tanmu_box_04_default");
+		nowCreateVipObj.objects['obj_Flowers_tanmu_box_04'].width = itemTxtObj.currentSprite.realWidth + 4;
+		itemTxtObj.setFontColor("#9966ff");
+		var _spliceObj = game.vars_.playInfoJson.bulletScreenVip5.splice(0, 1);
+		//game.vars_.playInfoJson.bulletScreen.alreadyShow.push(_spliceObj);
+		nowCreateVipObj.vars_.place = bulletVip5Show_grouArr.length + 1;
+
+
 		function findFlyWordPlace(movePlace) {
 			var moveObj = null;
 			for (var i = 0; i < bulletVip5Show_grouArr.length; i++) {
@@ -5410,3 +5590,397 @@ if (repeatTime === 0) {
 		}
 	}
 	current_game.scripts['al_scr_' + "CreateScreenWordShow"].call(this, undefined, this);
+
+
+
+
+
+	/**
+	 * buttonEventSendBulletScreen
+	 */
+	//发送弹幕
+	/*
+	if (!game.vars_.playInfoJson.bulletScreen.start) {
+		game.scripts["al_scr_AddTip_1"](null, null, "请先开启弹幕开关", "layer1");
+		return;
+	}
+	*/
+	if (self.id == "obj_Flowers_tanmu_bt_02") {
+		var getInput = inpu_bulletScreen.getValue();
+		if (getInput == "") {
+			game.scripts["al_scr_AddTip_1"](null, null, "输入不能为空哦", "layer1");
+			return;
+		}
+		if (getInput.length > 30) {
+			game.scripts["al_scr_AddTip_1"](null, null, "超过限定字数", "layer1");
+			return;
+		}
+		local.sendTxt = getInput;
+		//sendBarrageInfo();
+	} else {
+		local.sendTxt = self.text;
+		//sendBarrageInfo();
+	}
+	grou_bulletSceneMain.hide();
+	current_game.scripts['al_scr_' + "CreateScreenWordShow"].call(this, undefined, this, 1, local.sendTxt);
+
+
+
+
+	/**
+	 * CreateBulletScreen
+	 */
+	if (qyengine.getInstancesByType('grou_bulletSceneMain') > 0) {
+		var markGrouObj = qyengine.getInstancesByType('grou_bulletSceneMain')[0];
+		markGrouObj.show();
+		inpu_bulletScreen.show();
+	} else {
+		var markGrouObj = qyengine.instance_create(0, 0, "grou_bulletSceneMain", {
+			"type": "grou_bulletSceneMain",
+			"id": "grou_bulletSceneMain",
+			"zIndex": 9,
+			"layer": "layer0"
+		});
+	}
+	var txtArr = current_game.scripts['al_scr_' + "getRandomBulletScreenWord"].call(this, undefined, this);
+	var parentObj = grou_bulletSceneMain.objects;
+	for (var j = 1; j <= txtArr.length; j++) {
+		parentObj['txt_common_bulletScreen_' + j].text = txtArr[j - 1];
+	}
+	game.vars_.playInfoJson.bulletScreen.Anonymous == 1 && markGrouObj.objects['obj_Flowers_tanmu_bt_03_7'].hide();
+
+	//因为多处用到,故封装成动作序列  getRandomBulletScreenWord
+	function getRandomTxt() {
+		var markConfig = game.configs.barrage;
+		var _arrIndex = Object.keys(markConfig);
+		var _randomArrIndex = [];
+		var calVar = function () {
+			for (var i = 0; i < 4; i++) {
+				var delIndex = random_range(0, _arrIndex.length - 1);
+				_randomArrIndex.push(markConfig[_arrIndex[delIndex]].name);
+				_arrIndex.splice(delIndex, 1);
+			}
+		}
+		calVar();
+		return _randomArrIndex;
+	}
+
+	/**
+	 *   改变宽度和字体颜色的消息  changeWidthAndColor
+	 */
+	switch (event.argument0) {
+		case 5:  //vip大于5
+
+			break;
+		case 1:  //1-5之间
+			break;
+		default:
+			break;
+	}
+
+
+
+	current_game.scripts['al_scr_' + "InitStartAndOpenBulletScreenButton"].call(this, undefined, this, data);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * changeBulletScreenButtonStatus
+	 */
+	if (!game.vars_.playInfoJson.bulletScreen.showing) {  //showing 控制是否在展示界面
+		hideAndClear();
+		return;
+	}
+	var getAnonymousObjArr = qyengine.getInstancesByType("obj_Flowers_tanmu_bt_03_7");
+	var getOpenObjArr = qyengine.getInstancesByType("obj_Flowers_tanmu_bt_03_2");
+	var openBulletNeedMoveObj = qyengine.guardId("obj_Flowers_tanmu_bt_05");
+	for (var i = 0; i < getAnonymousObjArr.length; i++) {
+		if (game.vars_.playInfoJson.bulletScreen.Anonymous) {
+			try {
+				getAnonymousObjArr[i].show();
+			} catch (error) {
+				console.error(error.message);
+			}
+
+		} else {
+			try {
+				getAnonymousObjArr[i].hide();
+			} catch (error) {
+				console.error(error.message);
+			}
+		}
+	}
+	for (var j = 0; j < getOpenObjArr.length; j++) {
+		if (game.vars_.playInfoJson.bulletScreen.start) {
+			//getOpenObjArr[j].changeSprite("obj_Flowers_tanmu_bt_03_2_default");
+			try {
+				//openBulletNeedMoveObj.x = 33;  //37
+				if (qyengine.getInstancesByType("Btn_tanMu_Func").length > 0) {
+					Btn_tanMu_Func.objects['obj_Flowers_tanmu_bt_05'].x = 33;
+				}
+				if (qyengine.getInstancesByType("grou_friendInfo").length > 0) {
+
+					var jiZhunX = grou_friendInfo.objects["obj_Flowers_tanmu_bt_04"].x;
+					grou_friendInfo.objects['obj_Flowers_tanmu_bt_05'].x = jiZhunX - 24;
+				}
+			} catch (error) {
+				console.error("打印,需要查看");
+			}
+			current_game.scripts['al_scr_' + "CreateScreenWordShow"].call(this, undefined, this);
+		} else {
+			try {
+				//openBulletNeedMoveObj.x = 89;   //93
+				if (qyengine.getInstancesByType("Btn_tanMu_Func").length > 0) {
+					Btn_tanMu_Func.objects['obj_Flowers_tanmu_bt_05'].x = 89;
+				}
+
+				if (qyengine.getInstancesByType("grou_friendInfo").length > 0) {
+					var jiZhunX = grou_friendInfo.objects["obj_Flowers_tanmu_bt_04"].x;
+					grou_friendInfo.objects['obj_Flowers_tanmu_bt_05'].x = jiZhunX + 26;
+				}
+			} catch (error) {
+				console.error("打印,需要查看");
+			}
+			hideAndClear();
+			//getOpenObjArr[j].changeSprite("obj_Flowers_tanmu_bt_03_3_default");
+		}
+	}
+	function hideAndClear() {
+		qyengine.forEach(function () {
+			this.isVisible && this.hide();
+			this.setSpeed(0, 0);
+		}, "grou_bullutScreen_fly");
+		qyengine.forEach(function () {
+			this.isVisible && this.hide();
+			this.setSpeed(0, 0);
+		}, "grou_bullutScreen_fly_vip5");
+		game.vars_.bulletScreenCycleTime && clearInterval(game.vars_.bulletScreenCycleTime);
+		game.vars_.bulletScreenShowTime && clearInterval(game.vars_.bulletScreenShowTime);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	var itemId = game.vars_.manualDataArr[i][0];
+
+	if (!game.vars_.manualDataArr[i]) {
+		continue;
+	}
+
+
+
+	current_game.scripts['al_scr_' + "StartBulletScreen"].call(this, undefined, this);
+
+
+
+	//'flower'  'friend'
+	//game.vars_.bulletScreenType = flowerInScene;
+
+
+	current_game.scripts['al_scr_' + "ShowBulletScreen"].call(this, undefined, this, 0, 'friend');
+
+
+
+
+
+	qyengine['grou_materialSell'] && qyengine['grou_materialSell'].hide();
+
+
+	if (localStorage.bulletScreenStart) {
+		game.vars_.playInfoJson.bulletScreen
+	}
+
+	localStorage.bulletScreenStart = game.vars_.playInfoJson.bulletScreen.start;
+
+	self.objects['obj_Sharing_interface_Share_002'].hide();
+	qyengine.forEach(function () {
+		this.show();
+	}, "obj_Sharing_interface_Share_002");
+
+
+
+
+
+	//ArenaSharePanel    ShareIngThreeStarsPanel   ShareIngBasePanel
+
+
+
+	var closeNumArr = grou_decomposePanel.vars_.clothInBag;
+	var totalNum = 0;
+	for (var cell in closeNumArr) {
+		totalNum += Number(closeNumArr[cell].num);
+	}
+
+
+
+	current_game.scripts['al_scr_' + "CreateMaterailSale"] && current_game.scripts['al_scr_' + "CreateMaterailSale"].call(this, undefined, this);
+
+	//分解的请求
+	function callBack() {
+		console.log(arguments[1]);
+		if (arguments[1] == true) {
+			game.scripts["al_scr_DecomposeResult"](null, null, arguments[2]);
+		} else {
+			console.log(arguments[2].code);
+			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		}
+		game.scripts["al_scr_gameloadDestroy"](null, null);
+	}
+
+	game.scripts["al_scr_gameloadCreate"](null, null);
+	QyRpc.DisintegrateFashion(cloth, callBack);
+
+
+
+	//CreateMaterailSale
+	if (!qyengine['grou_materialSell']) {
+		qyengine['grou_materialSell'].show();
+	} else {
+		qyengine['grou_materialSell'] = qyengine.instance_create(0, 0, "grou_materialSell", {
+			"id": "grou_materialSell",
+			"zIndex": 9,
+			"layer": "layer0"
+		});
+	}
+
+	var miscConfig = game.configs.misc[1].value.split("|");
+	var itemId = 0;
+	var itemNum = 0;
+	switch (Number(miscConfig[0])) {
+		case 1:
+			itemId = Number(miscConfig[1]);
+			itemNum = Number(miscConfig[2]);
+			break;
+		default:
+			break;
+	}
+	qyengine['grou_materialSell'].vars_.oneItemNum = itemNum;
+	qyengine['grou_materialSell'].objects['inpu_materialSell'].setValue(1);
+	qyengine['grou_materialSell'].objects['txt_materialSellCommon_goldNum'].text = itemNum;
+	qyengine['grou_materialSell'].vars_.nowSelectNum = 1;
+
+	//最大
+
+	//最小
+	var oneItemNum = qyengine['grou_materialSell'].vars_.oneItemNum;
+	switch (buttonType) {
+		case 0:
+			qyengine['grou_materialSell'].objects['txt_materialSellCommon_goldNum'].text = oneItemNum;
+			qyengine['grou_materialSell'].vars_.nowSelectNum = 1;
+			break;
+		case 1:
+			if (qyengine['grou_materialSell'].vars_.nowSelectNum == 1) {
+				return;
+			} else {
+				qyengine['grou_materialSell'].vars_.nowSelectNum--;
+				qyengine['grou_materialSell'].objects['txt_materialSellCommon_goldNum'].text = oneItemNum * qyengine['grou_materialSell'].vars_.nowSelectNum;
+			}
+			break;
+		case 2:
+			if (qyengine['grou_materialSell'].vars_.nowSelectNum >= Number(game.vars_.bagList.goods[113].num)) {
+				return;
+			}
+			qyengine['grou_materialSell'].vars_.nowSelectNum++;
+			qyengine['grou_materialSell'].objects['txt_materialSellCommon_goldNum'].text = oneItemNum * qyengine['grou_materialSell'].vars_.nowSelectNum;
+
+			break;
+		case 3:
+			if (qyengine['grou_materialSell'].vars_.nowSelectNum >= Number(game.vars_.bagList.goods[113].num)) {
+				return;
+			}
+			qyengine['grou_materialSell'].vars_.nowSelectNum = Number(game.vars_.bagList.goods[113].num) == 0 ? 1 : Number(game.vars_.bagList.goods[113].num);
+			qyengine['grou_materialSell'].objects['txt_materialSellCommon_goldNum'].text = oneItemNum * qyengine['grou_materialSell'].vars_.nowSelectNum;
+
+			break;
+
+		default:
+			break;
+	}
+	//出售
+	function callBack_decomposed() {
+		console.log(arguments);
+		if (arguments[1]) {
+			var plusStone = Number(arguments[2].stone) - Number(game.vars_.playInfoJson.stone);
+			var plusGold = Number(arguments[2].gold) - Number(game.vars_.playInfoJson.gold);
+			var plusMaterial = Number(arguments[2].material) - Number(game.vars_.bagList.goods[113].num);
+			game.vars_.playInfoJson.stone = arguments[2].stone;
+			game.vars_.bagList.goods[113].num = arguments[2].material;
+			game.vars_.playInfoJson.gold = arguments[2].gold;
+
+			game.vars_.dropList = [];
+			var cellObj = {};
+			//var propData= game.configs.prop[]
+			if (plusStone > 0) {
+				cellObj.id = 101;
+				cellObj.type = 2;
+				cellObj.num = plusStone;
+			}
+			if (plusGold > 0) {
+				cellObj.id = 100;
+				cellObj.type = 1;
+				cellObj.num = plusGold;
+			}
+			if (plusMaterial > 0) {
+				cellObj.id = 113;
+				cellObj.type = 6;
+				cellObj.num = plusMaterial;
+			}
+			current_game.scripts['al_scr_' + "AddToBag"].call(this, undefined, this, game.vars_.dropList);
+			//InitAwardBg
+			current_game.scripts['al_scr_' + "InitAwardBg"].call(this, undefined, this, game.vars_.dropList, 'layer1');
+		} else {
+			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		}
+		game.scripts["al_scr_gameloadDestroy"](null, null);
+	}
+	game.scripts["al_scr_gameloadCreate"](null, null);
+	QyRpc.decomposedClothSale(1, callBack_decomposed);
+
+	qyengine.guardId("grou_decomposePanelHasNum").setText(game.vars_.bagList.goods[113].num.toString());
+
+
+
+	/**
+	 * JudgeSevenTargetShowAndHide  动作序列,判断7日目标按钮的隐藏和显示
+	 */
+	function callBack_show() {
+		//console.log(arguments);
+		if (arguments[1] && arguments[2].code == 200) {
+			if (arguments[2].flg) {
+				self.show();
+			} else {
+				self.hide();
+			}
+		} else {
+			self.hide()
+			console.error("请求错误~需要查看");
+		}
+	}
+	QyRpc.seven_show(callBack_show);

@@ -152,7 +152,7 @@ qyengine.addDataforms('dataform_1', 'id', {
     "data": 100
 });
 
-//
+//重设滚轴的位置~~~~~
 scro_achievementList.resetLimitPosition(true)
 //获得父对象/父容器
 obj_PVEicon_首充.currentSprite.parent.qyobj
@@ -308,6 +308,7 @@ $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
 6, 侧边栏图层视图下支持多线操作
 5, 项目管理中能增加文件夹
 6, 搜索对象的时候, 增加显示对象所在的文件夹
+7, 输入框的一系列问题
 /*
 yulongzaitianH5_pre_lxjt   新增加的
 //chrome调试地址
