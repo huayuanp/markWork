@@ -53,6 +53,10 @@ self.currentSprite.realWidth
 list_wantStrong.refreshView();
 //跳转场景
 qyengine.different_scene('sce_1');
+//执行动画
+runAnimation('anim_flashRed')
+//停止所有的声音
+qyengine.stop_all_sounds();
 //获取途径、物品途径
 game.scripts["al_scr_" + "actionlist_getway"](null, null, 90014);
 //添加对象到滚轴容器
@@ -244,7 +248,10 @@ qyengine.setImageLowQuality(), qyengine.setImageHighQuality()
 this.moveTo(691, 859, 'time', 1000);
 //移动至,按速度
 qyengine.guardId("obj_3").moveTo(100 + qyengine.guardId("obj_3").x, qyengine.guardId("obj_3").y, 200, 1);
-
+//~~~~~~~~~~~~输入框的监听
+inpu_materialSell.currentSprite.domElement.addEventListener("input", function () {
+    console.log(this.value);
+})
 //改变实例的唯一标识符
 var temp_obj = nowPondObjArr[cell];
 temp_obj.id = "obj_crabImage_" + game.vars_.userInfo.my_crab[cell].id;
