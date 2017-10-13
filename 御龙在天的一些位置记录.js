@@ -6177,9 +6177,46 @@ if (repeatTime === 0) {
 	 * avg的大转盘的活动
 	 */
 	//每次进入活动请求数据
+	function drawWheel() {
+		if (qyengine.getInstancesByType("LuckyWheelPanel").length) {
+			qyengine['LuckyWheelPanel'].show();
+		} else {
+			qyengine['LuckyWheelPanel'] = qyengine.instance_create(current_scene.viewOffset.x, 0, "LuckyWheelPanel", {
+				"type": "LuckyWheelPanel",
+				"id": "LuckyWheelPanel",
+				"zIndex": 10,
+				"layer": "layer0"
+			});
+			game.vars_.daZhuanPan = qyengine['LuckyWheelPanel'];
+			qyengine.guardId("ActivePanel").appendChild("LuckyWheelPanel", 0, 0);
+		}
+		//时间
+		var startTime = "" + game.vars_.activeOpenTimeDic[11].time_start[0] + "年" + game.vars_.activeOpenTimeDic[11].time_start[1] + "月" + game.vars_.activeOpenTimeDic[11].time_start[2] + "日";
+		var overTime = "" + game.vars_.activeOpenTimeDic[11].time_over[0] + "年" + game.vars_.activeOpenTimeDic[11].time_over[1] + "月" + game.vars_.activeOpenTimeDic[11].time_over[2] + "日";
+		qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon'].text = "活动时间：" + startTime + "--" + overTime;
+		qyengine['LuckyWheelPanel'].vars_.freeNum = arguments[0].freeNum;
+		qyengine['LuckyWheelPanel'].vars_.score = arguments[0].score;
+		qyengine['LuckyWheelPanel'].vars_.exchangeRewards = arguments[0].exchangeRewards;
+		qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_4'].text = "已有积分：" + arguments[0].score;
+		if (Number(qyengine['LuckyWheelPanel'].vars_.freeNum) <= 0) {
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_free'].hide();
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_haveTimes'].text = 20;
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_haveTimes'].show();
+			qyengine['LuckyWheelPanel'].objects['obj_Active_interface_zhuanpan_06'].show();
+		} else {
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_free'].show();
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_haveTimes'].hide();
+			qyengine['LuckyWheelPanel'].objects['obj_Active_interface_zhuanpan_06'].hide();
+		}
+		var configData = game.configs.luckywheel_lottery;
+		for (var _cell in configData) {
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_' + (5 + Number(_cell - 1))].text = configData[_cell].name;
+			qyengine['LuckyWheelPanel'].objects['obj_Icon_goods_1_' + (Number(_cell - 1))].changeSprite("obj_" + configData[_cell].show + "_default");
+		}
+	}
 	function dataBack() {
 		if (arguments[1]) {
-
+			drawWheel(arguments[2]);
 		} else {
 			arguments[2].code && game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
 		}
@@ -6191,6 +6228,24 @@ if (repeatTime === 0) {
 	//点击抽奖
 	function wheelBack() {
 		if (arguments[1]) {
+			self.vars_.canTouch = false;
+			preventToDown();
+			qyengine['LuckyWheelPanel'].vars_.freeNum = arguments[2].freeNum;
+			qyengine['LuckyWheelPanel'].vars_.score = arguments[2].score;
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_4'].text = "已有积分：" + arguments[2].score;
+			if (Number(qyengine['LuckyWheelPanel'].vars_.freeNum) <= 0) {
+				qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_free'].hide();
+				qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_haveTimes'].text = 20;
+				qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_haveTimes'].show();
+				qyengine['LuckyWheelPanel'].objects['obj_Active_interface_zhuanpan_06'].show();
+			} else {
+				qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_free'].show();
+				qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_haveTimes'].hide();
+				qyengine['LuckyWheelPanel'].objects['obj_Active_interface_zhuanpan_06'].hide();
+			}
+			qyengine['LuckyWheelPanel'].vars_.place = arguments[2].rewardId;
+			qyengine['LuckyWheelPanel'].vars_.placeIndex = arguments[2].rewardIdx;
+
 			startLuckyWheel();
 
 		} else {
@@ -6198,26 +6253,45 @@ if (repeatTime === 0) {
 		}
 		game.scripts["al_scr_gameloadDestroy"](null, null);
 	}
-	function startLuckyWheel() {
-		grou_luckyWheel.vars_.markInterval && clearInterval(grou_luckyWheel.vars_.markInterval);
-		grou_luckyWheel.vars_.xxx.setRotation(0);
 
-		var grou_luckyWheel = {};   //组合ui
-		var needStopPlace = random_range(1, 8);  //需要移动到的位置
-		var rotationRateNum = 5;   //几圈
+	function preventToDown() {
+		if (qyengine.getInstancesByType("obj_luckyWheelExchangeMengban").length) {
+			qyengine.getInstancesByType("obj_luckyWheelExchangeMengban")[0].show();
+		} else {
+			qyengine['obj_luckyWheelExchangeMengban'] = qyengine.instance_create(current_scene.viewOffset.x + 360, 640, "obj_luckyWheelExchangeMengban", {
+				"type": "obj_luckyWheelExchangeMengban",
+				"id": "obj_luckyWheelExchangeMengban",
+				"zIndex": 99,
+				"layer": "layer0"
+			});
+		}
+	}
+	function startLuckyWheel() {
+		qyengine['LuckyWheelPanel'].vars_.markInterval && clearInterval(qyengine['LuckyWheelPanel'].vars_.markInterval);
+		qyengine['LuckyWheelPanel'].objects['obj_Active_interface_zhuanpan_04'].setRotation(0);
+
+		//var grou_luckyWheel = {};   //组合ui
+		var needStopPlace = qyengine['LuckyWheelPanel'].vars_.place;  //需要移动到的位置
+		var rotationRateNum = 4;   //几圈
 		var moveOneAngle = 360 / (Object.keys(game.configs.luckywheel_lottery).length * 2);
 		var needAngle = -(moveOneAngle + moveOneAngle * 2 * (needStopPlace - 1) + 360 * rotationRateNum);
-		grou_luckyWheel.vars_.markInterval = setInterval(function () {
-			grou_luckyWheel.vars_.xxx.setRotation(grou_luckyWheel.getRotation() - 4.5);
-			if (grou_luckyWheel.vars_.xxx.getRotation() <= needAngle) {
-				clearInterval(grou_luckyWheel.vars_.markInterval);
-				grou_luckyWheel.vars_.markInterval = null;
+		qyengine['LuckyWheelPanel'].vars_.markInterval = setInterval(function () {
+			var _objRotation = qyengine['LuckyWheelPanel'].objects['obj_Active_interface_zhuanpan_04'];
+			_objRotation.setRotation(_objRotation.getRotation() - 13.5);
+			if (_objRotation.getRotation() <= needAngle) {
+				clearInterval(qyengine['LuckyWheelPanel'].vars_.markInterval);
+				qyengine['LuckyWheelPanel'].vars_.markInterval = null;
+				calReward();
+				self.vars_.canTouch = true;
+				qyengine.forEach(function () {
+					this.hide();
+				}, 'obj_luckyWheelExchangeMengban');
 			}
-		}, 50);
+		}, 25);
 	}
 	function calReward() {
-		var _rewardId = random_range(1, 8);
-		var _rewardPlace = 0;
+		var _rewardId = qyengine['LuckyWheelPanel'].vars_.place;
+		var _rewardPlace = qyengine['LuckyWheelPanel'].vars_.placeIndex;
 		var configData = game.configs.luckywheel_lottery;
 		for (var cell in configData) {
 			if (Number(cell) == Number(_rewardId)) {
@@ -6245,12 +6319,164 @@ if (repeatTime === 0) {
 			}
 		}
 	}
-	game.scripts["al_scr_gameloadCreate"](null, null);
-	QyRpc.LuckyWheelOperate(wheelBack);
+	if (qyengine['LuckyWheelPanel'].vars_.freeNum <= 0 && game.vars_.playInfoJson.stone < 20) {
+		game.scripts["al_scr_donotEnughStone"](null, null);
+	} else {
+		game.scripts["al_scr_gameloadCreate"](null, null);
+		if (qyengine['LuckyWheelPanel'].vars_.freeNum <= 0) {
+			game.vars_.playInfoJson.stone -= 20;
+			game.scripts["al_scr_RefreshPowerGoldStoneText"](null, null);
+		}
+
+		QyRpc.LuckyWheelOperate(wheelBack);
+	}
+
 
 	//点击兑换
-	
+	if (qyengine['LuckyWheelExchangePanel']) {
+		qyengine['LuckyWheelExchangePanel'].show();
+	} else {
+		qyengine['LuckyWheelExchangePanel'] = qyengine.instance_create(0, 0, 'LuckyWheelExchangePanel', {
+			"type": "LuckyWheelExchangePanel",
+			"id": "LuckyWheelExchangePanel",
+			"zIndex": 11,
+			"layer": "layer0"
+		});
+		qyengine['LuckyWheelExchangePanel'].dispatchMessage({
+			"type": "message",
+			"message": "initData"
+		});
+	}
+	//initData  消息
+	self.objects['txt_luckyWheelCommon_alreadyJi'].text = "已有积分：" + qyengine['LuckyWheelPanel'].vars_.score;
+	var configData = game.configs.luckywheel_score;
+	var alreadyLingQu = qyengine['LuckyWheelPanel'].vars_.exchangeRewards.split(',');
+	for (var _cell in configData) {
+		var markId = _cell;
+		var jiFen = configData[_cell].cost;
+		var rewardData = configData[_cell].reward.split('|');
+		var id = 1;
+		var name = "";
+		var icon = "";
+		var alreadyRechange = alreadyLingQu.includes(_cell.toString());
 
+		switch (Number(rewardData[0])) {
+			case 1:
+				var _config = game.configs.prop[Number(rewardData[1])];
+				name = _config.name;
+				icon = _config.icon;
+				break;
+			case 2:
+				var _config = game.configs.fashion[Number(rewardData[1])];
+				name = _config.name;
+				icon = _config.sicon;
+				break;
+			case 3:
+				var _config = game.configs.fashionPlan[Number(rewardData[1])];
+				name = _config.name;
+				icon = _config.icon;
+				break;
+			case 4:
+				var _config = game.configs.bg[Number(rewardData[1])];
+				name = _config.name;
+				icon = _config.sicon;
+				break;
+			case 5:
+				var _config = game.configs.hero_gift[Number(rewardData[1])];
+				name = _config.name;
+				icon = _config.icon;
+				break;
+			default:
+				break;
+		}
+		game.configs.config_luckyWheel[Number(_cell)] = {
+			"id": Number(_cell),
+			"name": name,
+			"icon": 'obj_' + icon + "_default",
+			"markId": markId,
+			"alreadyRechange": alreadyRechange,
+			'jiFen': jiFen,
+		};
+		self.objects['scro_luckyWheel'].refreshRelations();
+		setTimeout(function () {
+			self.objects['scro_luckyWheel'].refreshRelations();
+		}, 50);
+	}
+
+
+	//  LuckyWheelExchangePanel_item的创建事件
+	var propertyObj = self.objects['luckyWheel_exchangeButton'];
+	if (propertyObj.vars_.alreadyRechange) {
+
+		propertyObj.objects['obj_Active_interface_zhuanpan_01'].show();
+		propertyObj.objects['obj_map_property_yoashi_bt_04'].hide();
+		propertyObj.objects['txt_luckyWheelCommon_consumption'].hide();
+		propertyObj.objects['obj_Active_interface_zhuanpan_02'].hide();
+	} else {
+		propertyObj.objects['obj_Active_interface_zhuanpan_01'].hide();
+		propertyObj.objects['obj_map_property_yoashi_bt_04'].show();
+		propertyObj.objects['txt_luckyWheelCommon_consumption'].show();
+		propertyObj.objects['obj_Active_interface_zhuanpan_02'].show();
+	}
+
+	//luckyWheel_exchangeButton  点击兑换
+	if (self.objects['obj_Active_interface_zhuanpan_01'].isVisible) {
+		return;
+	}
+	var _needCost = Number(game.configs.luckywheel_score[self.vars_.markId].cost);
+	if (qyengine['LuckyWheelPanel'].vars_.score < _needCost) {
+		game.scripts["al_scr_AddTip_1"](null, null, "积分不足哦~", "layer1");
+		return;
+	}
+	function exchangeBack() {
+		if (arguments[1]) {
+			qyengine['LuckyWheelPanel'].vars_.score = arguments[2].score;
+			qyengine['LuckyWheelPanel'].vars_.exchangeRewards = qyengine['LuckyWheelPanel'].vars_.exchangeRewards + "," + self.vars_.markId;
+			qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_4'].text = "已有积分：" + qyengine['LuckyWheelPanel'].vars_.score;
+			LuckyWheelExchangePanel.objects['txt_luckyWheelCommon_alreadyJi'].text = "已有积分：" + qyengine['LuckyWheelPanel'].vars_.score;
+			var showAndHideStatus = ['obj_Active_interface_zhuanpan_01', 'obj_map_property_yoashi_bt_04', 'obj_Active_interface_zhuanpan_02', 'txt_luckyWheelCommon_consumption'];
+			qyengine.getInstancesByType("luckyWheel_exchangeButton")[0]
+			showAndHideStatus.forEach(function (e) {
+				if (e = "obj_Active_interface_zhuanpan_01") {
+					self.objects[e].show();
+				} else {
+					self.objects[e].hide();
+				}
+			});
+
+			game.vars_.dropList = [];
+			var _dropList = {};
+			_dropList.id = arguments[2].reward[0].id;
+			_dropList.type = arguments[2].reward[0].type;
+			_dropList.num = arguments[2].reward[0].num;
+			if (arguments[2].reward[0].type == 2) {
+				var isOwn = !(game.vars_.bagList.cloth[arguments[2].reward[0].id] == undefined);
+				_dropList.isOwn = isOwn;
+			}
+			if (arguments[2].reward[0].type == 3) {
+				var isOwn = !(game.vars_.bagList.plan[arguments[2].reward[0].id] == undefined);
+				_dropList.isOwn = isOwn;
+			}
+			if (arguments[2].reward[0].type == 4) {
+				var isOwn = !(game.vars_.playInfoJson.bgMap.maps[arguments[2].reward[0].id] == undefined);
+				_dropList.isOwn = isOwn;
+			}
+			if (arguments[2].reward[0].type == 5) {
+				var isOwn = !(game.vars_.playInfoJson.hero_gift[arguments[2].reward[0].id] == undefined);
+				_dropList.isOwn = isOwn;
+			}
+			game.vars_.dropList.push(_dropList);
+			current_game.scripts['al_scr_' + "AddToBag"].call(this, undefined, this, game.vars_.dropList);
+			//InitAwardBg
+			current_game.scripts['al_scr_' + "InitAwardBg"].call(this, undefined, this, game.vars_.dropList, 'layer1');
+		} else {
+			console.log(arguments[2].code);
+			arguments[2].code && game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		}
+		game.scripts["al_scr_gameloadDestroy"](null, null);
+	}
+	game.scripts["al_scr_gameloadCreate"](null, null);
+	QyRpc.LuckyWheelExchange(self.vars_.markId, exchangeBack);
 
 
 
@@ -6294,3 +6520,11 @@ var isOwn = !(game.vars_.bagList.goods[award[i].id] == undefined);
 qyengine.forEach(function () {
 	this.hide();
 }, "grou_searchResult");
+
+
+
+qyengine['LuckyWheelExchangePanel'] && qyengine['LuckyWheelExchangePanel'].hide && qyengine['LuckyWheelExchangePanel'].hide();
+
+
+
+"obj_Active_interface_zhuanpan_04","obj_map_property_yaoshi_05","obj_Icon_face_40008","obj_map_property_yoashi_bt_04","obj_Active_interface_zhuanpan_01","obj_Active_interface_zhuanpan_01"
