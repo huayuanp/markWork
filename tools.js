@@ -2,6 +2,8 @@
 //hwangrd 18655950910 wh
 //nginx
 //http: //localhost/ylzt_0823/
+//web开发平台调试 1106097089
+https://open.mobile.qq.com/api/h5plus/debug.html
 operationRemind //通用的提示接口
 actionlist_createLoadingCircle //通用的创建加载圈圈
 actionlist_destroyLoadingCircle //通用的销毁圈圈

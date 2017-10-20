@@ -6527,4 +6527,689 @@ qyengine['LuckyWheelExchangePanel'] && qyengine['LuckyWheelExchangePanel'].hide 
 
 
 
-"obj_Active_interface_zhuanpan_04","obj_map_property_yaoshi_05","obj_Icon_face_40008","obj_map_property_yoashi_bt_04","obj_Active_interface_zhuanpan_01","obj_Active_interface_zhuanpan_01"
+game.scripts["al_scr_OpenPhotoGraphersBg"](null, null);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if (qyengine.login._getLoginInfo()._type == "qq" || (window.isShare && window.isShare())) {
+
+	var state = Math.floor(Math.random() * 10) % 2;
+	var title;
+	if (state == 0) {
+		title = "云锦绣织的梦 三生皆为遇见你";
+
+	} else {
+		title = "穿越冒险 古风换装 尽在锦绣缘";
+
+	}
+
+
+
+
+	if (game.vars_.SharingIndex != 6 && window.isSharePic && window.isSharePic()) {
+		//图片分享
+		game.scripts["al_scr_gameloadCreate"](null, null);
+		setTimeout(function () {
+			game.scripts["al_scr_gameloadDestroy"](null, null);
+		}, 1000);
+		current_game.scripts['al_scr_' + "getBaseObj64"].call(this, undefined, this, game.vars_.needHideObj, '', game.vars_.baseGroup);
+		window.setSharePicture && window.setSharePicture(game.vars_.obj_base64.getCanvas(), "WeChatShareSucceed"/*分享成功回调函数*/, "WeChatShareFailure"/*分享失败回调函数*/)
+	} else {
+		//普通的文字分享
+		if (window.isShare && window.isShare()) {
+			window.setChannelShare && window.setChannelShare(title, "锦绣缘", window.avgServerPort + "|" + game.vars_.playInfoJson.uid, "分享图标路径", function () {
+				game.scripts["al_scr_" + "WeChatShareSucceed"] && game.scripts["al_scr_" + "WeChatShareSucceed"]();
+			}, function () {
+				game.scripts["al_scr_" + "WeChatShareFailure"] && game.scripts["al_scr_" + "WeChatShareFailure"]();//分享失败
+			});
+		}
+	}
+
+	return;
+
+
+
+
+} else {
+
+	game.scripts["al_scr_AddTip_1"](null, null, "QQ登录才能分享", "layer1");
+}
+
+
+
+
+
+
+
+
+if (window.isShare && window.isShare()) {
+
+	var state = Math.floor(Math.random() * 10) % 2;
+	var title;
+	if (state == 0) {
+		title = "云锦绣织的梦 三生皆为遇见你";
+
+	} else {
+		title = "穿越冒险 古风换装 尽在锦绣缘";
+
+	}
+
+
+
+	if (game.vars_.SharingIndex != 6 && window.isSharePic && window.isSharePic()) {
+		//图片分享
+		game.scripts["al_scr_gameloadCreate"](null, null);
+		setTimeout(function () {
+			game.scripts["al_scr_gameloadDestroy"](null, null);
+		}, 1000);
+		game.vars_.needHideObj = Object.keys(grou_photoBack.objects);
+		game.vars_.baseGroup = "grou_photoBack";
+		current_game.scripts['al_scr_' + "getBaseObj64"].call(this, undefined, this, game.vars_.needHideObj, '', game.vars_.baseGroup);
+		window.setSharePicture && window.setSharePicture(game.vars_.obj_base64.getCanvas(), "WeChatShareSucceed"/*分享成功回调函数*/, "WeChatShareFailure"/*分享失败回调函数*/)
+	} else {
+		window.setChannelShare && window.setChannelShare(title, "锦绣缘", window.avgServerPort + "|" + game.vars_.playInfoJson.uid, "分享图标路径", function () {
+			game.scripts["al_scr_" + "WeChatShareSucceed"] && game.scripts["al_scr_" + "WeChatShareSucceed"]();
+		}, function () {
+			game.scripts["al_scr_" + "WeChatShareFailure"] && game.scripts["al_scr_" + "WeChatShareFailure"]();//分享失败
+		});
+	}
+	return;
+}
+
+
+
+
+
+
+
+
+
+
+
+qyengine.instance_create(0, 0, "grou_gameLoadingBg", {
+	"type": "grou_gameLoadingBg",
+	"id": "grou_gameLoadingBg",
+	"zIndex": 10000,
+	"layer": "layer1"
+});
+
+
+var obj = qyengine.getInstancesByType("grou_gameLoadingBg");
+if (obj.length > 0) {
+	obj[0].destroy();
+}
+
+
+
+
+
+
+
+game.vars_.needHideObj = Object.keys(grou_photoBack.objects);
+game.vars_.baseGroup = "grou_photoBack";
+
+
+if (qyengine.getInstancesByType("grou_photoBack").length > 0) {
+	game.vars_.needHideObj && game.vars_.needHideObj.forEach(function (e) {
+		qyengine.getInstancesByType("grou_photoBack")[0].objects[e].show();
+	});
+}
+
+
+
+game.scripts["al_scr_gameloadCreate"](null, null);
+setTimeout(function () {
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}, 2000);
+
+
+//8 7 10 10
+
+
+
+TopPanel.vars_.curryTopIndex = 2;
+game.scripts["al_scr_TouchTopRankBtn"](null, null);
+TopPanelChooseStateIcon.x = self.x;
+
+
+/**
+ * TouchTopRankBtn
+ */
+
+
+
+
+function callBack() {
+	console.log(arguments);
+	if (arguments[1] == true) {
+		TopPanel.vars_.DataDic[TopPanel.vars_.curryTopIndex] = arguments[2].rank;
+		for (cell in TopPanel.vars_.DataDic[TopPanel.vars_.curryTopIndex]) {
+			if (Object.keys(TopPanel.vars_.DataDic[TopPanel.vars_.curryTopIndex][cell].cloth).toString().indexOf("pet") < 0) {
+				TopPanel.vars_.DataDic[TopPanel.vars_.curryTopIndex][cell].cloth.pet = 0;
+			}
+		}
+		TopPanel.vars_.CurryTopData = TopPanel.vars_.DataDic[TopPanel.vars_.curryTopIndex];
+
+		game.scripts["al_scr_RefreshTopRank"](null, null);
+	} else {
+		console.log(arguments[2].code);
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+
+
+if (TopPanel.vars_.DataDic[TopPanel.vars_.curryTopIndex] == null) {
+	if (TopPanel.vars_.curryTopIndex == 0) {
+		game.scripts["al_scr_gameloadCreate"](null, null);
+		QyRpc.clothCollectRank(callBack);
+	} else if (TopPanel.vars_.curryTopIndex == 1) {
+		game.scripts["al_scr_gameloadCreate"](null, null);
+		QyRpc.questLevelRank(callBack)
+	} else if (TopPanel.vars_.curryTopIndex == 2) {
+		game.scripts["al_scr_gameloadCreate"](null, null);
+		QyRpc.FavorLevelRank(callBack)
+	}
+} else {
+	TopPanel.vars_.CurryTopData = TopPanel.vars_.DataDic[TopPanel.vars_.curryTopIndex];
+	game.scripts["al_scr_RefreshTopRank"](null, null);
+}
+
+qyengine.pay.WeChatPay(self.vars_.rechargeId, 1, null, "ChargeFailCallback", "OrderIdCallback");
+
+//网络繁忙,请稍后重试
+//发起支付     grou_reChargeFailed        rechargeFaultPrevent 
+current_game.scripts['al_scr_' + "rechargeFaultPrevent"].call(this, undefined, this);
+current_scene.vars_.chargeStatus = true;
+current_scene.vars_.chargeTimeOut && clearTimeout(current_scene.vars_.chargeTimeOut);
+current_scene.vars_.chargeTimeOut = setTimeout(function () {
+	var needExist = ['grou_vipPanel', 'grou_map_property_yoashi', "grou_monthCard", "HappyShopPanel"];
+	var _show = false;
+	for (var _cell in needExist) {
+		var _obj = qyengine.getInstancesByType(needExist[cell]);
+		if (_obj.length && _obj[0].isVisible) {
+			_show = true;
+			break;
+		}
+	}
+	_show && current_game.scripts['al_scr_' + "actionlist_rechargeFailed"].call(this, undefined, this);
+}, 8000);
+
+//receiveOrderId   收到支付的订单
+current_scene.vars_.chargeStatus = false;
+current_scene.vars_.chargeTimeOut && clearTimeout(current_scene.vars_.chargeTimeOut);
+
+
+
+
+qyengine.getInstancesByType("grou_reChargeFailed").length && qyengine.getInstancesByType("grou_reChargeFailed")[0].destroy();
+
+
+
+
+
+
+
+/**
+ * rechargeFaultPrevent
+ */
+current_game.scripts['al_scr_' + "actionlist_rechargeFailed"].call(this, undefined, this);
+current_scene.vars_.chargeStatus = true;
+current_scene.vars_.chargeTimeOut && clearTimeout(current_scene.vars_.chargeTimeOut);
+current_scene.vars_.chargeTimeOut = setTimeout(function () {
+	var needExist = ['grou_recharge', 'grou_map_property_yoashi', "grou_monthCard", "HappyShopPanel"];
+	var _show = false;
+	for (var _cell in needExist) {
+		var _obj = qyengine.getInstancesByType(needExist[Number(_cell)]);
+		if (_obj.length && _obj[0].isVisible) {
+			_show = true;
+			break;
+		}
+	}
+	_show && current_game.scripts['al_scr_' + "actionlist_rechargeFailed"].call(this, undefined, this, );
+}, 6000);
+
+
+
+
+
+
+
+/**
+ * actionlist_rechargeFailed
+ */
+
+if (current_scene.vars_.chargeStatus) {  //没有成功吊起支付
+	if (qyengine.getInstancesByType("grou_reChargeFailed").length) {
+		qyengine['grou_reChargeFailed'].show();
+	} else {
+		qyengine['grou_reChargeFailed'] = qyengine.instance_create(0, 0, "grou_reChargeFailed", {
+			"type": "grou_reChargeFailed",
+			"id": "grou_reChargeFailed",
+			"zIndex": 10,
+			"layer": "layer1"
+		});
+	}
+	if (_txt) {
+		qyengine['grou_reChargeFailed'].objects['txt_rechargeFailed'].text = "支付请求中...";
+		qyengine['grou_reChargeFailed'].objects['obj_Main_tishi_bt_01_failed'].hide();
+		qyengine['grou_reChargeFailed'].objects['txt_rechargeFailed'].y = 565 + 15;
+	} else {
+		qyengine['grou_reChargeFailed'].objects['obj_Main_tishi_bt_01_failed'].show();
+		qyengine['grou_reChargeFailed'].objects['txt_rechargeFailed'].text = "同时充值的小仙女太多啦ㄒoㄒ，请稍后重试哦！";
+		qyengine['grou_reChargeFailed'].objects['txt_rechargeFailed'].y = 565;
+	}
+}
+
+
+
+
+
+
+
+current_game.scripts['al_scr_' + "rechargeFaultPrevent"].call(this, undefined, this);
+
+qyengine.pay.WeChatPay(self.vars_.rechargeId, 1, null, "ChargeFailCallback", "OrderIdCallback");
+
+
+
+
+
+
+/**
+ * InitWeekendActivity
+ */
+
+/**
+ * InitWeekendActivity
+ */
+
+function rechangeShow(getSerData) {
+	if (activityId == 12) {   //登陆礼
+		var _parent = qyengine.guardId('WeekendItem_0').objects['grou_weekendReceiveBtn'];
+		var _parentSun = qyengine.guardId('WeekendItem_1').objects['grou_weekendReceiveBtn'];
+		showAndHideButtonLogin(_parent, getSerData.saturdayEnterState, getSerData.orderTime);
+		showAndHideButtonLogin(_parentSun, getSerData.sundayEnterState, getSerData.orderTime);
+		if (getSerData.orderTime != -1) {
+			//_parent.objects['txt_weekendCommon_next'].vars_.zIndex
+			_parent.objects['txt_weekendCommon_next'].show();
+			_parent.objects['txt_weekendCommon_next'].vars_.seconds = getSerData.orderTime;
+			_parent.objects['txt_weekendCommon_next'].startTimeline();
+			_parentSun.objects['txt_weekendCommon_next'].show();
+			_parentSun.objects['txt_weekendCommon_next'].vars_.seconds = getSerData.orderTime + 24 * 60 * 60;
+			_parentSun.objects['txt_weekendCommon_next'].startTimeline();
+			grou_alreadyBookingBtn.objects['obj_Main_interface_zhoumo_08'].changeSprite('obj_Main_interface_zhoumo_08_default');
+			for (var _h in _parent.objects) {
+				if (_h !== "txt_weekendCommon_next") {
+					_parent.objects[_h].hide();
+					_parentSun.objects[_h].hide();
+				}
+			}
+		} else {
+			grou_alreadyBookingBtn.objects['obj_Main_interface_zhoumo_08'].changeSprite('obj_Main_interface_zhoumo_07_default');
+
+		}
+	} else {			//在线礼
+
+	}
+}
+
+
+
+function showAndHideButtonLogin(_parent, satSun, bookTime) {
+	if (satSun == 2) {
+		_parent.objects['obj_Bg_Active_interface_Already_receive_1'].show();
+		_parent.objects['obj_Main_interface_zhoumo_06'].hide();
+		_parent.objects['obj_map_property_yoashi_bt_04'].hide();
+	} else {
+		_parent.objects['obj_Bg_Active_interface_Already_receive_1'].hide();
+		_parent.objects['obj_Main_interface_zhoumo_06'].show();
+		_parent.objects['obj_map_property_yoashi_bt_04'].show();
+	}
+
+}
+function weekendLogin() {
+	if (arguments[1]) {
+		qyengine['WeekendPanel'].vars_.loginData = arguments[2];
+		rechangeShow(arguments[2]);
+	} else {
+		try {
+			console.log(arguments[2].code);
+			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		} catch (error) {
+			console.error(error.message);
+		}
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+function weekendOnline() {
+	if (arguments[1]) {
+		qyengine['WeekendPanel'].vars_.onlineData = arguments[2];
+		//var wendendDay = new Date(time()).getDay();
+		qyengine.forEach(function () {
+			if (qyengine['WeekendPanel'].vars_.onlineData.onlineTime == 0) {
+				this.objects['AccumulatedItemText'].text = this.objects['AccumulatedItemText'].text.split("(")[0] + "()";
+			} else {
+				this.objects['AccumulatedItemText'].text = this.objects['AccumulatedItemText'].text.split("(")[0] + "(今日在线" + qyengine['WeekendPanel'].vars_.onlineData.onlineTime + ")";
+			}
+			//已经领取过
+			var _alreadyReceive = qyengine['WeekendPanel'].vars_.onlineData.rewards.indexOf((this.objects['grou_weekendReceiveBtn'].vars_.markIndex + 1)) >= 0;
+			var _pa = this.objects['grou_weekendReceiveBtn'].objects;
+			for (var _k in _pa) {
+				if (_k == "obj_Bg_Active_interface_Already_receive_1" && _alreadyReceive) {
+					_pa[_k].show();
+				} else if (_alreadyReceive) {
+					_pa[_k].hide();
+				}
+
+				if ((_k == "obj_Bg_Active_interface_Already_receive_1" || _k == "txt_weekendCommon_next") && !_alreadyReceive) {
+					_pa[_k].hide();
+				} else if (!_alreadyReceive) {
+					_pa[_k].show();
+				}
+			}
+
+		}, "WeekendItem");
+	} else {
+		try {
+			console.log(arguments[2].code);
+			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		} catch (error) {
+			console.errors(error.message);
+		}
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+game.scripts["al_scr_gameloadCreate"](null, null);
+activityId == 12 ? QyRpc.WeedendEnterActView(weekendLogin) : QyRpc.getOnlineActivityData(weekendOnline);
+if (qyengine.getInstancesByType("WeekendPanel").length == 0) {
+	qyengine['WeekendPanel'] = qyengine.instance_create(current_scene.viewOffset.x, 0, "WeekendPanel", {
+		"type": "WeekendPanel",
+		"id": "WeekendPanel",
+		"zIndex": 9,
+		"layer": 'layer0'
+	});
+	qyengine.guardId("ActivePanel").appendChild("WeekendPanel", 0, 0);
+} else {
+	qyengine['WeekendPanel'].show();
+}
+qyengine['WeekendPanel'].objects['scro_weekend'].removeAll();
+game.vars_.weekendActicity = qyengine['WeekendPanel'];
+
+var _parentObj = qyengine['WeekendPanel'].objects;
+var dataConfig_byActivity = null;
+if (activityId == 12) {
+	_parentObj['obj_Main_interface_zhoumo_09'].changeSprite("obj_Main_interface_zhoumo_09_default");
+	_parentObj['txt_weekendCommon'].text = "周末登陆分享，" + "<br/>" + "即可领取奖励哦~"
+	dataConfig_byActivity = game.configs.activity_weekend_entry;
+	_parentObj['txt_weekendCommon_tip'].hide();
+	_parentObj['grou_alreadyBookingBtn'].show();
+} else if (activityId == 13) {
+	_parentObj['obj_Main_interface_zhoumo_09'].changeSprite("obj_Main_interface_zhoumo_12_default");
+	_parentObj['txt_weekendCommon'].text = "周末保持在线，" + "<br/>" + "即可领取奖励哦~"
+	dataConfig_byActivity = game.configs.activity_weekend_time;
+	_parentObj['txt_weekendCommon_tip'].show();
+	_parentObj['grou_alreadyBookingBtn'].hide();
+} else {
+	console.error("错误,需要查看");
+}
+
+var startTime = current_game.scripts['al_scr_' + "CaculateTimeByConfig"].call(this, undefined, this, game.vars_.activeOpenTimeDic[activityId].time_start);
+var overTime = current_game.scripts['al_scr_' + "CaculateTimeByConfig"].call(this, undefined, this, game.vars_.activeOpenTimeDic[activityId].time_over);
+_parentObj['txt_weekendCommon_time'].text = "活动时间:" + "<br/>" + startTime + "-" + overTime;
+
+for (var item in dataConfig_byActivity) {
+	var oneActivityData = dataConfig_byActivity[item];
+	var activiy_reward = calculateAward(oneActivityData.reward);
+	var obtainObj = null/*getWeekendItemObj(Number(item) - 1)*/;
+	if (obtainObj) {
+		var markObj = obtainObj;
+	} else {
+		var markObj = qyengine.instance_create(0, 0, "WeekendItem", {
+			"type": "WeekendItem",
+			"id": "WeekendItem_" + (Number(item) - 1),
+			"zIndex": 9,
+		});
+		qyengine['WeekendPanel'].objects['scro_weekend'].appendChild(markObj.id, -8, 1, (Number(item) - 1), 0, false, true);
+	}
+
+	markObj.vars_.markIndex = Number(item) - 1;
+	drawSmallItem(markObj, activiy_reward);
+	markObj.objects['grou_weekendReceiveBtn'].vars_.markIndex = Number(item) - 1;
+	if (activityId == 12) {
+		markObj.objects['grou_weekendReceiveBtn'].objects['obj_Main_interface_zhoumo_06'].changeSprite("obj_obj_Main_interface_zhoumo_05_default");
+		var markWord = ["周六登陆礼", "周日登陆礼"];
+		markObj.objects['AccumulatedItemText'].text = markWord[(Number(item) - 1)];
+	} else {
+		markObj.objects['AccumulatedItemText'].text = "在线" + oneActivityData.time + "分钟()";
+	}
+}
+function drawSmallItem(_objs, drawReward) {
+	for (var i = 0; i < drawReward.length; i++) {
+		switch (Number(drawReward[i].type)) {
+			case 1:
+				var temp = game.configs.prop[drawReward[i].id];
+				var icon = temp.icon;
+				break;
+			case 2:
+				var temp = game.configs.fashion[drawReward[i].id];
+				var icon = temp.sicon;
+				break;
+			case 3:
+				var temp = game.configs.fashionPlan[drawReward[i].id];
+				var icon = temp.icon;
+				break;
+			case 4:
+				var temp = game.configs.bg[drawReward[i].id];
+				var icon = temp.sicon;
+				break;
+			case 5:
+				var temp = game.configs.hero_gift[drawReward[i].id];
+				var icon = temp.icon;
+				break;
+			default:
+				break;
+		}
+		var rewardObjItem = qyengine.instance_create(0, 0, "AccumulatedIAwardItem", {
+			"type": "AccumulatedIAwardItem",
+			"id": "AccumulatedIAwardItem_" + _objs.vars_.markIndex + "_" + i,
+			"zIndex": 9,
+			"layer": "layer0"
+		});
+		_objs.objects['scro_weekendAward'].appendChild(rewardObjItem.id, -5, 1, 0, i, false, true);
+		rewardObjItem.objects['AccumulatedIAwardIcon'].changeSprite("obj_" + icon + "_default");
+		rewardObjItem.objects['AccumulatedIAwardIcon'].setScale(0.4, 0.4);
+		rewardObjItem.objects['AccumulatedIAwardText'].text = "X" + drawReward[i].num;
+		rewardObjItem.objects['AccumulatedIAwardText'].x -= 3;
+
+	}
+}
+//如果存在 WeekendItem  重复利用
+function getWeekendItemObj() {
+	if (qyengine.getInstancesByType("WeekendItem").length) {
+		local.backObj = null;
+		qyengine.forEach(function () {
+			if (this.markIndex && this.markIndex == arguments[0]) {
+				local.backObj = this;
+			}
+		}, "WeekendItem");
+		return local.backObj;
+	} else {
+		return null;
+	}
+}
+function calculateAward() {
+	var _dataConfig = arguments[0];
+	_dataConfig = _dataConfig.split("#");
+	var allData = [];
+	for (var _cell in _dataConfig) {
+		var idTypeAndNum = _dataConfig[_cell].split("|");
+		var oneData = { "id": idTypeAndNum[1], "type": idTypeAndNum[0], 'num': idTypeAndNum[2] };
+		allData.push(oneData);
+	}
+	return allData;
+}
+
+
+
+
+//登录礼  领取奖励领取成功
+function weekendReward() {
+	if (arguments[1]) {
+		game.vars_.playInfoJson.gold = arguments[2].gold;
+		game.vars_.playInfoJson.power = arguments[2].power;
+		game.vars_.playInfoJson.flowergold = arguments[2].flowergold;
+		game.vars_.playInfoJson.currency = arguments[2].currency;
+		qyengine['WeekendPanel'].vars_.loginData.saturdayEnterState = arguments[2].saturdayEnterState;
+		qyengine['WeekendPanel'].vars_.loginData.sundayEnterState = arguments[2].sundayEnterState;
+		if (game.vars_.SharingIndex == 18) {
+			qyengine.guardId('WeekendItem_0').objects['grou_weekendReceiveBtn'].dispatchMessage({
+				"type": "message",
+				"message": "refreshShow"
+			});
+		} else {
+			qyengine.guardId('WeekendItem_1').objects['grou_weekendReceiveBtn'].dispatchMessage({
+				"type": "message",
+				"message": "refreshShow"
+			});
+		}
+		game.vars_.dropList = [];
+		for (var i = 0; i < arguments[2].reward.length; i++) {
+			var isOwn = false;
+			var dropListItem = {};
+			if (_type == 2) {
+				isOwn = !(game.vars_.bagList.cloth[_id] == undefined);
+			}
+			if (_type == 3) {
+				isOwn = !(game.vars_.bagList.plan[_id] == undefined);
+			}
+			if (_type == 4) {
+				isOwn = !(game.vars_.playInfoJson.bgMap.maps[_id] == undefined);
+			}
+			if (_type == 5) {
+				isOwn = !((game.vars_.playInfoJson.hero_gift && game.vars_.playInfoJson.hero_gift[_id]) == undefined);
+			}
+			dropListItem.id = arguments[2].reward[i].id;
+			dropListItem.type = arguments[2].reward[i].type;
+			dropListItem.type = arguments[2].reward[i].num;
+			game.vars_.dropList.push(dropListItem);
+			//game.vars_.dropList = [{ 'type': _type, 'id': _id, 'num': _num, 'isOwn': isOwn }];
+		}
+		current_game.scripts['al_scr_' + "AddToBag"].call(this, undefined, this, game.vars_.dropList);
+		//InitAwardBg
+		current_game.scripts['al_scr_' + "InitAwardBg"].call(this, undefined, this, game.vars_.dropList, 'layer1');
+
+	} else {
+		console.log(arguments[2].code);
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+
+game.scripts["al_scr_gameloadCreate"](null, null);
+QyRpc.WeedendEnterActPost(game.vars_.SharingIndex == 18 ? 6 : 7, weekendReward);
+
+
+
+
+
+
+/**
+ * refreshShow   消息
+ */
+/*
+var weekendStatus = self.vars_.markIndex == 0 ? qyengine['WeekendPanel'].vars_.loginData.saturdayEnterState : qyengine['WeekendPanel'].vars_.loginData.sundayEnterState;
+showAndHideButtonLogin(self, weekendStatus, null);
+function showAndHideButtonLogin(_parent, satSun, bookTime) {
+	for (var _i in _parent.objects) {
+		var _judge = (satSun == 2 && _i == "obj_Bg_Active_interface_Already_receive_1") ||
+			(satSun == 1 && (_i == "obj_Main_interface_zhoumo_06" || _i == "obj_map_property_yoashi_bt_04"));
+		if (_judge) {
+			_parent.objects[_i].show();
+		} else {
+			_parent.objects[_i].hide();
+		}
+	}
+}
+*/
+
+var _pa = self.objects;
+for (var _k in _pa) {
+	if (_k == "obj_Bg_Active_interface_Already_receive_1") {
+		_pa[_k].show();
+	} else {
+		_pa[_k].hide();
+	}
+}
+
+//tm_weekend 时间轴
+
+if (self.vars_.seconds >= 0) {
+	self.vars_.seconds--;
+	self.text = backTimeWord();
+}
+function backTimeWord() {
+	var day = Math.floor((self.vars_.seconds / 3600) / 24);
+	var hour = Math.floor((self.vars_.seconds - day * 24 * 3600) / 3600);
+	var minus = Math.floor((self.vars_.seconds - hour * 3600 - day * 24 * 3600) / 60);
+	var seconds = Math.floor((self.vars_.seconds - hour * 3600 - day * 24 * 3600 - minus * 60));
+	if (hour < 10) {
+		hour = "0" + hour;
+	}
+	if (minus < 10) {
+		minus = "0" + minus;
+	}
+	if (seconds < 10) {
+		seconds = "0" + minus;
+	}
+	return "" + day + "天" + hour + "时" + minus + "分" + seconds + "秒";
+}
+
+
+/**
+ * 预约周末活动的点击事件
+ */
+if (qyengine['WeekendPanel'].vars_.loginData.saturdayEnterState == 2 && qyengine['WeekendPanel'].vars_.loginData.sundayEnterState == 2) {
+	game.scripts["al_scr_AddTip_1"](null, null, "请领取周日登录奖励后预约哦~", "layer1");
+	return;
+}
+if (qyengine['WeekendPanel'].vars_.loginData.orderTime != -1) {
+	return;
+}
+function bookingBack() {
+	if (arguments[1]) {
+		var _parent = qyengine.guardId('WeekendItem_0').objects['grou_weekendReceiveBtn'];
+		var _parentSun = qyengine.guardId('WeekendItem_1').objects['grou_weekendReceiveBtn'];
+		_parent.objects['txt_weekendCommon_next'].show();
+		_parent.objects['txt_weekendCommon_next'].vars_.seconds = arguments[2].orderTime;
+		_parent.objects['txt_weekendCommon_next'].startTimeline();
+		_parentSun.objects['txt_weekendCommon_next'].show();
+		_parentSun.objects['txt_weekendCommon_next'].vars_.seconds = arguments[2].orderTime + 24 * 60 * 60;
+		_parentSun.objects['txt_weekendCommon_next'].startTimeline();
+		for (var _h in _parent.objects) {
+			if (_h !== "txt_weekendCommon_next") {
+				_parent.objects[_h].hide();
+				_parentSun.objects[_h].hide();
+			}
+		}
+	} else {
+		console.log(arguments[2].code);
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+
+game.scripts["al_scr_gameloadCreate"](null, null);
+QyRpc.WeekendActOrder(bookingBack);
