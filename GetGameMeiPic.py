@@ -1,10 +1,10 @@
 /**
- * PetActionItem_friend
+ * PetActionItem_friend    的点击事件
  */
 
+var petDate = game.vars_.petData[game.vars_.CurryPetID];
 
-
-if (self.state == 0) {
+if (!game.vars.friendpet && self.state == 0) {
     var nameStr;
     if (self.select_id == 1) {
         nameStr = "喂食";
@@ -22,6 +22,20 @@ if (self.state == 0) {
     game.scripts["al_scr_AddTip_1"](null, null, nameStr + "冷却中", "layer1");
     return;
 }
+if (petDate.youguai != undefined && petDate.youguai == 0) {
+    game.scripts["al_scr_AddTip_1"](null, null, "该宠物已经被诱拐过了哦~", "layer1");
+    return;
+}
+if (petDate.weisi != undefined && petDate.weisi == 0) {
+    game.scripts["al_scr_AddTip_1"](null, null, "该宠物已经被喂食过了哦~", "layer1");
+    return;
+}
+
+if (petDate.qinting != undefined && petDate.qinting == 0) {
+    game.scripts["al_scr_AddTip_1"](null, null, "该宠物已经被倾听过了哦~", "layer1");
+    return;
+}
+
 
 
 
@@ -113,9 +127,30 @@ function popReward_action(whichAction, rewardData) {
             CalPlus_reward(rewardData, actionObj);
             break;
         case 1:   //诱拐
-
+            //成人前和成人后
+            var markDataConfigPlace = petDate.level > 2 ? 2 : 1;
+            var text_feed = CalPlus[markDataConfigPlace];
+            var fromWherePet = ["好友宠物", "陌生人宠物", "仇人宠物"];
+            var showtext1 = fromWherePet[game.vars.stealType];
+            if (text_feed.length == 1) {
+                showtext1 = showtext1 + text_feed[0];
+            } else {
+                showtext1 = showtext1 + text_feed[0] + text_feed[1];
+            }
+            actionObj.objects['txt_friendPet_6'].text = showtext1;
+            actionObj.objects['txt_friendPet_1'].text = game.vars_.markNeedName + "看着你和自己的宠物撒的狗粮，心情十分低落";
+            CalPlus_reward(rewardData, actionObj);
             break;
         case 2:   //倾听
+            var text_feed = CalPlus[4];
+            var showtext1 = "好友宠物";
+            if (text_feed.length == 1) {
+                showtext1 = showtext1 + text_feed[0];
+            } else {
+                showtext1 = showtext1 + text_feed[0] + text_feed[1];
+            }
+            actionObj.objects['txt_friendPet_1'].text = showtext1;
+            CalPlus_reward(rewardData, actionObj);
             break;
         case 3:   //失败
             break;
@@ -143,7 +178,9 @@ function FeetPetHandle() {
             //来自friend
             if (game.vars_.friendpet) {
                 popReward_action(0, arguments[2].reward);
-
+                self.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_Friend_01_default");
+                petDate.weisi = 0;
+                //petDate
             }
             game.scripts["al_scr_SetPetDialogue"](null, null, 1);
         } else {
@@ -162,18 +199,23 @@ function FeetPetHandle() {
 }
 
 
-//玩耍
+//玩耍  或者诱拐
 function PlayPetHandle() {
     function callBack() {
         console.log(arguments[1]);
         if (arguments[1] == true) {
-            game.scripts["al_scr_SetTipsPanel"](null, null, 2, arguments[2]);
-            game.vars_.petData[game.vars_.CurryPetID]["playerTime"] = arguments[2].playerTime;
+            if (!game.vars_.friendpet) {
+                game.scripts["al_scr_SetTipsPanel"](null, null, 2, arguments[2]);
+                game.vars_.petData[game.vars_.CurryPetID]["playerTime"] = arguments[2].playerTime;
+            } else {
+                popReward_action(1, arguments[2].reward);
+                self.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_Friend_02_default");
+                petDate.youguai = 0;
+            }
             game.vars_.petData[game.vars_.CurryPetID]["growVal"] = arguments[2].growVal;
             game.vars_.petData[game.vars_.CurryPetID]["moodVal"] = arguments[2].moodVal;
             game.vars_.petData[game.vars_.CurryPetID]["satietiy"] = arguments[2].satietiy;
             RefreshPowerGoldStoneHandle(arguments[2].stone, arguments[2].gold);
-
             game.scripts["al_scr_SetPetDialogue"](null, null, 2);
 
         } else {
@@ -183,7 +225,12 @@ function PlayPetHandle() {
         game.scripts["al_scr_gameloadDestroy"](null, null);
     }
     game.scripts["al_scr_gameloadCreate"](null, null);
-    QyRpc.palyerPet(game.vars_.CurryPetID, callBack);
+    if (game.vars_.friendpet) {
+        QyRpc.friendPetKidnap(game.vars_.nowFriendUid, game.vars_.CurryPetID, callBack);
+    } else {
+        QyRpc.palyerPet(game.vars_.CurryPetID, callBack);
+    }
+
 }
 
 
@@ -220,12 +267,17 @@ function ListenPetHandle() {
     function callBack() {
         console.log(arguments[1]);
         if (arguments[1] == true) {
-            game.scripts["al_scr_AddTip_1"](null, null, "亲密度+" + (arguments[2].intimacy - game.vars_.petData[game.vars_.CurryPetID]["intimacyVal"]), "layer1");
-            game.vars_.petData[game.vars_.CurryPetID]["listenTime"] = getConfig("pet_money", 4, "cd");
+            if (!game.vars_.friendpet) {
+                game.scripts["al_scr_AddTip_1"](null, null, "亲密度+" + (arguments[2].intimacy - game.vars_.petData[game.vars_.CurryPetID]["intimacyVal"]), "layer1");
+                game.vars_.petData[game.vars_.CurryPetID]["listenTime"] = getConfig("pet_money", 4, "cd");
+            } else {
+                self.objects['obj_fate_pet_bt_06'].changeSprite("obj_" + "fate_pet_bt_Friend_03" + "_default");
+                self.qinting = 0;
+            }
             game.vars_.petData[game.vars_.CurryPetID]["intimacyVal"] = arguments[2].intimacy;
             RefreshPowerGoldStoneHandle(arguments[2].stone, arguments[2].gold);
             game.scripts["al_scr_SetPetDialogue"](null, null, 4);
-
+            popReward_action(2, arguments[2].reward);
         } else {
             console.log(arguments[2].code);
             game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
@@ -233,7 +285,11 @@ function ListenPetHandle() {
         game.scripts["al_scr_gameloadDestroy"](null, null);
     }
     game.scripts["al_scr_gameloadCreate"](null, null);
-    QyRpc.listenPet(game.vars_.CurryPetID, callBack);
+    if (game.vars_.friendpet) {
+        QyRpc.friendPetListen(game.vars_.nowFriendUid, game.vars_.CurryPetID, callBack);
+    } else {
+        QyRpc.listenPet(game.vars_.CurryPetID, callBack);
+    }
 }
 
 
@@ -319,7 +375,12 @@ if (self.select_id == 1) {
     ListenPetHandle();
 
 } else if (self.select_id == 5) {
-    GuessPetHandle();
+    if (game.vars_.friendpet) {
+        PlayPetHandle();
+    } else {
+        GuessPetHandle();
+    }
+
 
 } else if (self.select_id == 6) {
     GivePetHandle();
@@ -428,3 +489,7 @@ if (game.vars_.petData[game.vars_.CurryPetID].isAdopt == 0) {
 
 
 
+
+if(!self.vars_.friendpet){
+
+}

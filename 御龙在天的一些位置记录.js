@@ -9473,7 +9473,7 @@ QyRpc.viewPets(callBack);
 
 
 /**
- * PetMainPet的创建事件
+ * PetMainPanel的创建事件
  */
 //初始化宠物数据
 game.vars_.allPetIdArr = Object.keys(game.configs.pet);
@@ -9772,11 +9772,14 @@ function RemakePetPlayScro() {
 		indexNum = 3;
 	}
 	//可玩的项目shumu
+
 	var playNum = game.vars_.friendpet ? 2 : 3;
 
 	//重新加
 	for (var i = 0; i < playNum; i++) {
-
+		if (game.vars_.friendpet && game.vars.stealType != 0) {
+			i = 1;
+		}
 		var obj = qyengine.guardId("PetActionItem" + i);
 		if (obj == null || obj.destroyed_) {
 			qyengine.instance_create(0, 0, "PetActionItem", { "type": "PetActionItem", "id": 'PetActionItem' + i, "zIndex": 9 });
@@ -9785,6 +9788,9 @@ function RemakePetPlayScro() {
 		}
 
 		qyengine.guardId("PetActionItem" + i).setVar("select_id", (i) + 1 + indexNum);
+		if (game.vars_.friendpet && game.vars.stealType != 0) {
+			break;
+		}
 	}
 	//刷新 宠物的 活动 数据 
 	game.scripts["al_scr_RefreshActiveItem"](null, null);
@@ -10178,7 +10184,7 @@ function RefreshstealItemHandle() {
 	listenItem.objects['petTextCdTime'].hide();
 	listenItem.objects['petText_no'].hide();
 	listenItem.objects['petPlayAddPropertyText'].text = "" + CalPlus(dataPlace);
-	feedItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_26_default");
+	feedItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_Friend_06_default");
 }
 
 
@@ -10207,7 +10213,10 @@ function RefreshSendGiftsItemHandle() {
 //刷新人型的宠物的活动Item
 function RefreshHumanformActivityHandle() {
 	//刷新倾听
-	RefreshListenItemHandle();
+	if (!game.vars_.friendpet || (game.vars_.friendpet = true && game.vars.stealType == 0)) {
+		RefreshListenItemHandle();
+	}
+
 	if (game.vars_.friendpet = true) {
 		//诱拐
 		RefreshstealItemHandle();
@@ -10223,12 +10232,17 @@ function RefreshHumanformActivityHandle() {
 //宠物形的活动Item
 function RefreshPetformActivityHandle() {
 	//刷新喂食
-	RefreshFeedItemHandle();
-	//刷新玩耍
-	RefreshPlayItemHandle();
-	//刷新探索
-	RefreshExploreItemHandle();
-
+	if (!game.vars_.friendpet || (game.vars_.friendpet = true && game.vars.stealType == 0)) {
+		RefreshFeedItemHandle();
+	}
+	if (game.vars.friendpet) {
+		RefreshstealItemHandle();
+	} else {
+		//刷新玩耍
+		RefreshPlayItemHandle();
+		//刷新探索
+		RefreshExploreItemHandle();
+	}
 }
 
 //正在探索当中 
@@ -10333,7 +10347,6 @@ if (petData.satietiy <= 0 && petData.level <= 2) {
 	var resurgenceMoneyData = getConfig("pet", game.vars_.CurryPetID, "revive").split(";")[petData.level - 1].split("|");
 	qyengine.guardId("petDeblockingUseMoneyText").text = resurgenceMoneyData[2];
 	qyengine.guardId("obj_fate_pet_13_1").changeSprite("obj_fate_pet_14_default");
-
 	return;
 }
 
