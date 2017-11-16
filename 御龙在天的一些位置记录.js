@@ -10097,7 +10097,17 @@ function RefreshFeedItemHandle() {
 	//喂食的Item
 	var feedItem = qyengine.guardId("PetActionItem0");
 	var petMoneyObj = getConfig("pet_money", 1);
-	SetItemStateHandle(feedItem, petMoneyObj, petData.feedTime, 1);
+	//from 好友
+	if (game.vars_.friendpet) {
+		var interaction_pet = game.configs.interaction_pet[3];
+		listenItem.objects['grouPetActionItemUseMoney'].hide();
+		listenItem.objects['petTextCdTime'].hide();
+		listenItem.objects['petText_no'].show();
+		listenItem.objects['petPlayAddPropertyText'].text = "" + CalPlus(3);
+		feedItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_06_default");
+	} else {
+		SetItemStateHandle(feedItem, petMoneyObj, petData.feedTime, 1);
+	}
 }
 
 
@@ -10122,9 +10132,20 @@ function CalPlus(_typeId) {
 	var _typeData = game.configs.interaction_pet[_typeId];
 	var data_类别 = { 'grow': "成长值", 'mood': "心情值", 'food': "饱食度", 'intimacy': "亲密度" };
 	var data_key = Object.keys(data_类别)
+	var show_text = ""
+	var _index = 0;
 	for (var i = 0; i < data_key.length; i++) {
-
+		var _value = Number(_typeData[data_key[i]]);
+		if (_value) {
+			if (_index == 0) {
+				show_text += (data_类别[data_key[i]] + _value);
+			} else {
+				show_text += ("\n" + data_类别[data_key[i]] + _value);
+			}
+			_index++;
+		}
 	}
+	return show_text;
 }
 //刷新 倾听的
 function RefreshListenItemHandle() {
@@ -10134,14 +10155,30 @@ function RefreshListenItemHandle() {
 	if (game.vars_.friendpet) {
 		var interaction_pet = game.configs.interaction_pet[4];
 		listenItem.objects['grouPetActionItemUseMoney'].hide();
-		listenItem.objects['petText'].show();
 		listenItem.objects['petTextCdTime'].hide();
-
+		listenItem.objects['petText_no'].show();
+		listenItem.objects['petPlayAddPropertyText'].text = "" + CalPlus(4);
+		feedItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_26_default");
 	} else {
 		SetItemStateHandle(listenItem, petMoneyObj, petData.listenTime, 4);
 	}
-
-
+}
+//刷新 诱拐
+function RefreshstealItemHandle() {
+	var listenItem = qyengine.guardId("PetActionItem1");
+	if (petData.level > 2) {
+		var dataPlace = 2;
+	} else {
+		var dataPlace = 1;
+	}
+	var interaction_pet = game.configs.interaction_pet[dataPlace];
+	listenItem.objects['grouPetActionItemUseMoney'].show();
+	listenItem.objects['grouPetActionItemUseMoney'].objects['petPlayUseMoneyNumText'].text = 10;
+	listenItem.objects['grouPetActionItemUseMoney'].objects['petPlayUseMoneyIcon'].changeSprite("obj_Icon_Diamonds_default");
+	listenItem.objects['petTextCdTime'].hide();
+	listenItem.objects['petText_no'].hide();
+	listenItem.objects['petPlayAddPropertyText'].text = "" + CalPlus(dataPlace);
+	feedItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_26_default");
 }
 
 
@@ -10172,7 +10209,8 @@ function RefreshHumanformActivityHandle() {
 	//刷新倾听
 	RefreshListenItemHandle();
 	if (game.vars_.friendpet = true) {
-
+		//诱拐
+		RefreshstealItemHandle();
 	} else {
 		//刷新猜灯谜
 		RefreshGuessLanternItemHandle();
@@ -10332,7 +10370,7 @@ if (petData.level > 2) {
 } else {
 	SetOvereatMoodOfHandle();
 	//特殊情况 在探索中的处理    exploreReward 探索奖励是1/否0领取 2可以领取
-	if (petData.exploreTime > 0 || petData.exploreReward == 2) {
+	if (petData.exploreTime && (petData.exploreTime > 0 || petData.exploreReward == 2)) {
 		grou_PetPlay.hide();
 		ExploreIngHandle();
 
