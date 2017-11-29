@@ -1,3 +1,5 @@
+
+
 //王号的账号
 //hwangrd 18655950910 wh
 //nginx
@@ -30,6 +32,8 @@ KBEngine.app.player().baseCall('reqTestAddGoods', 90011, 30);
 //执行动作序列
 current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this);
 
+//通过对象获取图片的路径
+gmx_[gmx_.obj_Icon_goods_1.defaultOpt.sprite].defaultOpt.fill
 
 KBEngine.app.player().baseCall('reqTestAddGoods', 40001, 10);
 //20001 20002 20004 20005 20008 20009 200211 20116 20207

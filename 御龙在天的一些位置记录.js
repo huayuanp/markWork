@@ -11836,10 +11836,10 @@ function setPage(nowPage) {
 		}
 	}
 
-	if(grou_playRoleMain.vars_.nowPage==Math.floor(heroKeys / 4)){
-		var haveGeZi= configDataLength('hero')%4;
-		roleItemArr[roleItemArr.length-1].hide();
-		roleItemArr[roleItemArr.length-2].hide();
+	if (grou_playRoleMain.vars_.nowPage == Math.floor(heroKeys / 4)) {
+		var haveGeZi = configDataLength('hero') % 4;
+		roleItemArr[roleItemArr.length - 1].hide();
+		roleItemArr[roleItemArr.length - 2].hide();
 	}
 
 	if (grou_playRoleMain.vars_.nowPage == 0 || grou_playRoleMain.vars_.nowPage == Math.floor(heroKeys / 4)) {
@@ -11872,3 +11872,217 @@ if (self.vars_.type == "left") {
 }
 current_game.scripts['al_scr_' + "setPlayRolePage"].call(this, undefined, this, grou_playRoleMain.vars_.nowPage);
 
+
+
+
+
+/**
+ * initPlayRoleProp
+ */
+
+
+var objArr = qyengine.getInstancesByType("grou_usePropPlayRole").length;
+if (objArr.length) {
+	objArr[0].show();
+} else {
+	qyengine.instance_create(0, 0, "grou_usePropPlayRole", {
+		"type": "grou_usePropPlayRole",
+		"id": "grou_usePropPlayRole",
+		"zIndex": 5,
+		"layer": "layer0"
+	});
+}
+var configData = game.configs.prop;
+var configPrice = game.configs.molest_prop;
+var goodsId = [12, 13, 14];
+var index = 0;
+var prices = [];
+for (var i in configData) {
+	if (goodsId.indexOf(Number(configData[i].type)) > -1) {   //Number(configData[i].type)
+		index++;
+		var icon = "obj_" + configData[i].icon + "_default";
+		var name = configData[i].name;
+		var priceIconAndNum = calConsume(configPrice[i].price.split('|'));
+		prices.push(priceIconAndNum.num);
+		game.configs.config_playRoleUsePop[index] = {
+			"id": index,
+			"name": name,
+			"num": 10,
+			"price": priceIconAndNum.num,
+			"icon": icon,
+			"markId": i,
+			"priceIcon": priceIconAndNum.icon
+		}
+	}
+}
+grou_usePropPlayRole.objects['scro_playTheRole_prop'].refreshRelations();
+Array.prototype.max = function () { return Math.max.apply({}, this); }
+Array.prototype.min = function () { return Math.min.apply({}, this); }
+var max = prices.max(); // 234 arr.min(); 
+var maxIndex = prices.indexOf(max);
+var keysData = Object.keys(configPrice);
+grou_usePropPlayRole.vars_.nowSelect = Number(keysData[maxIndex]);
+current_game.scripts['al_scr' + "touchSelectRoleProp"].call(this, undefined, this);
+//计算消耗的物品等
+function calConsume(splitArr) {
+	var goodtype = Number(splitArr[0]);
+	var backData = {};
+	switch (goodtype) {
+		case 1:
+			var priceIcon = configData[splitArr[1]].smallIcon;
+			var num = splitArr[2];
+			backData = { 'icon': "obj_" + priceIcon + "_default", "num": num };
+			break;
+		case 2:
+			//后续可能会用到,暂时保留
+			break;
+		case 3:
+			//后续可能会用到,暂时保留
+			break;
+		default:
+			break;
+	}
+	return backData;
+}
+
+/**
+ * touchSelectRoleProp
+ */
+var temp = self && self.vars_ && self.vars_.markId;
+qyengine.forEach(function () {
+	if (temp && this.vars_.markId == grou_usePropPlayRole.vars_.nowSelect) {
+		this.objects['obj_Fate_interaction_box_01_playRole'].hide();
+	}
+	if (!temp && this.vars_.markId == grou_usePropPlayRole.vars_.nowSelect) {
+		this.objects['obj_Fate_interaction_box_01_playRole'].show();
+	}
+}, 'grou_playRoleDropItem');
+if (temp) {
+	self.objects['obj_Fate_interaction_box_01_playRole'].show();
+	grou_usePropPlayRole.vars_.nowSelect = self.vars_.markId;
+}
+
+/**
+ * refreshRolePropPanel   调戏消耗道具后刷新使用
+ */
+var nums = [10, 10, 10];
+var goodsId = [12, 13, 14];
+qyengine.forEach(function () {
+	if (goodsId.indexOf(Number(this.markId)) > -1) {
+		this.objects['txt_playRole_num'].setText(nums[Number(this.markId) - 12]);
+	}
+}, "grou_playRoleDropItem");
+
+//touchUsePlayRoleProp
+current_game.scripts['al_scr_' + ""].call(this, undefined, this);
+var objArr = qyengine.getInstancesByType('grou_consumeStoneBuyGood');
+objArr.length == 0 && qyengine.instance_create(0, 0, "grou_consumeStoneBuyGood", {
+	"type": "grou_consumeStoneBuyGood",
+	"id": "grou_consumeStoneBuyGood",
+	"zIndex": 6,
+	"layer": "layer0"
+});
+var needStone = 10;
+var goodName = "合欢散";
+var imageW = " width = '35'";
+var imageH = " height = '31'";
+var stoneIconPath = gmx_[gmx_.obj_Icon_Diamonds.defaultOpt.sprite].defaultOpt.fill;
+grou_consumeStoneBuyGood.objects['txt_buyGood'].text = "是否使用" +
+	"<img src='" + stoneIconPath + "'" + imageW + imageH + "></img>" + needStone + "购买一瓶" + goodName;
+grou_consumeStoneBuyGood.objects['BuyPropBtn'].vars_.price = needStone;
+
+
+
+
+
+
+
+/**
+ * Button_ChooseCloth
+ */
+
+if (Math.abs(mouseY - self.posY) > 5)
+	return;
+
+if (object.vars_.couldPress == false)
+	return;
+
+game.scripts["al_scr_Change_1"](null, null, object.vars_.itemId);
+
+//game.scripts["al_scr_Button_SuitType"](null,null,current_scene.vars_.currentClothType);
+var cards = qyengine.getInstancesByType("grou_clothBtn");
+for (var i = 0; i < cards.length; i++) {
+	if (cards[i].vars_.itemId == game.vars_.playerCurrentCloths[getConfig("suitType", game.vars_.curChangeType, "name")]) {
+		cards[i].objects.obj_Icon_chest_have_to_dress_up.show();
+	}
+	else {
+		cards[i].objects.obj_Icon_chest_have_to_dress_up.hide();
+	}
+}
+
+/**
+ * Change_1
+ */
+//动作序列 Change   换装统一接口
+if (id > 0) {
+	var jsonData = getConfig("fashion", id, "logicType");
+	if (getConfig("config_partLogic", jsonData, "logicName")) {
+		game.scripts["al_scr_" + getConfig("config_partLogic", jsonData, "logicName")](null, null, id);
+	}
+} else {
+	console.log("时装id 为 0！！！");
+}
+
+
+
+
+/**
+ * ChangeHairStyle_1
+ */
+
+var parts = ['hairStyle_1', 'hairStyle_2'];
+var objectId = "grou_playerDress";
+if (args) {
+	objectId = args;
+}
+
+ if(suit==null)
+{
+suit=game.vars_.playInfoJson.suit[game.vars_.playInfoJson.dressIndex];
+}
+
+if (qyengine.getInstancesByType(objectId).length > 0||qyengine.guardId(objectId)!=null) {
+	for (var i = 0; i < parts.length; ++i) {
+             if(suit[parts[i]]==0)
+     {
+ 		qyengine.guardId(objectId).objects[parts[i]].hide();
+     }else
+     {
+       qyengine.guardId(objectId).objects[parts[i]].show();
+
+     }
+	}
+
+     if(!id)
+{
+return;
+}
+
+	var m_id = id;
+
+	var jsonData = getConfig("fashion", m_id, "partType");
+	if (jsonData.toString().indexOf("|") > 0) {
+		jsonData = jsonData.split("|");
+		var imageData = getConfig("fashion", m_id, "image").split("|");
+		for (var j = 0; j < jsonData.length; ++j) {
+			var partsObj =  qyengine.guardId(objectId).objects[("hairStyle_" + (j + 1))];
+			//partsObj.show();
+			partsObj.changeSprite("obj_" + imageData[j] + "_default");
+		}
+	} else {
+		var _partsObj =  qyengine.guardId(objectId).objects[("hairStyle_" + jsonData)];
+		//_partsObj.show();
+		_partsObj.changeSprite("obj_" + getConfig("fashion", m_id, "image") + "_default");
+	}
+	
+}
