@@ -11789,6 +11789,16 @@ function heroCallBack() {
 		game.vars_.playInfoJson.mihuisan = arguments[2].mihuisan;
 		game.vars_.playHeroInfo = arguments[2].friendHero;
 		current_game.scripts['al_scr_' + "initPlayRoleMain"].call(this, undefined, this);
+
+		var showNick = "";
+		if (game.vars_.stealType == 0) {
+			showNick = game.vars_.friendsRank[self.vars_.index].nickName;
+		} else if (game.vars_.stealType == 1) {
+			showNick = self.vars_.data.nickName
+		} else {
+			showNick = game.vars_.friendsOtherRank[self.vars_.index].nickName;
+		}
+		grou_playRoleMain.objects['txt_playRole_title'].text = showNick + "的男主";
 	} else {
 		console.log(arguments[2].code);
 		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
@@ -11812,6 +11822,7 @@ if (qyengine.getInstancesByType("grou_playRoleMain").length) {
 	});
 	current_game.scripts['al_scr_' + "setPlayRolePage"].call(this, undefined, this, 0);
 }
+
 /**
  * setPlayRolePage
  */
@@ -12017,16 +12028,17 @@ qyengine.forEach(function () {
 
 
 //touchUsePlayRoleProp
+
 var qingNum = game.vars_.playInfoJson.cuiqingdan;
 var heNum = game.vars_.playInfoJson.hehuansan;
 var miNum = game.vars_.playInfoJson.mihuisan;
 var nums = [qingNum, miNum, heNum];
 var goodsId = [120, 121, 122];
-var placeIndex = goodsId.indexOf(grou_usePropPlayRole.vars_.nowSelect);
+var placeIndex = data ? goodsId.indexOf(data) : goodsId.indexOf(grou_usePropPlayRole.vars_.nowSelect);
 if (placeIndex == -1) {
 	console.error("出现了错误,需要查看");
 }
-if (nums[placeIndex] > 0) { //使用道具
+if (nums[placeIndex] > 0 && !data) { //使用道具
 	current_game.scripts['al_scr_' + "enterPlayRole"].call(this, undefined, this);
 	return;
 }
@@ -12037,17 +12049,22 @@ objArr.length == 0 && qyengine.instance_create(-90, 0, "grou_consumeStoneBuyGood
 	"zIndex": 6,
 	"layer": "layer0"
 });
+grou_consumeStoneBuyGood.show();
 var configData = game.configs.molest_prop;
-var needStone = configData[grou_usePropPlayRole.vars_.nowSelect].price.split('|')[2];
+var needStone = configData[data || grou_usePropPlayRole.vars_.nowSelect].price.split('|')[2];
 needStone = Number(needStone);
-var goodName = configData[grou_usePropPlayRole.vars_.nowSelect].name;
+var goodName = configData[data || grou_usePropPlayRole.vars_.nowSelect].name;
 var imageW = " width = '35'";
 var imageH = " height = '31'";
 var stoneIconPath = gmx_[gmx_.obj_Icon_Diamonds.defaultOpt.sprite].defaultOpt.fill;
 grou_consumeStoneBuyGood.objects['txt_buyGood'].text = "是否使用" +
 	"<img src='" + stoneIconPath + "'" + imageW + imageH + "></img>" + needStone + "购买一瓶" + goodName;
 grou_consumeStoneBuyGood.objects['BuyPropBtn'].vars_.price = needStone;
-
+if (data) {
+	grou_consumeStoneBuyGood.objects['BuyPropBtn'].vars_.nowSelect = data;
+} else {
+	grou_consumeStoneBuyGood.objects['BuyPropBtn'].vars_.nowSelect = null;
+}
 /**
  * usePropPlayRole 点击使用道具按钮
  */
@@ -12072,7 +12089,7 @@ if (game.vars_.playInfoJson.stone < self.vars_.price) {
 		game.scripts["al_scr_gameloadDestroy"](null, null);
 	}
 	game.scripts["al_scr_gameloadCreate"](null, null);
-	QyRpc.buyMolestHeroItem(grou_usePropPlayRole.vars_.nowSelect, callBack);
+	QyRpc.buyMolestHeroItem(self.vars_.nowSelect || grou_usePropPlayRole.vars_.nowSelect, callBack);
 }
 
 /**
@@ -12080,6 +12097,7 @@ if (game.vars_.playInfoJson.stone < self.vars_.price) {
  */
 function callBack() {
 	if (arguments[1]) {
+
 		console.log(arguments);
 		game.vars_.playInfoJson.cuiqingdan = arguments[2].cuiqingdan;
 		game.vars_.playInfoJson.hehuansan = arguments[2].hehuansan;
@@ -12108,7 +12126,7 @@ if (!game.vars_.markPlayResult.result) {
 	if (playFailGrouArr.length) {
 		_group = playFailGrouArr[0];
 	} else {
-		_group = qyengine.instance_create(0, 0, "grou_consumePropBuyResult", {
+		_group = qyengine.instance_create(-90, 0, "grou_consumePropBuyResult", {
 			"type": "grou_consumePropBuyResult",
 			"id": "grou_consumePropBuyResult",
 			"zIndex": 7,
@@ -12123,29 +12141,123 @@ if (!game.vars_.markPlayResult.result) {
 			break;
 		}
 	}
-	current_game.scripts['al_scr_'+"setPhotoToPig"].call(this,undefined,this);
+	current_game.scripts['al_scr_' + "setPhotoToPig"].call(this, undefined, this);
 } else {
 	var playSuccessGrouArr = qyengine.getInstancesByType("grou_consumePropBuyResult_success");
 	var _group = null;
-	if (playFailGrouArr.length) {
-		_group = playFailGrouArr[0];
+	if (playSuccessGrouArr.length) {
+		_group = playSuccessGrouArr[0];
+		_group.show();
 	} else {
-		_group = qyengine.instance_create(0, 0, "grou_consumePropBuyResult_success", {
+		_group = qyengine.instance_create(-90, 0, "grou_consumePropBuyResult_success", {
 			"type": "grou_consumePropBuyResult_success",
 			"id": "grou_consumePropBuyResult_success",
 			"zIndex": 7,
 			"layer": "layer0"
 		});
 	}
-	_group.objects['txt_buyGood_fail'].text=configsData.name+"已被你撩得浑身酥软，不能自已"+"/n"+"获得"+configsData.name+"的馈赠:";
-	
+	_group.objects['txt_buyGood_fail'].text = configsData.name + "已被你撩得浑身酥软，不能自已" + "\n" + "获得" + configsData.name + "的馈赠:";
+	//奖励
+	configData = game.vars_.markPlayResult.reward;
+	game.vars_.dropList = [];
+	for (var cell in configData) {
+		//if (Number(cell) == Number(_rewardId)) {
+		var _cellData = {};
+		var nowReward = configData[cell];
+		var _type = Number(nowReward.type);
+		var _id = Number(nowReward.id);
+		var _num = Number(nowReward.num);
+		var _icon = "";
+		if (_type == 1) {
+			_icon = game.configs.prop[_id].smallIcon;
+		}
+		if (_type == 2) {
+			var isOwn = !(game.vars_.bagList.cloth[_id] == undefined);
+			_icon = game.configs.fashion[_id].sicon;
+		}
+		if (_type == 3) {
+			var isOwn = !(game.vars_.bagList.plan[_id] == undefined);
+			_icon = game.configs.fashionPlan[_id].icon;
+		}
+		if (_type == 4) {
+			var isOwn = !(game.vars_.playInfoJson.bgMap.maps[_id] == undefined);
+			_icon = game.configs.bg[_id].sicon;
+		}
+		if (_type == 5) {
+			var isOwn = !((game.vars_.playInfoJson.hero_gift && game.vars_.playInfoJson.hero_gift[_id]) == undefined);
+			_icon = game.configs.hero_gift[_id].icon
+		}
+		_cellData.id = _id;
+		_cellData.type = _type;
+		_cellData.num = _num;
+		_group.objects['obj_Icon_Diamonds_' + (Number(cell) + 1)].changeSprite("obj_" + _icon + "_default");
+		_group.objects['obj_Icon_Diamonds_' + (Number(cell) + 1)].width = 58;
+		_group.objects['obj_Icon_Diamonds_' + (Number(cell) + 1)].height = 44;
+		_group.objects['txt_buyGood_reward' + (Number(cell) + 1)].text = _num;
+		_group.objects['obj_Icon_Diamonds_' + (Number(cell) + 1)].show();
+		_group.objects['txt_buyGood_reward' + (Number(cell) + 1)].show();
+		game.vars_.dropList.push(_cellData);
+		//}
+	}
+	//game.vars_.dropList = [{ 'type': _type, 'id': _id, 'num': _num, 'isOwn': isOwn }];
+	current_game.scripts['al_scr_' + "AddToBag"].call(this, undefined, this, game.vars_.dropList);
 }
 
+
 /**
- *  setPhotoToPig  开始设置主界面的人物的头像和倒计时
+ *  setPhotoToPig  开始设置主界面的人物的头像和倒计时  
  */
+if (which && which == 1 && game.vars_.playInfoJson.headImgTime <= 0) {
+	return;
+} else if (which && which == 1) {
+	game.vars_.pigPhotoTime = game.vars_.playInfoJson.headImgTime;
+	grou_playerInfo.playerIcon.changeSprite("obj_" + game.vars_.playInfoJson.headImg + "_default");
+	grou_playerInfo.playerIcon.setScale(1, 1);
+} else {
+	//全部一直存在的time
+	game.vars_.pigPhotoTime = game.vars_.markPlayResult.headImgTime;
+	grou_playerInfo.playerIcon.changeSprite("obj_" + game.vars_.markPlayResult.headImg + "_default");
+	grou_playerInfo.playerIcon.setScale(1, 1);
+}
+
+function calTime() {
+	var text = "";
+	var _hour = Math.floor(game.vars_.pigPhotoTime / 3600);
+	var _minus = Math.floor((game.vars_.pigPhotoTime - _hour * 3600) / 60);
+	var _seconds = game.vars_.pigPhotoTime - (_hour * 3600 + _minus * 60);
+	if (_minus < 10) {
+		_minus = "0" + _minus;
+	}
+	if (_seconds < 10) {
+		_seconds = "0" + _seconds;
+	}
+	text = text + _hour + ":" + _minus + ":" + _seconds;
+	return text;
+}
+game.vars_.pigPhotoTimeInterval && clearInterval(game.vars_.pigPhotoTimeInterval);
+game.vars_.pigPhotoTimeInterval = setInterval(function () {
+	if (game.vars_.pigPhotoTime <= 0) {
+		clearInterval(game.vars_.pigPhotoTimeInterval);
+		grou_playerInfo.playerIcon.changeSprite("obj_" + game.vars_.playInfoJson.iconImage + "_default");
+		grou_playerInfo.playerIcon.setScale(0.75, 0.75);
+		grou_playerInfo.objects['txt_playIcon_countDown'].hide();
+		game.vars_.pigPhotoTime = null;
+		return;
+	}
+	game.vars_.pigPhotoTime--;
+	grou_playerInfo.objects['txt_playIcon_countDown'].show();
+	grou_playerInfo.objects['txt_playIcon_countDown'].text = calTime();
+}, 1000);
 
 
+
+
+
+
+/**
+ * obj_Btn_Plus_playRole 上的点击事件
+ */
+current_game.scripts['al_scr_' + "touchUsePlayRoleProp"].call(this, undefined, this, self.vars_.type);
 
 
 
