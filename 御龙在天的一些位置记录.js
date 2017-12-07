@@ -12445,6 +12445,76 @@ switch (game.vars_.searchCondition) {
 		break;
 }
 
+/**
+ * obj_chest_search_10  的点击事件
+ */
+if (self.vars_.canTouch) {
+	self.vars_.canTouch = false;
+	grou_propertySortSmallScreen.y = 34;
+	grou_propertySortSmallScreen.moveTo(grou_propertySortSmallScreen.x, 124, 325);
+	grou_propertySortSmallScreen.show();
+	qyengine.guardId("obj_searchBlackBg").show();
+}
+
+
+/**
+ * grou_propertySortSmallScreen  moveTo事件
+ */
+if (grou_propertySortSmallScreen.y <= 60) {
+	grou_propertySortSmallScreen.hide();
+	qyengine.guardId("obj_searchBlackBg").hide();
+}
+qyengine.guardId("obj_chest_search_10").dispatchMessage({
+	"type": "message",
+	"message": "setCanTouch"
+});
+
+/**
+ *   点击选择不同的属性排序~
+ */
+
+grou_propertySortBtn.objects['obj_chest_search_14'].y = self.y;
+grou_propertySortSmallScreen.vars_.type = self.vars_.btnType;
+var spriteArr = { 0: "obj_chest_search_11_default", 1: "obj_chest_search_12_default" };
+qyengine.guardId("obj_chest_search_11").changeSprite(spriteArr[self.vars_.btnType]);
+
+game.scripts["al_scr_Button_SuitType"](null, null, current_scene.vars_.currentClothType);
+
+/**
+ * obj_searchBlackBg  蒙版的点击事件
+ */
+grou_propertySortSmallScreen.moveTo(grou_propertySortSmallScreen.x, 34, 325);
+current_game.scripts['al_scr_' + "getClothSort"].call(this, undefined, this);
+
+
+/**
+ * grou_clothType   的点击事件 new  game.vars_.playInfoJson.clothSort 
+ */
+function callBack() {
+	console.log(arguments);
+	if (arguments[1]) {
+		if ("newCloth" in arguments[2]) {
+			current_scene.vars_.currentClothNew = arguments[2].newCloth;
+		} else {
+			current_scene.vars_.currentClothNew = [];
+		}
+
+		game.scripts["al_scr_Button_SuitType"](null, null, self.vars_.type);
+		current_scene.vars_.currentClothType = self.vars_.type;
+		scro_change_clothBtn.resetLimitPosition(true);
+	} else {
+		console.log(arguments[2].code);
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+!game.vars_.isDebug && game.scripts["al_scr_gameloadCreate"](null, null);
+!game.vars_.isDebug && QyRpc.viewNewCloth(self.vars_.type, callBack);
+if (game.vars_.isDebug) {
+	game.scripts["al_scr_Button_SuitType"](null, null, self.vars_.type);
+	current_scene.vars_.currentClothType = self.vars_.type;
+	scro_change_clothBtn.resetLimitPosition(true);
+}
 
 
 
@@ -12455,3 +12525,67 @@ switch (game.vars_.searchCondition) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+var arr = scro_change_clothBtn.vars_.clothInfo;
+
+var data = {};
+for (var i = 0; i < arr.length; i++) {
+	var temp;
+	if(arr[i][2]){
+		temp = data[1] || (data[1] = {});
+	} else {
+		temp = data[0] || (data[0] = {});
+	}
+	
+	var zhiliang = arr[i][1];
+	temp[zhiliang] || (temp[zhiliang] = {});
+	temp[zhiliang][arr[i][0]] = arr[i];
+}
+var data1 = [];
+//遍历数组第二个元素
+for (var key in data) {
+	var temp = data[key];
+	//遍历数组第1个元素
+	for (var key1 in temp) {
+		var temp1 = Object.keys(temp[key1]);
+		for(var i = temp1.length - 1; i >= 0; i--){
+			data1.push(temp[key1][temp1[i]]);
+		}
+		// for (var key2 in temp1) {
+			// data1.push(temp1[key2]);
+		// }
+	}
+}
+data1.reverse();
+
+for (var i = 0; i < arr.length; i++) {
+
+	for (var j = i + 1; j < arr.length; j++) {
+		var temp = arr[i];
+		if (Number(game.vars_.playInfoJson.clothSort) != 0 && arr[j][2] && !temp[2]) {
+			arr[i] = arr[j];
+			arr[j] = temp;
+		} else if (arr[j][1] > temp[1]) {
+			arr[i] = arr[j];
+			arr[j] = temp;
+		}
+		else if (arr[j][1] == temp[1]) {
+			if (arr[j][0] < temp[0]) {
+				arr[i] = arr[j];
+				arr[j] = temp;
+			}
+		}
+	}
+}
