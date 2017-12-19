@@ -13077,6 +13077,13 @@ var interation = setInterval(function () {
  * LuckyWheelPanel_recharge  的创建事件
  * createLuckyWheelPanel_recharge
  */
+function replaceAll(replaceStr) {
+	var xxxNew = replaceStr;
+	for (var i = 0; i < 3; i++) {
+		xxxNew = xxxNew.replace("|", "/");
+	}
+	return xxxNew;
+}
 var outPanel = qyengine.getInstancesByType("LuckyWheelPanel_recharge");
 if (outPanel.length > 0) {
 	outPanel[0].show();
@@ -13108,10 +13115,36 @@ for (var i = 0; i < keysArr.length + 1; i++) {
 		_obj.vars_.rmb = Number(oneKey.rmb);
 	}
 }
+//创建显示的奖励的物品
+var now = new Date();
+var todayAtMidn = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+var configs = game.configs.rechargewheel_date;
+var markId = null;
+for (var cell in configs) {
+	var startObj = replaceAll(configs[cell].date_start);
+	var overObj = replaceAll(configs[cell].date_over);
+	var startDate = new Date(startObj);
+	var overDate = new Date(overObj);
+	if (now.time() >= startDate.time() && now.time() <= overDate.time()) {
+		markId = configs[cell].reward;
+		break;
+	}
+}
+if (!markId) {
+	console.error("发生错误,需要查看");
+}
+
+var configData = game.configs.rechargewheel_lottery[markId];
+for (var _cell in configData) {
+	qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_' + (5 + Number(_cell - 1))].text = configData[_cell].name;
+	qyengine['LuckyWheelPanel'].objects['obj_Icon_goods_1_' + (Number(_cell - 1))].changeSprite("obj_" + configData[_cell].show + "_default");
+	qyengine['LuckyWheelPanel'].objects['obj_Icon_goods_1_' + (Number(_cell - 1))].vars_.itemId = Number(_cell);
+}
 current_game.scripts['al_scr_' + "refreshLuckyWheelPanel_recharge"].call(this, undefined, this);
 /**
  * refreshLuckyWheelPanel_recharge
  */
+
 
 
 
