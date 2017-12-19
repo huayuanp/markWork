@@ -12671,12 +12671,15 @@ if (game.vars_.changeSuitIsSave && inpu_mySuitName.getValue() == game.vars_.play
 }
 
 
-
-
-
-
-
+/**
+ * judgeInSuitSpecial
+ */
 current_game.scripts['al_scr_' + "judgeInSuitSpecial"].call(this, undefined, this, m_id, qyengine[objectId + "Instance"]);
+if (!_objectId) {
+	return;
+}
+var markDress = _suit ? Number(_suit.dress) : Number(game.vars_.playerCurrentCloths.dress);
+judgeInSuit(id, _objectId);
 function judgeInSuit(id, _objectId) {
 	var fashionConfig = game.configs.fashion;
 	var judgeConfig = fashionConfig[id];
@@ -12690,7 +12693,7 @@ function judgeInSuit(id, _objectId) {
 			}
 		}
 	}
-	if (getDressId && Number(game.vars_.playerCurrentCloths.dress) != getDressId) {
+	if (getDressId && markDress != getDressId) {
 		_objectId.objects['special_1'].hide();
 	} else {
 		_objectId.objects['special_1'].show();
@@ -12698,11 +12701,7 @@ function judgeInSuit(id, _objectId) {
 }
 
 
-
-current_game.scripts['al_scr_' + "judgeInSuitDress"].call(this, undefined, this, m_id, qyengine[objectId + "Instance"]);
-
-
-
+current_game.scripts['al_scr_' + "judgeInSuitDress"].call(this, undefined, this, m_id, qyengine.guardId(objectId));
 
 
 
@@ -12740,9 +12739,9 @@ if (panelArr.length) {
 	});
 	qyengine.guardId("ActivePanel").appendChild("rechargeGivePanel", 0, 0);
 }
-ActivePanel.objects.obj_Bg_Active_interface_Background_jinli.changeSprite("obj_Image_bg_013_default");
+ActivePanel.objects.obj_Bg_Active_interface_Background_jinli.changeSprite("obj_Image_bg_014_default");
 game.vars_.giveSuit.vars_.postRecord = postRecord;
-game.vars_.giveSuit.vars_.nowPlace = 0;
+game.vars_.giveSuit.vars_.nowPlace = 2;
 var activityTime = game.configs.activity[19];
 var startTime = activityTime.time_start.split("|");
 var endTime = activityTime.time_over.split("|"),
@@ -12762,6 +12761,8 @@ current_game.scripts['al_scr_' + "refreshGiveSuit"].call(this, undefined, this);
 /**
  * refreshGiveSuit
  */
+var bgArr = ["obj_Image_bg_014_default", "obj_Image_bg_013_default", "obj_Image_bg_016_default"];
+ActivePanel.objects.obj_Bg_Active_interface_Background_jinli.changeSprite(bgArr[game.vars_.giveSuit.vars_.nowPlace]);
 var suitConfig = game.configs.activity_recharge_suit;
 var priceTxt = ["txt_giveSuitCommon_4", "txt_giveSuitCommon_5", "txt_giveSuitCommon_3"];
 var nowConfig = null;
@@ -12773,38 +12774,51 @@ for (var cell in suitConfig) {
 }
 var getSuitChart = game.configs.suit;
 game.vars_.giveSuit.objects['obj_Image_suit_4809'].changeSprite("obj_" + getSuitChart[nowConfig.suit].model + "_default");
-game.vars_.giveSuit.objects['txt_giveSuitCommon'].text = "单笔充值" + suitConfig[game.vars_.giveSuit.vars_.nowPlace + 1].rmb + "元" + "<font  color='#ff00cc'>" + "免费" + "</font>" + "领取";
+grou_rechargeGiveSuitBtn.objects['txt_giveSuitCommon'].text = "充值" + suitConfig[game.vars_.giveSuit.vars_.nowPlace + 1].rmb + "元" + "领取";
 var btnStatusObjArr = ["obj_Active_interface_danchong_2", "obj_Active_interface_songtaozhuang_06", "obj_Bg_Active_interface_Already_receive"];
 var nowStatus = game.vars_.giveSuit.vars_.postRecord[game.vars_.giveSuit.vars_.nowPlace + 1];
 grou_rechargeGiveSuitBtn.vars_.status = nowStatus;
 if (nowStatus == 2) {
 	grou_rechargeGiveSuitBtn.objects['obj_Active_interface_Presented_recharge_icon1_activity'].hide();
+	grou_rechargeGiveSuitBtn.objects['txt_giveSuitCommon'].hide();
 } else {
 	grou_rechargeGiveSuitBtn.objects['obj_Active_interface_Presented_recharge_icon1_activity'].show();
+	grou_rechargeGiveSuitBtn.objects['txt_giveSuitCommon'].show();
 }
-grou_rechargeGiveSuitBtn.objects['obj_Active_interface_danchong_2'].changeSprite(btnStatusObjArr[nowStatus] + "_default");
+//grou_rechargeGiveSuitBtn.objects['obj_Active_interface_danchong_2'].changeSprite(btnStatusObjArr[nowStatus] + "_default");
 if (game.vars_.giveSuit.vars_.nowPlace == 0) {
-	grou_giveSuitDirection_left.hide();
+	//grou_giveSuitDirection_left.hide();
 } else if (game.vars_.giveSuit.vars_.nowPlace == 1) {
-	grou_giveSuitDirection_left.show();
-	grou_giveSuitDirection.show();
+	//grou_giveSuitDirection_left.show();
+	//grou_giveSuitDirection.show();
 } else {
-	grou_giveSuitDirection_left.show();
-	grou_giveSuitDirection.hide();
+	//grou_giveSuitDirection_left.show();
+	//grou_giveSuitDirection.hide();
 }
 //选中框
 game.vars_.giveSuit.objects["obj_Active_interface_songtaozhuang_07"].x = game.vars_.giveSuit.objects['obj_Active_interface_songtaozhuang_04_0' + (game.vars_.giveSuit.vars_.nowPlace + 1)].x;
-game.vars_.giveSuit.objects['txt_giveSuitCommon_6'].text = "" + getSuitChart[nowConfig.suit].name;
+var xiYou = game.vars_.giveSuit.vars_.nowPlace != 0 ? "一六星稀有" : "";
+game.vars_.giveSuit.objects['txt_giveSuitCommon_6'].text = "" + getSuitChart[nowConfig.suit].name + xiYou;
+current_game.scripts['al_scr_' + "createActivityEffect"].call(this, undefined, this);
 
 /**
  * giveSuitTouchDirection
  */
 
 var leftAndRight = self.id == "grou_giveSuitDirection_left" ? -1 : 1;
+/*
 if (game.vars_.giveSuit.vars_.nowPlace + leftAndRight > 2 || game.vars_.giveSuit.vars_.nowPlace + leftAndRight < 0) {
 	return;
 }
-game.vars_.giveSuit.vars_.nowPlace = game.vars_.giveSuit.vars_.nowPlace + leftAndRight;
+*/
+if (game.vars_.giveSuit.vars_.nowPlace + leftAndRight > 2) {
+	game.vars_.giveSuit.vars_.nowPlace = 0;
+} else if (game.vars_.giveSuit.vars_.nowPlace + leftAndRight < 0) {
+	game.vars_.giveSuit.vars_.nowPlace = 2
+} else {
+	game.vars_.giveSuit.vars_.nowPlace = game.vars_.giveSuit.vars_.nowPlace + leftAndRight;
+}
+
 current_game.scripts['al_scr_' + "refreshGiveSuit"].call(this, undefined, this);
 
 //giveSuitTouchBuyBtn
@@ -12906,13 +12920,27 @@ if (game.vars_.giveSuit) {
 [0,200]   0.4  "-换装特效_活动套装2花瓣" 
 []             "-换装特效_活动套装2灯笼"   
 []             "-换装特效_活动套装2莲花"
+createActivityEffect
 */
-var effectNameArr = [0, 0, ["-换装特效_活动套装2花瓣", "-换装特效_活动套装2灯笼", "-换装特效_活动套装2莲花"]];
-var effectScale = [0.9, 0.9, 0.9];
-var effectPos = [0, 0, [[-20, 308], [30, 165], [34, 170]]];
+
+var effectNameArr = [0, ["-换装特效_活动套装3衣服", "-换装特效_活动套装3蝴蝶"], ["-换装特效_活动套装2花瓣", "-换装特效_活动套装2灯笼", "-换装特效_活动套装2莲花"]];
+var effectScale = [0.9, [0.9, 0.9], [1.76, 0.9, 0.9]];
+var effectPos = [0, [[40, 255], [90, 135]], [[31.5, 172.2], [30, 165], [34, 170]]];
 var nowEffectName = effectNameArr[game.vars_.giveSuit.vars_.nowPlace];
-if (game.vars_.giveSuit.vars_.nowPlace != 2) {
-	console.log("离开");
+var nowEffectScale = effectScale[game.vars_.giveSuit.vars_.nowPlace];
+var nowPos = effectPos[game.vars_.giveSuit.vars_.nowPlace];
+for (var k = 0; k < effectNameArr.length; k++) {
+	if (effectNameArr[k] != 0) {
+		for (var p = 0; p < effectNameArr[k].length; p++) {
+			var hideEffectName = effectNameArr[k][p];
+			if (hideEffectName in window) {
+				window[hideEffectName].hide();
+			}
+		}
+	}
+}
+if (game.vars_.giveSuit.vars_.nowPlace == 0) {
+	return;
 }
 for (var i = 0; i < nowEffectName.length; i++) {
 	var effectParent = rechargeGivePanel.objects['obj_giveSuitEffect'];
@@ -12925,8 +12953,9 @@ for (var i = 0; i < nowEffectName.length; i++) {
 	} else {
 		effectAnimation_presentStoneEff = new EffectAnimation();
 		window[nowEffectName[i]] = effectAnimation_presentStoneEff;
-		effectAnimation_presentStoneEff.setPosition(0, 200);
+		effectAnimation_presentStoneEff.setPosition(nowPos[i][0], nowPos[i][1]);
 	}
+	effectAnimation_presentStoneEff.setScale(nowEffectScale[i], nowEffectScale[i]);
 	effectAnimation_presentStoneEff.setSpeed(0.5);
 	effectAnimation_presentStoneEff.setEffectNameLevel(nowEffectName[i], 1);
 	effectAnimation_presentStoneEff.setLoop(true);
@@ -12937,19 +12966,152 @@ for (var i = 0; i < nowEffectName.length; i++) {
 
 
 
-// //effectAnimation_guide.setScale(0.3, 0.3);
-
-effectAnimation2 = new EffectAnimation();
-effectAnimation2.setEffectNameLevel("-换装特效_活动套装2灯笼", 1);
-effectAnimation2.setLoop(true);
-effectAnimation2.setPosition(0, 200);
-// //effectAnimation_guide.setScale(0.3, 0.3);
-effectParent.currentSprite.addChild(effectAnimation2);
 
 
+var xxx = ActivePanel.objects;
+for (var a in xxx) {
+	if (xxx[a].isVisible) {
+		console.log(a);
+	}
+}
 
 
 
+
+
+
+/**
+ * PeacockGiftPanel   的创建事件
+ */
+
+
+var startTimeStr = game.vars_.activeOpenTimeDic[8].time_start;
+
+var overTimeStr = game.vars_.activeOpenTimeDic[8].time_over;
+
+qyengine.guardId("PeacockGiftPanelOpenTime").setText("活动时间:" + startTimeStr[0] + "年" + startTimeStr[1] + "月" + startTimeStr[2] + "日——" + overTimeStr[0] + "年" + overTimeStr[1] + "月" + overTimeStr[2] + "日");
+
+
+
+var data = getConfig("recharge", 10015, "diamond").split("#");
+for (var i = 0; i < data.length; i++) {
+	var dataArr = data[i].split("|");
+	var suitIconName = getConfig("fashion", dataArr[1], "sicon");
+	var suitName = getConfig("fashion", dataArr[1], "name");
+	qyengine.guardId("PeacockGiftItemIcon_" + i).changeSprite("obj_" + suitIconName + "_default");
+	qyengine.guardId("PeacockGiftItemName_" + i).text = suitName;
+}
+
+
+
+
+if (game.vars_.activePeacockGiftPanelState == 1) {
+	qyengine.guardId("grou_PeacockGift").show();
+	qyengine.guardId("grou_PeacockGiftBuyStateImg").hide();
+
+} else {
+	qyengine.guardId("grou_PeacockGift").hide();
+	qyengine.guardId("grou_PeacockGiftBuyStateImg").show();
+}
+
+
+var configs_misc = game.configs.misc;
+var configs_suit = game.configs.suit[configs_misc[21].value];
+grou_porakeGrou.objects['obj_UI_Active_interface_jueselihui_04_1'].changeSprite("obj_" + configs_suit.model + "_default");
+grou_porakeGrou.objects['tastingRoomText_3'].text = "" + configs_suit.name;
+var rechargeId = configs_misc[20].value;
+grou_PeacockGift.objects['tastingRoomText_2'].text = game.configs.recharge[rechargeId].rmb + "元";
+grou_PeacockGift.vars_.rechargeId = rechargeId;
+
+
+
+
+
+grou_porakeGrou.x = 29;
+
+grou_PeacockGiftRight.x = 382;
+
+
+if (PeacockGiftPanel && PeacockGiftPanel.isVisible) {
+	var model = qyengine.guardId("grou_porakeGrou");
+	var right = qyengine.guardId("grou_PeacockGiftRight");
+	if (model.x == 179) {
+		model.moveTo(29, model.y, "time", 300);
+		right.moveTo(382, right.y, "time", 300);
+	} else if (model.x == 29) {
+		model.moveTo(179, model.y, "time", 300);
+		right.moveTo(742, right.y, "time", 300);
+	}
+}
+
+
+
+
+
+
+self.setAnchorPoint(0.5, 0.5);
+
+
+
+
+qyengine.instance_create(current_scene.viewOffset.x, 0, "LuckyWheelPanel_recharge", {
+	"type": "LuckyWheelPanel_recharge",
+	"id": "LuckyWheelPanel_recharge",
+	"zIndex": 10,
+	"layer": "layer0"
+});
+
+
+var xxx = 0;
+var interation = setInterval(function () {
+	xxx += 10;
+	grou_luckyWheelCommon.setRotation(xxx);
+}, 100);
+
+
+
+
+
+
+/**
+ * LuckyWheelPanel_recharge  的创建事件
+ * createLuckyWheelPanel_recharge
+ */
+var outPanel = qyengine.getInstancesByType("LuckyWheelPanel_recharge");
+if (outPanel.length > 0) {
+	outPanel[0].show();
+} else {
+	game.vars_.daZhuanPan_recharge = qyengine.instance_create(current_scene.viewOffset.x, 0, "LuckyWheelPanel_recharge", {
+		"type": "LuckyWheelPanel_recharge",
+		"id": "LuckyWheelPanel_recharge",
+		"zIndex": 10
+	});
+	qyengine.guardId("ActivePanel").appendChild("LuckyWheelPanel", 0, 0);
+}
+var boxConfigs = game.configs.rechargewheel_score;
+var keysArr = Object.keys(game.configs.rechargewheel_score);
+for (var i = 0; i < keysArr.length + 1; i++) {
+	var _obj = qyengine.instance_create(0, 0, "grou_wheelLuckyBox", {
+		"type": "grou_wheelLuckyBox",
+		"id": "grou_wheelLuckyBox_" + i,
+		"zIndex": 0,
+	})
+	LuckyWheelPanel_recharge.appendChild(_obj.id, 81 + (Number(i) - 1) * 150, 347);
+	if (i == keysArr.length) {
+		_obj.objects['obj_Active_interface_chognzhizhuanpan_02'].changeSprite("obj_Active_interface_chognzhizhuanpan_03_default");
+		_obj.objects['obj_Active_interface_chognzhizhuanpan_05'].changeSprite("obj_Active_interface_chognzhizhuanpan_04_default");
+		_obj.objects["txt_luckyWheelCommon_recharge_price"].text = "特惠商城";
+	} else {
+		var oneData = boxConfigs[keysArr[i]];
+		_obj.objects['txt_luckyWheelCommon_recharge_price'].text = oneKey.rmb + "元";
+		_obj.vars_.markId = Number(keysArr[i]);
+		_obj.vars_.rmb = Number(oneKey.rmb);
+	}
+}
+current_game.scripts['al_scr_' + "refreshLuckyWheelPanel_recharge"].call(this, undefined, this);
+/**
+ * refreshLuckyWheelPanel_recharge
+ */
 
 
 
