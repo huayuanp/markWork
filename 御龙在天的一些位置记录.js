@@ -13069,14 +13069,29 @@ var interation = setInterval(function () {
 }, 100);
 
 
+/**
+ * req_uckyWheelPanel_recharge
+ */
+function callBack() {
+	console.log(arguments);
+	if (arguments[1]) {
+		qyengine.guardId("obj_UI_Active_interface_jueselihui").hide();
+		current_game.scripts['al_scr_' + "createLuckyWheelPanel_recharge"].call(this, undefined, this, arguments[2]);
+	} else {
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
 
-
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+game.scripts["al_scr_gameloadDestroy"](null, null);
+QyRpc.weekSumRechargeView(callBack);
 
 
 /**
  * LuckyWheelPanel_recharge  的创建事件
  * createLuckyWheelPanel_recharge
  */
+
 function replaceAll(replaceStr) {
 	var xxxNew = replaceStr;
 	for (var i = 0; i < 3; i++) {
@@ -13093,28 +13108,65 @@ if (outPanel.length > 0) {
 		"id": "LuckyWheelPanel_recharge",
 		"zIndex": 10
 	});
-	qyengine.guardId("ActivePanel").appendChild("LuckyWheelPanel", 0, 0);
+	qyengine.guardId("ActivePanel").appendChild("LuckyWheelPanel_recharge", 0, 0);
+
+
 }
+
+
 var boxConfigs = game.configs.rechargewheel_score;
 var keysArr = Object.keys(game.configs.rechargewheel_score);
 for (var i = 0; i < keysArr.length + 1; i++) {
-	var _obj = qyengine.instance_create(0, 0, "grou_wheelLuckyBox", {
+	var _obj = (qyengine.guardId("grou_wheelLuckyBox_" + i) && !qyengine.guardId("grou_wheelLuckyBox_" + i).destroyed_) ? qyengine.guardId("grou_wheelLuckyBox_" + i) : qyengine.instance_create(0, 0, "grou_wheelLuckyBox", {
 		"type": "grou_wheelLuckyBox",
 		"id": "grou_wheelLuckyBox_" + i,
 		"zIndex": 0,
 	})
-	LuckyWheelPanel_recharge.appendChild(_obj.id, 81 + (Number(i) - 1) * 150, 347);
+	LuckyWheelPanel_recharge.appendChild(_obj.id, 81 + 120 + (Number(i) - 1) * 130, 347);
 	if (i == keysArr.length) {
 		_obj.objects['obj_Active_interface_chognzhizhuanpan_02'].changeSprite("obj_Active_interface_chognzhizhuanpan_03_default");
 		_obj.objects['obj_Active_interface_chognzhizhuanpan_05'].changeSprite("obj_Active_interface_chognzhizhuanpan_04_default");
 		_obj.objects["txt_luckyWheelCommon_recharge_price"].text = "特惠商城";
 	} else {
 		var oneData = boxConfigs[keysArr[i]];
-		_obj.objects['txt_luckyWheelCommon_recharge_price'].text = oneKey.rmb + "元";
+		_obj.objects['txt_luckyWheelCommon_recharge_price'].text = oneData.rmb + "元";
 		_obj.vars_.markId = Number(keysArr[i]);
-		_obj.vars_.rmb = Number(oneKey.rmb);
+		_obj.vars_.rmb = Number(oneData.rmb);
+		//宝箱的状态
+		if (data.rewardState.indexOf(keysArr[i]) >= 0) {
+			_obj.objects["obj_Active_interface_chognzhizhuanpan_02"].changeSprite("obj_Active_interface_chognzhizhuanpan_01_default");
+			_obj.vars_.status = 2;
+		} else {
+			if (data.weekSumStone >= Number(oneData.rmb)) {
+				_obj.vars_.status = 1;
+			} else {
+				_obj.vars_.status = 0;
+			}
+		}
 	}
 }
+
+
+var daZhuanPan_recharge = game.vars_.daZhuanPan_recharge;
+daZhuanPan_recharge.objects['txt_luckyWheelCommon_recharge_1'].text = "本周累计充值: " + data.weekSumStone;
+if (data.lastUseNum <= 0) {
+	daZhuanPan_recharge.objects['grou_luckyWheelGoBuy'].show();
+	daZhuanPan_recharge.objects['txt_luckyWheelCommon_dec'].show();
+	daZhuanPan_recharge.objects['txt_luckyWheelCommon_haveTimes'].hide();
+	daZhuanPan_recharge.objects['obj_Active_interface_zhuanpan_05'].hide();
+	daZhuanPan_recharge.objects['obj_Active_interface_zhuanpan_04'].canTouch = false;
+} else {
+	daZhuanPan_recharge.objects['grou_luckyWheelGoBuy'].hide();
+	daZhuanPan_recharge.objects['txt_luckyWheelCommon_dec'].hide();
+	daZhuanPan_recharge.objects['txt_luckyWheelCommon_haveTimes'].show();
+	daZhuanPan_recharge.objects['obj_Active_interface_zhuanpan_05'].show();
+	daZhuanPan_recharge.objects['obj_Active_interface_zhuanpan_04'].canTouch = true;
+	daZhuanPan_recharge.objects['txt_luckyWheelCommon_haveTimes'].text = "剩余次数：" + data.lastUseNum;
+}
+
+daZhuanPan_recharge.objects["txt_luckyWheelCommon_recharge0"].text = "当天充值任意金额即可" + "<font  color='#ff0000'>" + "免费" + "</font>" + "领取" +
+	"<font  color='#ff0000'>" + "5次" + "</font>" + "抽奖机会" + "<Br/>" + "<font  color='#ff00cc'>" + "(充值依然可以获得钻石)" + "</font>";
+
 //创建显示的奖励的物品
 var now = new Date();
 var todayAtMidn = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -13125,7 +13177,7 @@ for (var cell in configs) {
 	var overObj = replaceAll(configs[cell].date_over);
 	var startDate = new Date(startObj);
 	var overDate = new Date(overObj);
-	if (now.time() >= startDate.time() && now.time() <= overDate.time()) {
+	if (now.getTime() >= startDate.getTime() && now.getTime() <= overDate.getTime()) {
 		markId = configs[cell].reward;
 		break;
 	}
@@ -13134,13 +13186,45 @@ if (!markId) {
 	console.error("发生错误,需要查看");
 }
 
-var configData = game.configs.rechargewheel_lottery[markId];
-for (var _cell in configData) {
-	qyengine['LuckyWheelPanel'].objects['txt_luckyWheelCommon_' + (5 + Number(_cell - 1))].text = configData[_cell].name;
-	qyengine['LuckyWheelPanel'].objects['obj_Icon_goods_1_' + (Number(_cell - 1))].changeSprite("obj_" + configData[_cell].show + "_default");
-	qyengine['LuckyWheelPanel'].objects['obj_Icon_goods_1_' + (Number(_cell - 1))].vars_.itemId = Number(_cell);
+var configData_show = game.configs.rechargewheel_lottery[markId].show.split("#");
+var configData_name = game.configs.rechargewheel_lottery[markId].name.split("#");
+for (var i = 0; i < configData_show.length; i++) {
+	grou_luckyWheelCommon.objects['txt_luckyWheelCommon_' + (5 + Number(i))].text = configData_name[i];
+	grou_luckyWheelCommon.objects['obj_Icon_goods_1_' + (Number(i))].changeSprite("obj_" + configData_show[i] + "_default");
+	grou_luckyWheelCommon.objects['obj_Icon_goods_1_' + (Number(i))].vars_.itemId = Number(i);
 }
 current_game.scripts['al_scr_' + "refreshLuckyWheelPanel_recharge"].call(this, undefined, this);
+
+/**
+ * grou_wheelLuckyBox  的点击事件
+ */
+
+if (self.vars_.markId != undefined) {
+	if (self.vars_.status == 0) {
+		game.scripts["al_scr_AddTip_1"](null, null, "本周累计充值" + self.vars_.rmb + "才能领取哦~", "layer1");
+	} else if (self.vars_.status == 1) {
+		current_game.scripts['al_scr_' + "openBox_recharge"].call(this, undefined, this, self.vars_.markId);
+	}
+} else {
+	//玩法说明
+	var createProperty = { "type": "grou_playDoc", "id": "grou_playDoc", "zIndex": 11, "x": 50, y: 0 };
+	current_game.scripts['al_scr_' + "createOrShow"].call(this, undefined, this, createProperty);
+}
+
+/**
+ * openBox_recharge   markId
+ */
+function callBack() {
+	if (arguments[1]) {
+		console.log("打开宝箱:-----------------"+arguments[2]);
+	} else {
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+game.scripts["al_scr_gameloadDestroy"](null, null);
+QyRpc.weekSumRechargePost(markId, callBack);
+
 /**
  * refreshLuckyWheelPanel_recharge
  */
@@ -13148,3 +13232,41 @@ current_game.scripts['al_scr_' + "refreshLuckyWheelPanel_recharge"].call(this, u
 
 
 
+
+
+qyengine.instance_create(0, 0, "grou_activityNotice", {
+	"type": "grou_activityNotice",
+	"id": "grou_activityNotice",
+	"zIndex": 10,
+	"layer": "layer0"
+});
+
+if (obj_Active_interface_Accumulative_bt_07.currentSprite.parent.qyobj.id == "rechargeGivePanel") {
+	var _txt = "1、活动期间，单笔充值达到或超过指定金额，可以激活对应的套装奖励" + "<Br/>" + "2、满足条件的单笔充值只能激活一项尚未被激活的奖励<Br/>3、单笔充值若满足多个未被激活的奖励的激活条件，则只激活价值最高且尚未被激活的奖励<Br/>4、已经激活的奖励不会重复激活";
+	grou_activityNotice.objects["txt_danChongCommon_1"].text = _txt;
+}
+
+
+/**
+ * createOrShow   property= {type zIndex layer}   _show ="hide"
+ */
+var _property = property;
+var playDocObjArr = qyengine.getInstancesByType(_property.type);
+if (playDocObjArr.length > 0) {
+	if (!_show || _show == "show") {
+		playDocObjArr[0].show();
+	} else {
+		playDocObjArr[0].hide();
+	}
+
+} else {
+	qyengine.instance_create(property.x ? property.x : 0, property.y ? property.y : 0, _property.type, {
+		"type": _property.type,
+		"id": _property.id ? _property.id : _property.type,
+		"zIndex": _property.zIndex,
+		"layer": property.layer ? property.layer : "layer0"
+	});
+}
+
+var createProperty = { "type": "grou_playDoc", "id": "grou_playDoc", "zIndex": 11, "x": 50, y: 0 };
+current_game.scripts['al_scr_' + "createOrShow"].call(this, undefined, this, createProperty);
