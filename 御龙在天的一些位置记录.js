@@ -13890,22 +13890,14 @@ try {
 			var type = fashionTable[suit[cell]].type;
 			var model = fashionTable[suit[cell]].model;
 			if (isNaN(Number(model)) && (type == 2 || type == 3 || type == 4)) {
-				if (objectId == "grou_playerDress_Story") {
-					markObject.objects['obj_Image_nude_model'].changeSprite("obj_" + model + "_story_default");
-				} else {
-					markObject.objects['obj_Image_nude_model'].changeSprite("obj_" + model + "_default");
-				}
+				markObject.objects['obj_Image_nude_model'].changeSprite("obj_" + model + "_default");
 				needChange = true;
 				break;
 			}
 		}
 	}
 	if (!needChange) {
-		if (objectId == "grou_playerDress_Story") {
-			markObject.objects['obj_Image_nude_model'].changeSprite("obj_Image_nude_model_01" + "_default");
-		} else {
-			markObject.objects['obj_Image_nude_model'].changeSprite("obj_Image_nude_model" + "_default");
-		}
+		markObject.objects['obj_Image_nude_model'].changeSprite("obj_Image_nude_model" + "_default");
 	}
 } catch (error) {
 	console.error(error.message);
@@ -14448,628 +14440,6 @@ switch (index) {
 
 
 
-/**
- * Button_ManualSuit
- */
-
-
-//Button_ManualSuit 
-qyengine.instance_create(150, 0, "grou_clothDetail", {
-	"type": "grou_clothDetail",
-	"id": "grou_clothDetail",
-	"zIndex": 15
-});
-
-//itemType 物品的类型
-//名字 
-var goodsName;
-//品质
-var quality;
-//图标
-var type;
-var typeStr;
-//描述
-var describe;
-//属性
-var property;
-
-//获取途径
-var getWay;
-
-//属性详情
-var propertyDetail;
-
-//Type:1:材料 2：衣服 3：设计图
-if (itemType == 1) {
-	goodsName = getConfig("prop", itemId, "name");
-	quality = getConfig("prop", itemId, "quality");
-	type = null;
-	typeStr = null;
-	describe = getConfig("prop", itemId, "info");
-	property = null;
-	getWay = getConfig("prop", itemId, "gatWay").split("#");
-	propertyDetail = null;
-	grou_clothDetail.objects.obj_Icon_cloth.changeSprite("obj_" + getConfig("prop", itemId, "icon") + "_default");
-} else if (itemType == 3) {
-	goodsName = getConfig("fashionPlan", itemId, "name");
-	quality = getConfig("fashionPlan", itemId, "quality");
-	type = null;
-	typeStr = null;
-	describe = getConfig("fashionPlan", itemId, "info");
-	property = null;
-	getWay = getConfig("fashionPlan", itemId, "gatWay").split("#");
-	propertyDetail = null;
-	grou_clothDetail.objects.obj_Icon_cloth.changeSprite("obj_" + getConfig("fashionPlan", itemId, "icon") + "_default");
-
-
-} else {
-	goodsName = getConfig("fashion", itemId, "name");
-	quality = getConfig("fashion", itemId, "quality");;
-	type = getConfig("fashion", itemId, "type");
-	typeStr = getConfig("suitType", type, "name");
-	describe = getConfig("fashion", itemId, "info");
-	property = getConfig("fashion", itemId, "propertyInfo");
-	getWay = getConfig("fashion", itemId, "gatWay").split("#");
-	propertyDetail = getConfig("fashion", itemId, "property")
-	grou_clothDetail.objects.obj_Icon_cloth.changeSprite("obj_Icon_" + typeStr + "_" + itemId + "_default");
-
-
-}
-
-
-//设计路界面的来源购买函数不一样
-if (itemType != null) {
-	game.vars_.fashionPlanOpen = true;
-
-} else {
-	game.vars_.fashionPlanOpen = false;
-}
-
-
-
-
-grou_clothDetail.objects.txt_clothName.setText(goodsName);
-
-if (!quality == false) {
-	for (var i = 0; i < quality; i++) {
-		//qyengine.instance_create(0,0,"obj_Icon_love",{"type":"obj_Icon_love","id":"obj_love_"+i,"zIndex":0});
-		grou_clothDetail.addOneInstance("obj_Icon_love", 345 + 42 * i, 256, {
-			id: "obj_love_" + i
-		});
-	}
-
-}
-
-
-
-
-txt_manual_clothDescribe.setText("     " + describe);
-
-
-var propertyArr = [];
-if (!property == false) {
-	propertyArr = property.split("#");
-}
-
-
-for (var i = 0; i < propertyArr.length; i++) {
-	//qyengine.instance_create(0,0,"obj_FontImage_property_"+propertyArr[i],{"type":"obj_FontImage_property_"+propertyArr[i],"id":"obj_manual_property_"+propertyArr[i],"zIndex":0});
-	grou_clothDetail.addOneInstance("obj_FontImage_property_" + propertyArr[i], 160 + 90 * i, 525, {
-		id: "obj_manual_property_" + propertyArr[i]
-	});
-	qyengine.guardId("obj_manual_property_" + propertyArr[i]).setScale(0.85, 0.85);
-}
-
-
-var propertyDetailArr = [];
-if (!propertyDetail == false) {
-	propertyDetailArr = propertyDetail.split("#");
-}
-
-
-
-var position = [
-	[53, 45],
-	[153, 45],
-	[253, 45],
-	[53, 135],
-	[153, 135],
-	[253, 135]
-];
-for (var i = 0; i < propertyDetailArr.length; i++) {
-	var temp = propertyDetailArr[i].split("|");
-	cont_manual_property.addOneInstance("obj_FontImage_property_" + temp[0], position[i][0], position[i][1], {
-		id: "obj_right_property_" + temp[0]
-	});
-	qyengine.guardId("obj_right_property_" + temp[0]).setScale(0.72, 0.72);
-
-	cont_manual_property.addOneInstance("obj_Icon_settlement_A_01", position[i][0] + 41, position[i][1] + 24, {
-		id: "obj_settlement_" + temp[0]
-	});
-	qyengine.guardId("obj_settlement_" + temp[0]).changeSprite("obj_Icon_settlement_" + temp[1] + "_01_default");
-}
-cont_manual_property.hide();
-
-/*
-1"关卡掉落",
-2"锦绣庄购买",
-3"设计图制做",
-4"裁缝铺进化",
-5"签到", 
-6"首充礼包", 
-7"水晶兑换", 
-8"竞技币兑换", 
-9"百花币兑换", 
-10"云梦锦限定",
-11"裁缝高级定制",
-12"直接购买",(仅限设计图)
-13"服装分解",
-14 七天领取套装活动
-15 邀请好友赠送套装
-16.新手引导
-17. VIP会员福利
-18 端午活动
-21 点券商店的稀有套装
-22 点券商店的稀有商品
-*/
-//获取途径  itemType
-var getwList = ["创建角色自动拥有", "关卡掉落", "锦绣庄购买", "设计图制做", "制衣坊进化",
-	"签到", "首充礼包", "水晶兑换", "竞技币兑换", "百花币兑换", "云梦锦限定", "制衣坊高级定制", "直接购买", "服装分解", "七天领取套装活动", "邀请好友赠送套装", "新手引导", "VIP会员福利", "端午活动", "", "神宠-萤火商店获得", "特惠商城", "特惠商城"
-];
-
-for (var i = 0; i < getWay.length; i++) {
-	var temp = getWay[i].split("|");
-
-	qyengine.instance_create(0, 0, "grou_accessWay", {
-		"type": "grou_accessWay",
-		"id": "grou_accessWay_" + i,
-		"zIndex": 0
-	});
-	scro_manual_accessWay.appendChild("grou_accessWay_" + i, 0, 0, i, 0, false, true);
-	qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWay.setText(getwList[parseInt(temp[0])]);
-
-
-
-
-	switch (parseInt(temp[0])) {
-		case 0:
-
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			//qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-			//  id: "grou_btnAccessWay_3" + i
-			//});
-			//qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-
-			break;
-
-
-
-		case 1:
-
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			var questInfo = getConfig("quest", temp[1]);
-
-			var questId = Number(temp[1]);
-			var chapterId = 0;
-			for (var _cell in game.configs.story) {
-				if (Number(game.configs.story[_cell].chapterId) == Number(questInfo.storyId)) {
-					chapterId = Number(_cell);
-					break;
-				}
-			}
-
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(questInfo.name + "(" + questInfo.tab_1 + ")");
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.type = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.questId = questId;
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.chapterId = chapterId;
-			//给陈政加的
-			if (qyengine.getInstancesByType("grou_settlement_new").length > 0 && grou_settlement_new.isVisible &&
-				qyengine.getInstancesByType("grou_npcBg").length > 0 && grou_npcBg.isVisible) {
-				//不显示飞过去
-				qyengine.guardId("grou_btnAccessWay_3" + i).hide();
-			}
-			break;
-		case 2:
-
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.
-				txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-
-			if (temp[1] == "-1") {
-				break;
-			}
-
-
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			//物品ID
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			//物品类型
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemType = itemType;
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			break;
-		case 3:
-
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_2", 330, 70, {
-				id: "grou_btnAccessWay_2" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_2" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_2" + i).vars_.itemId = itemId;
-			qyengine.guardId("grou_btnAccessWay_2" + i).vars_.itemType = itemType;
-			break;
-		case 4:
-
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_2", 330, 70, {
-				id: "grou_btnAccessWay_2" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_2" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_2" + i).vars_.itemId = itemId;
-			qyengine.guardId("grou_btnAccessWay_2" + i).vars_.itemType = itemType;
-			break;
-		case 5:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			break;
-		case 6:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			break;
-		case 7:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			//物品ID
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			//物品类型
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemType = itemType;
-
-			break;
-		case 8:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			//物品ID
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			//物品类型
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemType = itemType;
-
-			break;
-		case 9:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			//物品ID
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			//物品类型
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemType = itemType;
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			break;
-		case 10:
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			break;
-		case 11:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemType = itemType;
-			break;
-
-		case 12:
-
-			var priceType = getConfig("fashionPlan", itemId, "price").split("|");
-			if (priceType[0] == 1)
-				qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.changeSprite("obj_Icon_goods_5_default");
-			else
-				qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.changeSprite("obj_Icon_goods_1_default");
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(priceType[1]);
-
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_1", 330, 70, {
-				id: "grou_btnAccessWay_1" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_1" + i).vars_.itemId = itemId;
-			qyengine.guardId("grou_btnAccessWay_1" + i).vars_.itemType = itemType;
-			qyengine.guardId("grou_btnAccessWay_1" + i).vars_.index = parseInt(temp[0]);
-			break;
-		case 13:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemType = itemType;
-			break;
-		case 14:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			break;
-		case 15:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-
-			break;
-		case 16:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-
-			break;
-		case 17:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			if (temp[1] == "-1") {
-				break;
-			}
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			break;
-		case 18:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-
-			break;
-		case 20:
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90);
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			break;
-		case 21:
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90);
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			break;
-		case 22:
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90);
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(getwList[parseInt(temp[0])]);
-			qyengine.guardId("grou_accessWay_" + i).addOneInstance("grou_btnAccessWay_3", 330, 70, {
-				id: "grou_btnAccessWay_3" + i
-			});
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.index = parseInt(temp[0]);
-			qyengine.guardId("grou_btnAccessWay_3" + i).vars_.itemId = itemId;
-			break;
-		default:
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setPosition(14, 90)
-			qyengine.guardId("grou_accessWay_" + i).objects.obj_Icon_Gold.hide();
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWayDescribe.setText(temp[1]);
-			qyengine.guardId("grou_accessWay_" + i).objects.txt_manual_accessWay.setText(temp[1]);
-			break;
-	}
-}
-
-
-
-
-
-/**
- * RefreshSevenDaysSuit
- */
-var startTimeStr = game.vars_.activeOpenTimeDic[3].time_start;
-
-var overTimeStr = game.vars_.activeOpenTimeDic[3].time_over;
-
-qyengine.guardId("SevenDaysSuitTitleTex").setText("活动时间:" + startTimeStr[0] + "年" + startTimeStr[1] + "月" + startTimeStr[2] + "日——" + overTimeStr[0] + "年" + overTimeStr[1] + "月" + overTimeStr[2] + "日");
-
-//设置 套图的
-qyengine.guardId("SevenDaysSuitNameText").setText(getConfig("activity_seven", 8, "reward"));
-//可以领取
-function SetItemIsGet(index) {
-
-	var goodID = getConfig("activity_seven", (index + 1), "reward").split('|')[1];
-	qyengine.guardId("SevenSuitItem_" + index).vars_.state = 1;
-
-	//Icon
-	qyengine.guardId("SevenDaysSuitIcon_" + index).changeSprite("obj_" + getConfig("fashion", goodID, "sicon") + "_default");
-	qyengine.guardId("SevenDaysSuitIcon_" + index).show();
-
-	//可以领取
-	qyengine.guardId("SevenDaysSuitTag_" + index).show();
-	qyengine.guardId("SevenDaysSuitTag_" + index).changeSprite("obj_UI_Active_interface_Can_receive_default");
-
-	//锁
-	qyengine.guardId("SevenDaysSuitLock_" + index).hide();
-
-	//底图
-	qyengine.guardId("SevenSuitItembg_" + index).changeSprite("obj_Active_interface_invite_friends_01_default");
-
-	//名称
-	qyengine.guardId("SevenSuitNametext_" + index).setText(getConfig("fashion", goodID, "name"));
-}
-
-
-//已经领过了
-function SetItemIsGot(index) {
-	qyengine.guardId("SevenSuitItem_" + index).vars_.state = 2;
-	//已经领过的标识
-	qyengine.guardId("SevenDaysSuitTag_" + index).changeSprite("obj_Bg_Active_interface_Already_receive_default");
-	qyengine.guardId("SevenDaysSuitTag_" + index).show();
-
-	var goodID = getConfig("activity_seven", (index + 1), "reward").split('|')[1];
-
-	//Icon
-	qyengine.guardId("SevenDaysSuitIcon_" + index).changeSprite("obj_" + getConfig("fashion", goodID, "sicon") + "_default");
-	qyengine.guardId("SevenDaysSuitIcon_" + index).show();
-
-	//名称
-	qyengine.guardId("SevenSuitNametext_" + index).setText(getConfig("fashion", goodID, "name"));
-
-	//锁
-	qyengine.guardId("SevenDaysSuitLock_" + index).hide();
-
-	//底图
-	qyengine.guardId("SevenSuitItembg_" + index).changeSprite("obj_Active_interface_invite_friends_01_default");
-
-}
-function SetItemIsInsufficient(index) {
-	qyengine.guardId("SevenSuitItem_" + index).vars_.state = 0;
-	//已经领过的标识
-	qyengine.guardId("SevenDaysSuitTag_" + index).hide();
-	var goodID = getConfig("activity_seven", (index + 1), "reward").split('|')[1];
-	qyengine.guardId("SevenDaysSuitIcon_" + index).hide();
-	//名称
-	qyengine.guardId("SevenSuitNametext_" + index).setText(getConfig("fashion", goodID, "name"));
-	//底图
-	qyengine.guardId("SevenSuitItembg_" + index).changeSprite("obj_Active_interface_invite_friends_02_default");
-	qyengine.guardId("SevenDaysSuitLock_" + index).show();
-
-}
-if (game.vars_.activeSevenOpen == 1) {
-	for (var i = 0; i < 7; i++) {
-		qyengine.guardId("SevenSuitItem_" + i).vars_.SevenSuitid = (i + 1);
-
-		if (i < game.vars_.activeSevenid) {
-			SetItemIsGot(i);
-		} else if (i == game.vars_.activeSevenid) {
-			SetItemIsGet(i);
-		} else {
-			SetItemIsInsufficient(i);
-		}
-	}
-} else {
-	for (var i = 0; i < 7; i++) {
-		qyengine.guardId("SevenSuitItem_" + i).vars_.SevenSuitid = (i + 1);
-		if (i <= game.vars_.activeSevenid - 1) {
-			SetItemIsGot(i);
-		} else {
-			SetItemIsInsufficient(i);
-		}
-	}
-}
-
-
-
-
-
-
-
-otherHeroObj = qyengine.instance_create(300, 300, "txt_luckyWheelCommon_recharge_doc", {
-	"id": "txt_luckyWheelCommon_recharge_doc" + 1,
-	"zIndex": 10,
-	"layer": "layer_fight"
-});
-txt_luckyWheelCommon_recharge_doc1.text = "哈哈哈哈哈";
-
-
-
-txt_luckyWheelCommon_recharge_doc1.runAnimation("anim_ActiveLeftBtn");
-
-
-
-
 
 
 /**
@@ -15081,10 +14451,11 @@ function callBack() {
 	console.log("活动回调", arguments);
 
 	if (arguments[1] == true) {
+		game.vars_.activeOpenTimeDic = arguments[2]["actTimes"];
 		game.vars_.activeOpenData = arguments[2]["openActivity"];
 		game.vars_.activeSevenid = arguments[2]["sevenid"];
 		game.vars_.activeSevenOpen = arguments[2]["sevenActivity"];
-		game.vars_.activeSevenOpenID = openId;
+		//game.vars_.activeSevenOpenID = openId;
 	} else {
 		console.log(arguments[2].code);
 		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
@@ -15096,21 +14467,34 @@ function callBack() {
 //game.scripts["al_scr_gameloadCreate"](null, null);
 QyRpc.OpenActivity(callBack);
 
-
-
+/**
+ * judgeCanOpenSeven_activity
+ */
+var canOpen = game.vars_.activeOpenData && ("3" in game.vars_.activeOpenData);
+var canReward = game.vars_.activeSevenOpen;
+return canOpen && canReward;
 /**
  * openSevenDaysSuitPanel_main
  */
+//current_game.scripts['al_scr_' + "openSevenDaysSuitPanel_main"].call(this, undefined, this);
 var panelArr = qyengine.getInstancesByType("SevenDaysSuitPanel_main");
 if (panelArr == 0) {
-	qyengine.instance_create(0, 0, 'SevenDaysSuitPanel_main',
+	var panel = qyengine.instance_create(150, -80, 'SevenDaysSuitPanel_main',
 		{
 			"type": 'SevenDaysSuitPanel_main',
 			"id": 'SevenDaysSuitPanel_main',
 			"zIndex": 9,
 			"layer": "layer0",
 		});
-	panel.objects['obj_UI_Active_interface_jueselihui_04'].changeSprite("obj_UI_Active_interface_jueselihui_02_default");
+	//panel.objects['obj_UI_Active_interface_jueselihui_04'].changeSprite("obj_UI_Active_interface_jueselihui_02_default");
+	var mode_image = "obj_Image_suit_4841";
+	for (var i in game.configs.suit) {
+		if (game.configs.suit[i].name == "轻纱梦") {
+			mode_image = game.configs.suit[i].model;
+			break;
+		}
+	}
+	SevenDaysSuitPanel_main.objects['obj_UI_Active_interface_jueselihui_04'].changeSprite(mode_image + "_default");
 } else {
 	panelArr[0].show();
 }
@@ -15265,4 +14649,100 @@ if (self.vars_.state == 0) {
 
 } else if (self.vars_.state == 2) {
 	game.scripts["al_scr_AddTip_1"](null, null, "已经领过了", "layer1");
+}
+
+
+
+
+
+if (game.configs.Week_codes[game.vars_.activeWanBaDay].day <= 7) {
+	qyengine.guardId("wanbaGiftPanelTips1").text = "您今天已经领取过";
+} else {
+	qyengine.guardId("wanbaGiftPanelTips1").text = "活动期间仅能领取一次";
+}
+
+
+
+
+/**
+ *    createDeposerPanel
+ */
+//计算奖励返回文本
+function calRewardBackTxt(_reward) {
+	var backTxt = "";
+	for (var k = 0; k < _reward.length; k++) {
+		var configsData = null;
+		if (_reward[k].type == 1) {
+			configsData = game.configs.prop;
+			var name = configs[_reward[k].id].name;
+			var num = _reward[k].num;
+			backTxt += (num + "" + name);
+		}
+	}
+	return backTxt;
+}
+
+function createPanel(date) {
+	var panelArr = qyengine.getInstancesByType("deposerPanel");
+	var panelObj = null;
+	if (panelArr.length) {
+		panelArr[0].show();
+		panelObj = panelArr[0];
+	} else {
+		panelObj = qyengine.instance_create(0, 0, "deposerPanel", {
+			"type": "deposerPanel",
+			"id": "deposerPanel",
+			"zIndex": 9,
+			"layer": "layer0"
+		});
+	}
+	qyengine.guardId("ActivePanel").appendChild("deposerPanel", 0, 0);
+	panelObj.objects["txt_deposerCommon_tip1"].text = "(当前全服已购买:" + data.totalPrice + "元)";
+	var needHideArr = ["scro_composerLast", "txt_deposerCommonTab_0", "txt_deposerCommonTab_1", "txt_deposerCommonTab_2", "txt_deposerCommonTab_3"];
+	if (date.result.length) {
+		for (var i = 0; i < needHideArr.length; i++) {
+			panelObj.objects[needHideArr[i]].show();
+		}
+		panelObj.objects["txt_deposerCommon_5"].hide();
+		game.configs.config_lastReward = {};
+		for (var j = 0; j < date.result.length; j++) {
+			var cellData = data.result[j];
+			//计算奖励
+			game.configs.config_lastReward[j + 1] = {
+				"id": j + 1,
+				"rank": cellData.result,
+				"code": cellData.code,
+				"nick": cellData.nickName,
+				"reward": calRewardBackTxt(cellData.reward)
+			};
+		}
+		panelObj.objects['scro_composerLast'].refreshRelations();
+	} else {
+		for (var i = 0; i < needHideArr.length; i++) {
+			panelObj.objects[needHideArr[i]].hide();
+		}
+		panelObj.objects["txt_deposerCommon_5"].show();
+	}
+}
+
+function oneBack() {
+	if (arguments[1]) {
+		createPanel(arguments[2]);
+	} else {
+		console.log(arguments[2].code);
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+game.scripts["al_scr_gameloadCreate"](null, null);
+QyRpc.oneDuoBaoView(oneBack);
+
+/**
+ * 玩法说明~  和 抽奖码的点击事件
+ */
+//抽奖码
+if (self.id == "grou_deposerCodeBtn_code") {
+	current_game.scripts['al_scr_' + "createRewardCodePanel"].call(this, undefined, this);
+} else {//玩法说明
+
 }
