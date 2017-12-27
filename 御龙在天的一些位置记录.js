@@ -14696,6 +14696,7 @@ function createPanel(date) {
 			"layer": "layer0"
 		});
 	}
+	panelObj.vars_.markData = date;
 	qyengine.guardId("ActivePanel").appendChild("deposerPanel", 0, 0);
 	panelObj.objects["txt_deposerCommon_tip1"].text = "(当前全服已购买:" + data.totalPrice + "元)";
 	var needHideArr = ["scro_composerLast", "txt_deposerCommonTab_0", "txt_deposerCommonTab_1", "txt_deposerCommonTab_2", "txt_deposerCommonTab_3"];
@@ -14728,6 +14729,8 @@ function createPanel(date) {
 function oneBack() {
 	if (arguments[1]) {
 		createPanel(arguments[2]);
+		//滚动的文字的请求
+		current_game.scripts["al_scr_"+"scrollComposerWord"].call(this,undefined,this);
 	} else {
 		console.log(arguments[2].code);
 		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
@@ -14746,3 +14749,101 @@ if (self.id == "grou_deposerCodeBtn_code") {
 } else {//玩法说明
 
 }
+
+
+
+/**
+ * createRewardCodePanel
+ */
+var panelArr = qyengine.getInstancesByType("grou_deposerCodePanel");
+var panelObj = null;
+if (panelArr.length) {
+	panelObj = panelArr[0];
+	panelObj.show();
+} else {
+	panelObj = qyengine.instance_create(0, 0, "grou_deposerCodePanel", {
+		"type": "grou_deposerCodePanel",
+		"id": "grou_deposerCodePanel",
+		"zIndex": 9,
+		"layer": "layer0"
+	});
+}
+
+panelObj.objects['obj_chest_fuzhuangdairu_01_0'].dispatchMessage({
+	"type": "message",
+	"message": "touchBtn"
+});
+
+/**
+ * obj_chest_fuzhuangdairu_01的点击事件
+ */
+function refreshMyCode() {
+	//请求数据
+	function oneBack() {
+		if (arguments[1]) {
+			grou_deposerCodePanel.vars_.rewardCode = arguments[2];
+			game.configs.config_myCode = {};
+			for (var i = 0; i < arguments[2].length; i++) {
+				var codeStatus = { '-1': "未中奖", "0": "等待开奖", "1": "一等奖", "2": "二等奖", "3": "三等奖" };
+				game.configs.config_myCode[i + 1] = {
+					"id": i + 1,
+					"code": arguments[2][i].code,
+					"status": codeStatus[arguments[2][i].type]
+				};
+			}
+			grou_deposerCodePanel.objects['scro_composerLast_myCode'].refreshRelations();
+		} else {
+			console.log(arguments[2].code);
+			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		}
+		game.scripts["al_scr_gameloadDestroy"](null, null);
+	}
+	game.scripts["al_scr_gameloadCreate"](null, null);
+	QyRpc.getLuckyCode(oneBack);
+}
+function refreshLastReward() {
+	game.configs.config_lastReward = {};
+	for (var j = 0; j < panelObj.vars_.markData.result; j++) {
+		var cellData = panelObj.vars_.markData.result[j];
+		//计算奖励
+		game.configs.config_lastReward[j + 1] = {
+			"id": j + 1,
+			"rank": cellData.result,
+			"code": cellData.code,
+			"nick": cellData.nickName,
+			"reward": calRewardBackTxt(cellData.reward)
+		};
+	}
+	grou_deposerCodePanel.objects["scro_composerLast_publicity"].refreshRelations();
+}
+var objPanel = grou_deposerCodePanel.objects;
+var needShowAndHideArr = ["scro_composerLast_publicity", "txt_deposerCommon_0", "txt_deposerCommon_1", "txt_deposerCommon_2", "txt_deposerCommon_3"];
+if (self.vars_.btnStatus) {
+	objPanel[obj_chest_fuzhuangdairu_02].show();
+	objPanel[obj_chest_fuzhuangdairu_02_0].hide();
+	grou_deposerCodePanel.objects["scro_composerLast_myCode"].hide()
+	needShowAndHideArr.forEach(function (e) {
+		objPanel[e].show();
+	});
+	refreshLastReward();
+} else {
+	objPanel[obj_chest_fuzhuangdairu_02].hide();
+	objPanel[obj_chest_fuzhuangdairu_02_0].show();
+	grou_deposerCodePanel.objects["scro_composerLast_myCode"].show();
+	needShowAndHideArr.forEach(function (e) {
+		objPanel[e].hide();
+	});
+	if (grou_deposerCodePanel.vars_ && grou_deposerCodePanel.vars_.rewardCode) {
+	} else {
+		refreshMyCode();
+	}
+}
+
+
+
+/**
+ *   设置滚动~~~~~  scrollComposerWord
+ */
+
+
+
