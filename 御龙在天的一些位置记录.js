@@ -15515,11 +15515,11 @@ for (var i = 0; i < nowPageObj.length; i++) {
 	result.objects['obj_Icon_dress_25000'].changeSprite("obj_" + fashionTableData.icon + "_default");
 	result.objects['txt_clothesAndSuitBtn'].text = fashionTableData.name;
 	result.objects['txt_clothesAndSuitBtn_number'].text = i + 1;
-	result.objects['obj_未标题心'].width=176 * (fashionTableData.quality / 6);
-	result.objects['obj_未标题心'].x=(176 / 6 * (6 - quality) - 8) / 2;
-	if(game.vars_.playerCurrentCloths[typeStr]==itemId){
+	result.objects['obj_未标题心'].width = 176 * (fashionTableData.quality / 6);
+	result.objects['obj_未标题心'].x = (176 / 6 * (6 - quality) - 8) / 2;
+	if (game.vars_.playerCurrentCloths[typeStr] == itemId) {
 		result.objects['obj_icon_chest_have_to_dress_up'].show();
-	}else{
+	} else {
 		result.objects['obj_icon_chest_have_to_dress_up'].hide();
 	}
 	if (isNew) {
@@ -15531,6 +15531,34 @@ for (var i = 0; i < nowPageObj.length; i++) {
 }
 
 
+/**
+ * 	grou_clotherAndSuitBtn的点击事件
+ */
 
+/**
+ * Button_ChooseCloth   args:object
+ */
+if (self.vars_.unGet) {
+	//获取途径~~~~
+	game.scripts["al_scr_Button_ManualSuit"](null, null, self.vars_.itemId);
+	return;
+}
 
+if (Math.abs(mouseY - self.posY) > 5)
+	return;
 
+if (object.vars_.couldPress == false)
+	return;
+
+game.scripts["al_scr_Change_1"](null, null, object.vars_.itemId);
+
+//game.scripts["al_scr_Button_SuitType"](null,null,current_scene.vars_.currentClothType);
+var cards = qyengine.getInstancesByType("grou_clothBtn");
+for (var i = 0; i < cards.length; i++) {
+	if (cards[i].vars_.itemId == game.vars_.playerCurrentCloths[getConfig("suitType", game.vars_.curChangeType, "name")]) {
+		cards[i].objects.obj_Icon_chest_have_to_dress_up.show();
+	}
+	else {
+		cards[i].objects.obj_Icon_chest_have_to_dress_up.hide();
+	}
+}
