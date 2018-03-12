@@ -15264,9 +15264,21 @@ if (!qyengine.grou_clothTypeInstance) {
 		index++;
 
 	}
+	//默认展示推荐
+	current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, 100);
+	current_game.scripts['al_scr_' + "SetClothesBottonPos"].call(this, undefined, this);
 }
 
-
+/**
+ * SetClothesBottonPos
+ */
+if (grou_clothesPressPanel.vars_.botton) { //显示->不显示
+	grou_clothesPressBotton.moveTo(grou_clothesPressBotton.x, 722 + 529 + 20, "time", 1000);
+	grou_clothesPressPanel.vars_.botton = false;
+} else {
+	grou_clothesPressBotton.moveTo(grou_clothesPressBotton.x, 722, "time", 1000);
+	grou_clothesPressPanel.vars_.botton = true;
+}
 /**
  * OpenChange
  */
@@ -15284,12 +15296,15 @@ grou_clothesPressPanel.appendChild("grou_playerDress", -100, 120);
 game.scripts["al_scr_Change_Init"](null, null);
 
 game.vars_.playerCurrentCloths = JSON.parse(JSON.stringify(game.vars_.playInfoJson.suit[game.vars_.changeSuitIndex]));
-
+current_scene.vars_.searchProperty = [0, 0];
+current_scene.vars_.tempProperty = [0, 0];
 
 /**
  * Button_SuitType   args；self.vars_.type  ,changePage
  */
 //判断是否有新获得标签
+var fashionTable = game.configs.fashion;
+var suitTable = game.configs.suit;
 function judgeIsNew(fromId) {
 	for (var k = 0; k < current_scene.vars_.currentClothNew.length; k++) {
 		if (Number(fromId) == Number(current_scene.vars_.currentClothNew[k])) {
@@ -15300,6 +15315,16 @@ function judgeIsNew(fromId) {
 }
 
 function judgeInBag(_id) {
+	//套装中的部件是否全部都已经拥有
+	if (suitTable[_id]) {
+		var fashionIdArr = suitTable[_id].fashionId.split("|");
+		for (var i = 0; i < fashionIdArr.length; i++) {
+			if (!arguments.callee(fashionIdArr[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
 	for (var k in game.vars_.bagList.cloth) {
 		if (Number(k) == Number(_id)) {
 			return true;
@@ -15321,6 +15346,43 @@ var index = 0;
 var arr = [];
 
 game.vars_.curChangeType = type;
+var tujian = function () {
+	var configRecommond = game.configs.recommend[1];
+	var recommend_fashion = configRecommond.fashion == -1 ? 0 : configRecommond.fashion.split("|"),
+		recommend_suit = configRecommond.suit == -1 ? 0 : configRecommond.suit.split("|");
+	var index = 0;
+	if (recommend_fashion) {
+		for (var i = 0; i < recommend_fashion.length; i++) {
+			var isNew = judgeIsNew(recommend_fashion[i]);
+			var unGet = judgeInBag(recommend_fashion[i]);
+			arr[index] = [parseInt(recommend_fashion[i]), Number(fashionTable[recommend_fashion[i]].quality), isNew, unGet];
+			index++;
+		}
+	}
+	for (var i = 0; i < recommend_suit.length; i++) {
+		var unGet = judgeInBag(recommend_suit[i]);
+		arr[index] = [parseInt(recommend_suit[i]), Number(fashionTable[recommend_suit[i]].quality), false, unGet];
+		index++;
+	}
+
+	return arr;
+};
+var suitPage = function () {
+	for (var i in suitTable) {
+		arr[index] = [parseInt(suitTable[i].id), Number(suitTable[i].quality), false, judgeInBag(suitTable[i].id)];
+	}
+	return arr;
+};
+//推荐或者套装
+if (type == 100 || type == 101) {
+	if (type == 100) {
+		tujian();
+	} else {
+		suitPage();
+	}
+	current_game.scripts['al_scr_' + "clothesPressChange"].call(this, undefined, this, arr);
+	return;
+}
 
 //遍历道具表,符合当前服装类型的加入数组
 var tableList = null;
@@ -15562,3 +15624,16 @@ for (var i = 0; i < cards.length; i++) {
 		cards[i].objects.obj_Icon_chest_have_to_dress_up.hide();
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
