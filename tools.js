@@ -1,5 +1,5 @@
-
-
+//玩吧调试
+https://1106097089.urlshare.cn/home?_proxy=1&_wv=2147628839&_offline=1&debugkey=zTMM0DEN0TMOA3xMslJUKXdRs3hSxFYfO0FXTF9R3V8UujAL0F8MfjJMCVlW%3D0QX
 //王号的账号
 //hwangrd 18655950910 wh
 //nginx
@@ -125,6 +125,8 @@ qyengine.instance_create(1414, 1226, "txt_rankListNumber", {
     "layer": 'layer_headerfeet'
 });
 
+//删除默认的作用区域
+delete $.utils.getAllJson().sprites["obj_Btn_Exchange_Use_default"].collisionData
 //查看user-agent，useragent
 window.navigator.userAgent
 //龙啸九天beta链接上显示 游客登陆的按钮
@@ -322,6 +324,8 @@ $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
 5, 项目管理中能增加文件夹
 6, 搜索对象的时候, 增加显示对象所在的文件夹
 7, 输入框的一系列问题
+8, 组合UI右边的图层视图下正确拖动极其困难。
+9, 项目管理中可以建立文件夹, 方便对不同项目进行管理;
 /*
 yulongzaitianH5_pre_lxjt   新增加的
 //chrome调试地址
