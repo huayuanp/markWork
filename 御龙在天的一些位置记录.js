@@ -15190,11 +15190,23 @@ function setPage(nowPage) {
  */
 //Change_Init
 var suit = game.vars_.playInfoJson.suit[game.vars_.changeSuitIndex];
+if (!('texiao' in suit)) {
+	suit['texiao'] = 0;
+}
+if (!('bgPic' in suit)) {
+	suit['bgPic'] = 0;
+}
 var length = Object.keys(suit).length;
 var tempCloth;
-if (length > 0)
+if (length > 0) {
+	if (!('texiao' in suit)) {
+		suit['texiao'] = 0;
+	}
+	if (!('bgPic' in suit)) {
+		suit['bgPic'] = 0;
+	}
 	tempCloth = JSON.parse(JSON.stringify(suit));
-else
+} else {
 	tempCloth = {
 		'name': '编辑套装名字',
 		'hairStyle': 10037,
@@ -15212,7 +15224,11 @@ else
 		'face': 0,
 		'special': 0,
 		'pet': 0,
+		'bgPic': 0,
+		'texiao': 0
 	};
+}
+
 
 if (current_scene.vars_.searchProperty == undefined)
 	current_scene.vars_.searchProperty = [0, 0];
@@ -15234,12 +15250,13 @@ if (!qyengine.grou_clothTypeInstance) {
 		});
 		qyengine.guardId("grou_clothesPressBtn_Type_" + k).vars_.type = 100 + k;
 		var markIcon = k == 0 ? "obj_Chest_home_06_1" : "obj_Chest_home_06_2";
-		qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
+		qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
 		if (selectTab != undefined && 100 + k == selectTab) {
-			qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_02.show();
+			qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show();
 		} else {
-			k == 0 ? qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_02.show() : qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_02.hide();
+			k == 0 ? qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show() : qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_02.hide();
 		}
+		scro_clothesType.appendChild("grou_clothesPressBtn_Type_" + k, -6, 5, 0, k, false, true);
 	}
 
 	var index = 2;
@@ -15250,17 +15267,17 @@ if (!qyengine.grou_clothTypeInstance) {
 
 		qyengine.grou_clothTypeInstance = qyengine.instance_create(0, 0, "grou_clothesPressBtn_Type", {
 			"type": "grou_clothesPressBtn_Type",
-			"id": "grou_clothesPressBtn_Type_" + i,
+			"id": "grou_clothesPressBtn_Type_" + index,
 			"zIndex": 0
 		});
-		qyengine.guardId("grou_clothesPressBtn_Type_" + i).vars_.type = i;
-		qyengine.guardId("grou_clothType_" + i).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
+		qyengine.guardId("grou_clothesPressBtn_Type_" + index).vars_.type = i;
+		qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
 		if (selectTab != undefined && i == selectTab) {
-			qyengine.guardId("grou_clothType_" + i).objects.obj_Chest_home_02.show();
+			qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_02.show();
 		} else {
-			qyengine.guardId("grou_clothType_" + i).objects.obj_Chest_home_02.hide();
+			qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_02.hide();
 		}
-		scro_clothesType.appendChild("grou_clothType_" + i, -5, -5, index, 0, false, true);
+		scro_clothesType.appendChild("grou_clothesPressBtn_Type_" + index, -5, 5, 0, index, false, true);
 		index++;
 
 	}
@@ -15268,6 +15285,54 @@ if (!qyengine.grou_clothTypeInstance) {
 	current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, 100);
 	current_game.scripts['al_scr_' + "SetClothesBottonPos"].call(this, undefined, this);
 }
+
+
+/**
+ * createClothesTabScro   //创建属性tab
+ */
+for (var k = 0; k < 2; k++) {
+	qyengine.grou_clothTypeInstance = qyengine.instance_create(0, 0, "grou_clothesPressBtn_Type", {
+		"type": "grou_clothesPressBtn_Type",
+		"id": "grou_clothesPressBtn_Type_" + k,
+		"zIndex": 0
+	});
+	qyengine.guardId("grou_clothesPressBtn_Type_" + k).vars_.type = 100 + k;
+	var markIcon = k == 0 ? "obj_Chest_home_06_1" : "obj_Chest_home_06_2";
+	qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
+	if (selectTab != undefined && 100 + k == selectTab) {
+		qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show();
+	} else {
+		k == 0 ? qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show() : qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_02.hide();
+	}
+	scro_clothesType.appendChild("grou_clothesPressBtn_Type_" + k, -6, 5, 0, k, false, true);
+}
+
+var index = 2;
+for (var i in game.configs.suitType) {
+
+	var cell = game.configs.suitType[i];
+
+
+	qyengine.grou_clothTypeInstance = qyengine.instance_create(0, 0, "grou_clothesPressBtn_Type", {
+		"type": "grou_clothesPressBtn_Type",
+		"id": "grou_clothesPressBtn_Type_" + index,
+		"zIndex": 0
+	});
+	qyengine.guardId("grou_clothesPressBtn_Type_" + index).vars_.type = i;
+	qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
+	if (selectTab != undefined && i == selectTab) {
+		qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_02.show();
+	} else {
+		qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_02.hide();
+	}
+	scro_clothesType.appendChild("grou_clothesPressBtn_Type_" + index, -5, 5, 0, index, false, true);
+	index++;
+
+}
+
+
+
+
 
 /**
  * SetClothesBottonPos
@@ -15292,7 +15357,7 @@ else
 
 game.scripts["al_scr_CommonInstanceCreate"](null, null, "grou_clothesPressPanel");
 
-grou_clothesPressPanel.appendChild("grou_playerDress", -100, 120);
+grou_clothesPressPanel.appendChild("grou_playerDress", 520, 550);
 game.scripts["al_scr_Change_Init"](null, null);
 
 game.vars_.playerCurrentCloths = JSON.parse(JSON.stringify(game.vars_.playInfoJson.suit[game.vars_.changeSuitIndex]));
@@ -15306,6 +15371,8 @@ current_scene.vars_.tempProperty = [0, 0];
 var fashionTable = game.configs.fashion;
 var suitTable = game.configs.suit;
 function judgeIsNew(fromId) {
+	//后期更改
+	current_scene.vars_.currentClothNew = [];
 	for (var k = 0; k < current_scene.vars_.currentClothNew.length; k++) {
 		if (Number(fromId) == Number(current_scene.vars_.currentClothNew[k])) {
 			return true;
@@ -15335,8 +15402,7 @@ function judgeInBag(_id) {
 if (type <= 0)
 	return;
 
-scro_change_clothBtn.show();
-scro_change_clothType.hide();
+
 
 
 
@@ -15361,7 +15427,7 @@ var tujian = function () {
 	}
 	for (var i = 0; i < recommend_suit.length; i++) {
 		var unGet = judgeInBag(recommend_suit[i]);
-		arr[index] = [parseInt(recommend_suit[i]), Number(fashionTable[recommend_suit[i]].quality), false, unGet];
+		arr[index] = [parseInt(recommend_suit[i]), Number(suitTable[recommend_suit[i]].quality), false, unGet];
 		index++;
 	}
 
@@ -15370,6 +15436,7 @@ var tujian = function () {
 var suitPage = function () {
 	for (var i in suitTable) {
 		arr[index] = [parseInt(suitTable[i].id), Number(suitTable[i].quality), false, judgeInBag(suitTable[i].id)];
+		index++;
 	}
 	return arr;
 };
@@ -15387,15 +15454,20 @@ if (type == 100 || type == 101) {
 //遍历道具表,符合当前服装类型的加入数组
 var tableList = null;
 if (!game.vars_.searchCondition || game.vars_.searchCondition == 1) {
-	tableList = game.vars_.bagList.cloth/*game.vars_.bagList.cloth*/;
+	if (grou_clothesPressPanel.vars_.faceOrClothes == undefined || grou_clothesPressPanel.vars_.faceOrClothes == 1) {
+		tableList = game.vars_.bagList.cloth/*game.vars_.bagList.cloth*/;
+	} else {
+		tableList = game.configs.face;
+	}
+
 } else if (game.vars_.searchCondition == 2 || game.vars_.searchCondition == 3) {
 	tableList = game.configs.fashion;
 }
 
 for (var id in tableList) {
-	var property = getConfig("fashion", id, "propertyInfo");
-	var itemName = getConfig("fashion", id, "name");
-	var itemInfo = getConfig("fashion", id, "info");
+	var property = getConfig("fashion", id, "propertyInfo") || getConfig("face", id, "propertyInfo");
+	var itemName = getConfig("fashion", id, "name") || getConfig("face", id, "name");
+	var itemInfo = getConfig("fashion", id, "info") || getConfig("face", id, "info");
 	if (!property) {
 		continue;
 	}
@@ -15436,9 +15508,15 @@ for (var id in tableList) {
 		}
 	}
 
-
-	if (getConfig("fashion", id, "type") == type) {
-		var quality = getConfig("fashion", id, "quality");
+	var idType = function () {
+		if ((getConfig("fashion", id, "type") && getConfig("fashion", id, "type") == type) || (getConfig("face", id, "type") && getConfig("face", id, "type") == type)) {
+			return true;
+		} else {
+			return false;
+		}
+	};
+	if (idType()) {
+		var quality = getConfig("fashion", id, "quality") || getConfig("face", id, "quality");
 		var isNew = judgeIsNew(id);
 		var unGet = false;
 		if (!game.vars_.searchCondition) {
@@ -15462,8 +15540,8 @@ for (var id in tableList) {
 	}
 }
 
-//排序:quality大的靠前,quality相同的情况下id小的靠前
-if (grou_propertySortSmallScreen.vars_ && Number(grou_propertySortSmallScreen.vars_.type) == 1) {
+//排序:quality大的靠前,quality相同的情况下id小的靠前  后期更改
+if (false && grou_propertySortSmallScreen.vars_ && Number(grou_propertySortSmallScreen.vars_.type) == 1) {
 	var data = {};
 	for (var i = 0; i < arr.length; i++) {
 		var temp;
@@ -15532,6 +15610,7 @@ current_game.scripts['al_scr_' + "clothesPressChange"].call(this, undefined, thi
 /**
  * clothesPressChange  args:totalObj 	selectPage
  */
+
 var totalPage = Math.floor((totalObj.length - 1) / 8) <= 0 ? 1 : Math.floor((totalObj.length - 1) / 8);
 var drawPage = 1;
 if (selectPage) {
@@ -15552,7 +15631,8 @@ var nowPageObj = function () {
 qyengine.forEach(function () {
 	this.hide();
 }, "grou_clotherAndSuitBtn");
-for (var i = 0; i < nowPageObj.length; i++) {
+var needDrawInPage = nowPageObj();
+for (var i = 0; i < needDrawInPage.length; i++) {
 	var result = null;
 	if (qyengine.guardId("grou_clotherAndSuitBtn" + i) && (!qyengine.guardId("grou_clotherAndSuitBtn" + i).destroyed_)) {
 		result = qyengine.guardId("grou_clotherAndSuitBtn" + i);
@@ -15564,13 +15644,13 @@ for (var i = 0; i < nowPageObj.length; i++) {
 			"zIndex": 1,
 		});
 		var posX = 207 + (144 + 10) * (i % 4),
-			posY = 60 + (200 + 10) * (Math.floor(2 / 4));
+			posY = 60 + (200 - 14) * (Math.floor(i / 4));
 		grou_clothesPressBotton.appendChild(result.id, posX, posY);
 	}
-	var itemId = nowPageObj[i][0];
-	var isNew = nowPageObj[i][2] || false;
-	var unGet = nowPageObj[i][3] || false;
-	var fashionTableData = game.configs.fashion[itemId];
+	var itemId = needDrawInPage[i][0];
+	var isNew = needDrawInPage[i][2] || false;
+	var unGet = needDrawInPage[i][3] || false;
+	var fashionTableData = game.configs.fashion[itemId] || game.configs.suit[itemId];
 	result.vars_.itemId = itemId.toString();
 	result.vars_.count = i;
 	result.vars_.unGet = unGet;
@@ -15578,12 +15658,15 @@ for (var i = 0; i < nowPageObj.length; i++) {
 	result.objects['txt_clothesAndSuitBtn'].text = fashionTableData.name;
 	result.objects['txt_clothesAndSuitBtn_number'].text = i + 1;
 	result.objects['obj_未标题心'].width = 176 * (fashionTableData.quality / 6);
-	result.objects['obj_未标题心'].x = (176 / 6 * (6 - quality) - 8) / 2;
+	result.objects['obj_未标题心'].x = (176 / 6 * (6 - fashionTableData.quality) - 8) / 2;
+	//是否装扮稍后修改
+	/*
 	if (game.vars_.playerCurrentCloths[typeStr] == itemId) {
 		result.objects['obj_icon_chest_have_to_dress_up'].show();
 	} else {
 		result.objects['obj_icon_chest_have_to_dress_up'].hide();
 	}
+	*/
 	if (isNew) {
 		result.objects['obj_chest_search_27'].show();
 	} else {
@@ -15630,9 +15713,41 @@ for (var i = 0; i < cards.length; i++) {
 
 
 
+/**
+ * faceAndSuitBtn    妆容 服饰 保存按钮的切换事件
+ */
+current_game.scripts['al_scr_' + "faceAndSuitBtn"].call(this, undefined, this);
 
-
-
+var whitchType = { 0: 21, 1: 100 };
+var idArr = { "grou_clothesPressBtn_face": 0, "grou_clothesPressBtn_dress": 1, "grou_clothesPressBtn_keep": 2 };
+if (self && self.id) {
+	whitchBtn = idArr[self.id];
+	for (var i in idArr) {
+		qyengine.guardId(i).dispatchMessage({
+			"type": "message",
+			"message": "changeBtnSprite",
+			"argument0": (i == self.id)
+		});
+	}
+}
+if (whitchBtn) {
+	if (grou_clothesPressPanel.vars_.faceOrClothes) {
+		if (grou_clothesPressPanel.vars_.faceOrClothes == whitchBtn) {
+			return;
+		} else {
+			grou_clothesPressPanel.vars_.faceOrClothes = whitchBtn;
+			current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, whitchType[whitchBtn]);
+		}
+	} else {
+		//默认是服饰
+		grou_clothesPressPanel.vars_.faceOrClothes = 1;
+		current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, whitchType[whitchBtn]);
+	}
+} else {
+	//默认是服饰
+	grou_clothesPressPanel.vars_.faceOrClothes = 1;
+	current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, whitchType[1]);
+}
 
 
 
