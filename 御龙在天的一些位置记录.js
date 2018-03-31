@@ -15240,29 +15240,45 @@ current_scene.vars_.currentClothType = -1;
 
 
 
-if (!qyengine.grou_clothTypeInstance) {
-	//创建推荐和套装
-	for (var k = 0; k < 2; k++) {
+//装容||服饰
+var tabStartValue = 2;
+var tableConfig = game.configs.suitType
+if (grou_clothesPressPanel.vars_.faceOrClothes != undefined && grou_clothesPressPanel.vars_.faceOrClothes == 0) {
+	tabStartValue = 1;
+	tableConfig = game.configs.suitType_face;
+}
+//创建推荐和套装
+function createClothesTabScro() {
+	qyengine.forEach(function () {
+		this.destroy();
+	}, "grou_clothesPressBtn_Type");
+
+	for (var k = 0; k < tabStartValue; k++) {
 		qyengine.grou_clothTypeInstance = qyengine.instance_create(0, 0, "grou_clothesPressBtn_Type", {
 			"type": "grou_clothesPressBtn_Type",
 			"id": "grou_clothesPressBtn_Type_" + k,
 			"zIndex": 0
 		});
-		qyengine.guardId("grou_clothesPressBtn_Type_" + k).vars_.type = 100 + k;
+		if (tabStartValue == 1) {
+			qyengine.guardId("grou_clothesPressBtn_Type_" + k).vars_.type = 102;
+		} else {
+			qyengine.guardId("grou_clothesPressBtn_Type_" + k).vars_.type = 100 + k;
+		}
+
 		var markIcon = k == 0 ? "obj_Chest_home_06_1" : "obj_Chest_home_06_2";
-		qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
+		qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_07_1.changeSprite(markIcon + "_default");
 		if (selectTab != undefined && 100 + k == selectTab) {
 			qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show();
 		} else {
-			k == 0 ? qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show() : qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_02.hide();
+			k == 0 ? qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show() : qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.hide();
 		}
 		scro_clothesType.appendChild("grou_clothesPressBtn_Type_" + k, -6, 5, 0, k, false, true);
 	}
 
-	var index = 2;
-	for (var i in game.configs.suitType) {
+	var index = k;
+	for (var i in tableConfig) {
 
-		var cell = game.configs.suitType[i];
+		var cell = tableConfig[i];
 
 
 		qyengine.grou_clothTypeInstance = qyengine.instance_create(0, 0, "grou_clothesPressBtn_Type", {
@@ -15281,54 +15297,15 @@ if (!qyengine.grou_clothTypeInstance) {
 		index++;
 
 	}
-	//默认展示推荐
-	current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, 100);
+}
+createClothesTabScro();
+//默认展示推荐
+current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, tabStartValue == 1 ? 102 : 100);
+if (grou_clothesPressPanel.vars_.faceOrClothes == undefined) {
 	current_game.scripts['al_scr_' + "SetClothesBottonPos"].call(this, undefined, this);
 }
 
 
-/**
- * createClothesTabScro   //创建属性tab
- */
-for (var k = 0; k < 2; k++) {
-	qyengine.grou_clothTypeInstance = qyengine.instance_create(0, 0, "grou_clothesPressBtn_Type", {
-		"type": "grou_clothesPressBtn_Type",
-		"id": "grou_clothesPressBtn_Type_" + k,
-		"zIndex": 0
-	});
-	qyengine.guardId("grou_clothesPressBtn_Type_" + k).vars_.type = 100 + k;
-	var markIcon = k == 0 ? "obj_Chest_home_06_1" : "obj_Chest_home_06_2";
-	qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
-	if (selectTab != undefined && 100 + k == selectTab) {
-		qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show();
-	} else {
-		k == 0 ? qyengine.guardId("grou_clothesPressBtn_Type_" + k).objects.obj_Chest_home_02.show() : qyengine.guardId("grou_clothType_" + k).objects.obj_Chest_home_02.hide();
-	}
-	scro_clothesType.appendChild("grou_clothesPressBtn_Type_" + k, -6, 5, 0, k, false, true);
-}
-
-var index = 2;
-for (var i in game.configs.suitType) {
-
-	var cell = game.configs.suitType[i];
-
-
-	qyengine.grou_clothTypeInstance = qyengine.instance_create(0, 0, "grou_clothesPressBtn_Type", {
-		"type": "grou_clothesPressBtn_Type",
-		"id": "grou_clothesPressBtn_Type_" + index,
-		"zIndex": 0
-	});
-	qyengine.guardId("grou_clothesPressBtn_Type_" + index).vars_.type = i;
-	qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_07_1.changeSprite(cell.icon + "_default");
-	if (selectTab != undefined && i == selectTab) {
-		qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_02.show();
-	} else {
-		qyengine.guardId("grou_clothesPressBtn_Type_" + index).objects.obj_Chest_home_02.hide();
-	}
-	scro_clothesType.appendChild("grou_clothesPressBtn_Type_" + index, -5, 5, 0, index, false, true);
-	index++;
-
-}
 
 
 
@@ -15337,11 +15314,12 @@ for (var i in game.configs.suitType) {
 /**
  * SetClothesBottonPos
  */
+
 if (grou_clothesPressPanel.vars_.botton) { //显示->不显示
-	grou_clothesPressBotton.moveTo(grou_clothesPressBotton.x, 722 + 529 + 20, "time", 1000);
+	grou_clothesPressBotton.moveTo(grou_clothesPressBotton.x, 762 + 529 + 20, "time", 500);
 	grou_clothesPressPanel.vars_.botton = false;
 } else {
-	grou_clothesPressBotton.moveTo(grou_clothesPressBotton.x, 722, "time", 1000);
+	grou_clothesPressBotton.moveTo(grou_clothesPressBotton.x, 762, "time", 500);
 	grou_clothesPressPanel.vars_.botton = true;
 }
 /**
@@ -15350,14 +15328,21 @@ if (grou_clothesPressPanel.vars_.botton) { //显示->不显示
 //OpenChange  打开衣柜
 var suit = game.vars_.playInfoJson.suit[index];
 var length = Object.keys(suit).length;
-if (length > 0)
+if (length > 0) {
 	game.vars_.changeSuitIndex = index;
-else
+} else {
 	game.vars_.changeSuitIndex = game.vars_.playInfoJson.dressIndex;
+}
 
 game.scripts["al_scr_CommonInstanceCreate"](null, null, "grou_clothesPressPanel");
-
+//10衣柜   0剧情换装
+if (game.vars_.intoChangeType == 10) {
+	grou_clothesPressPanel.objects['grou_clothesPressBack_hint'].hide();
+} else {
+	grou_clothesPressPanel.objects['grou_clothesPressBack_hint'].show();
+}
 grou_clothesPressPanel.appendChild("grou_playerDress", 520, 550);
+grou_clothesPressPanel.show();
 game.scripts["al_scr_Change_Init"](null, null);
 
 game.vars_.playerCurrentCloths = JSON.parse(JSON.stringify(game.vars_.playInfoJson.suit[game.vars_.changeSuitIndex]));
@@ -15369,6 +15354,7 @@ current_scene.vars_.tempProperty = [0, 0];
  */
 //判断是否有新获得标签
 var fashionTable = game.configs.fashion;
+var faceTable = game.configs.face;
 var suitTable = game.configs.suit;
 function judgeIsNew(fromId) {
 	//后期更改
@@ -15387,27 +15373,25 @@ function judgeInBag(_id) {
 		var fashionIdArr = suitTable[_id].fashionId.split("|");
 		for (var i = 0; i < fashionIdArr.length; i++) {
 			if (!arguments.callee(fashionIdArr[i])) {
-				return false;
+				return 0;
 			}
 		}
-		return true;
+		return 1;
 	}
 	for (var k in game.vars_.bagList.cloth) {
 		if (Number(k) == Number(_id)) {
-			return true;
+			return Number(game.vars_.bagList.cloth[k].num);
 		}
 	}
-	return false;
+	return 0;
+}
+//是否是新手服装
+function judgeInNewMan(_id) {
+	var newManSuit = JSON.parse(game.configs.misc[1].value);
+	return (newManSuit[getConfig("suitType", game.vars_.curChangeType, "name")] == _id) || newManSuit[getConfig("suitType_face", game.vars_.curChangeType, "name")] == _id;
 }
 if (type <= 0)
 	return;
-
-
-
-
-
-
-
 var index = 0;
 var arr = [];
 
@@ -15416,7 +15400,6 @@ var tujian = function () {
 	var configRecommond = game.configs.recommend[1];
 	var recommend_fashion = configRecommond.fashion == -1 ? 0 : configRecommond.fashion.split("|"),
 		recommend_suit = configRecommond.suit == -1 ? 0 : configRecommond.suit.split("|");
-	var index = 0;
 	if (recommend_fashion) {
 		for (var i = 0; i < recommend_fashion.length; i++) {
 			var isNew = judgeIsNew(recommend_fashion[i]);
@@ -15440,12 +15423,33 @@ var suitPage = function () {
 	}
 	return arr;
 };
+var tuijian_face = function () {
+	var configRecommond = game.configs.recommend[2],
+		recommend_fashion = configRecommond.face.split("|");
+	if (recommend_fashion) {
+		for (var i = 0; i < recommend_fashion.length; i++) {
+			var isNew = judgeIsNew(recommend_fashion[i]);
+			var unGet = judgeInBag(recommend_fashion[i]);
+			arr[index] = [Number(recommend_fashion[i]), Number(faceTable[recommend_fashion[i]].quality), isNew, unGet];
+			index++;
+		}
+	}
+
+};
 //推荐或者套装
-if (type == 100 || type == 101) {
-	if (type == 100) {
-		tujian();
-	} else {
-		suitPage();
+if (type >= 100) {
+	switch (type) {
+		case 100:
+			tujian();
+			break;
+		case 101:
+			suitPage();
+			break;
+		case 102:
+			tuijian_face();
+			break;
+		default:
+			break;
 	}
 	current_game.scripts['al_scr_' + "clothesPressChange"].call(this, undefined, this, arr);
 	return;
@@ -15453,16 +15457,13 @@ if (type == 100 || type == 101) {
 
 //遍历道具表,符合当前服装类型的加入数组
 var tableList = null;
-if (!game.vars_.searchCondition || game.vars_.searchCondition == 1) {
-	if (grou_clothesPressPanel.vars_.faceOrClothes == undefined || grou_clothesPressPanel.vars_.faceOrClothes == 1) {
-		tableList = game.vars_.bagList.cloth/*game.vars_.bagList.cloth*/;
-	} else {
-		tableList = game.configs.face;
-	}
-
-} else if (game.vars_.searchCondition == 2 || game.vars_.searchCondition == 3) {
-	tableList = game.configs.fashion;
+if (grou_clothesPressPanel.vars_.faceOrClothes == undefined || grou_clothesPressPanel.vars_.faceOrClothes == 1) {
+	tableList = game.configs.fashion/*game.vars_.bagList.cloth*/;
+} else {
+	tableList = game.configs.face;
 }
+
+
 
 for (var id in tableList) {
 	var property = getConfig("fashion", id, "propertyInfo") || getConfig("face", id, "propertyInfo");
@@ -15480,6 +15481,7 @@ for (var id in tableList) {
 	if (property == -1 || property == "-1") {
 		continue;
 	}
+
 	if (!game.vars_.searchType || game.vars_.searchType == 1) {
 		var propertyArr = property.split("#");
 		if (current_scene.vars_.searchProperty[0] != 0 || current_scene.vars_.searchProperty[1] != 0) {
@@ -15516,23 +15518,12 @@ for (var id in tableList) {
 		}
 	};
 	if (idType()) {
+		if (judgeInNewMan(id)) {
+			continue;
+		}
 		var quality = getConfig("fashion", id, "quality") || getConfig("face", id, "quality");
 		var isNew = judgeIsNew(id);
-		var unGet = false;
-		if (!game.vars_.searchCondition) {
-			game.vars_.searchCondition = 1;
-		}
-		if (game.vars_.searchCondition == 1) {
-			unGet = false;
-		} else if (game.vars_.searchCondition == 2) {
-			if (judgeInBag(id)) {
-				continue;
-			} else {
-				unGet = true;
-			}
-		} else if (game.vars_.searchCondition == 3) {
-			unGet = !judgeInBag(id);
-		}
+		var unGet = judgeInBag(id);
 
 		var tempArr = [parseInt(id), quality, isNew, unGet];
 		arr[index] = tempArr;
@@ -15650,31 +15641,63 @@ for (var i = 0; i < needDrawInPage.length; i++) {
 	var itemId = needDrawInPage[i][0];
 	var isNew = needDrawInPage[i][2] || false;
 	var unGet = needDrawInPage[i][3] || false;
-	var fashionTableData = game.configs.fashion[itemId] || game.configs.suit[itemId];
+	var fashionTableData = game.configs.fashion[itemId] || game.configs.suit[itemId] || game.configs.face[itemId];
 	result.vars_.itemId = itemId.toString();
 	result.vars_.count = i;
 	result.vars_.unGet = unGet;
 	result.objects['obj_Icon_dress_25000'].changeSprite("obj_" + fashionTableData.icon + "_default");
 	result.objects['txt_clothesAndSuitBtn'].text = fashionTableData.name;
-	result.objects['txt_clothesAndSuitBtn_number'].text = i + 1;
+
+
 	result.objects['obj_未标题心'].width = 176 * (fashionTableData.quality / 6);
 	result.objects['obj_未标题心'].x = (176 / 6 * (6 - fashionTableData.quality) - 8) / 2;
-	//是否装扮稍后修改
-	/*
-	if (game.vars_.playerCurrentCloths[typeStr] == itemId) {
-		result.objects['obj_icon_chest_have_to_dress_up'].show();
+	//现在没有穿戴标签
+	if (isDressUp(needDrawInPage[i])) {
+		result.objects['obj_icon_chest_have_to_dress_up'].hide();
 	} else {
 		result.objects['obj_icon_chest_have_to_dress_up'].hide();
 	}
-	*/
+
 	if (isNew) {
 		result.objects['obj_chest_search_27'].show();
 	} else {
 		result.objects['obj_chest_search_27'].hide();
 	}
+	if (unGet) {
+		result.objects['obj_ui_yet_to_get'].hide();
+		result.objects['txt_clothesAndSuitBtn_number'].text = unGet;
+
+	} else {
+		result.objects['obj_ui_yet_to_get'].hide();
+		result.objects['txt_clothesAndSuitBtn_number'].hide();
+	}
+	current_game.scripts['al_scr_' + "showWayType"].call(this, undefined, this, result, itemId);
 	result.vars_.couldPress = true;
 }
+//是否穿戴
+function isDressUp(needDrawInPage_one) {
+	var typeStr = null;
+	var isSuit = false;
 
+	if (game.configs.fashion[needDrawInPage_one[0]]) {
+		typeStr = game.configs.suitType[game.configs.fashion[needDrawInPage_one[0]].type].name;
+	} else if (game.configs.face[needDrawInPage_one[0]]) {
+		typeStr = game.configs.suitType_face[game.configs.face[needDrawInPage_one[0]].type].name;
+	} else {
+		isSuit = true;
+	}
+	if (isSuit) {
+		var suitTable = game.configs.suit[needDrawInPage_one[0]].fashionId.split("|");
+		for (var item = 0; item < suitTable.length; item++) {
+			if (!arguments.callee([suitTable[item]])) {
+				return false;
+			}
+		}
+		return true;
+	} else {
+		return game.vars_.playerCurrentCloths[typeStr] == needDrawInPage_one[0];
+	}
+}
 
 /**
  * 	grou_clotherAndSuitBtn的点击事件
@@ -15698,17 +15721,17 @@ if (object.vars_.couldPress == false)
 game.scripts["al_scr_Change_1"](null, null, object.vars_.itemId);
 
 //game.scripts["al_scr_Button_SuitType"](null,null,current_scene.vars_.currentClothType);
+/*
 var cards = qyengine.getInstancesByType("grou_clothBtn");
 for (var i = 0; i < cards.length; i++) {
 	if (cards[i].vars_.itemId == game.vars_.playerCurrentCloths[getConfig("suitType", game.vars_.curChangeType, "name")]) {
 		cards[i].objects.obj_Icon_chest_have_to_dress_up.show();
-	}
-	else {
+	} else {
 		cards[i].objects.obj_Icon_chest_have_to_dress_up.hide();
 	}
 }
 
-
+*/
 
 
 
@@ -15717,7 +15740,7 @@ for (var i = 0; i < cards.length; i++) {
  * faceAndSuitBtn    妆容 服饰 保存按钮的切换事件
  */
 current_game.scripts['al_scr_' + "faceAndSuitBtn"].call(this, undefined, this);
-
+var whitchBtn = 1;
 var whitchType = { 0: 21, 1: 100 };
 var idArr = { "grou_clothesPressBtn_face": 0, "grou_clothesPressBtn_dress": 1, "grou_clothesPressBtn_keep": 2 };
 if (self && self.id) {
@@ -15730,25 +15753,666 @@ if (self && self.id) {
 		});
 	}
 }
-if (whitchBtn) {
-	if (grou_clothesPressPanel.vars_.faceOrClothes) {
-		if (grou_clothesPressPanel.vars_.faceOrClothes == whitchBtn) {
-			return;
+
+if (grou_clothesPressPanel.vars_.faceOrClothes == whitchBtn) {
+	return;
+} else {
+	grou_clothesPressPanel.vars_.faceOrClothes = whitchBtn;
+	if (whitchBtn == 2) {
+		current_game.scripts['al_scr_' + "saveSuit"].call(this, undefined, this);
+	} else {
+		current_game.scripts['al_scr_' + "Change_Init"].call(this, undefined, this);
+	}
+}
+
+
+/**
+ * saveSuit   换好了||保存按钮
+ */
+//剧情换装
+if (game.vars_.intoChangeType == 0) {
+	if (game.vars_.questType == 0) {
+		game.scripts["al_scr_SendMsgSaveQuestCloth"](null, null, game.vars_.selectQuestId, game.vars_.playerCurrentCloths);
+		//game.scripts["al_scr_RefreshClothes"](null, null, game.vars_.playerCurrentCloths, "grou_playerDress_Story");
+	} else if (game.vars_.questType == 1) {
+		game.scripts["al_scr_SendMsgSaveSideQuestCloth"](null, null, game.vars_.selectQuestId, game.vars_.playerCurrentCloths);
+		//game.scripts["al_scr_RefreshClothes"](null, null, game.vars_.playerCurrentCloths, "grou_playerDress_Story");
+	}
+	grou_clothesPressPanel.hide();
+} else {
+	game.scripts["al_scr_AddTip_1"](null, null, "衣柜保存尽请期待", "layer1");
+}
+
+/**
+ * grou_clothesPressBack的点击事件
+ */
+switch (self.id) {
+	case "grou_clothesPressBack":
+		grou_clothesPressPanel.hide();
+		break;
+	case "grou_clothesPressBack_help":
+		current_game.scripts['openHelpTips'].call(this, undefined, this);
+		break;
+	case "grou_clothesPressBack_hint":
+
+		//grou_clothesPressBack_hint的点击事件
+		if (qyengine.getInstancesByType("grou_overLevelCondition").length) {
+			grou_overLevelCondition.show();
 		} else {
-			grou_clothesPressPanel.vars_.faceOrClothes = whitchBtn;
-			current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, whitchType[whitchBtn]);
+			qyengine.instance_create(0, 0, "grou_overLevelCondition", {
+				"type": "grou_overLevelCondition",
+				"id": "grou_overLevelCondition",
+				"zIndex": Number(grou_clothesPressPanel.zIndex) + 1
+			});
+		}
+		current_game.scripts['al_scr_' + "overLevelCondition"].call(this, undefined, this, 1);
+		break;
+	default:
+		break;
+}
+/**
+ * txt_closeDress_commonTouch
+ */
+switch (self.id) {
+	case "txt_closeDress_common_overLevelTitle0":  //畅玩卡的标题~
+		grou_overLevelCondition.objects['obj_Chest_hint_02_1'].x = 397;
+		current_game.scripts['al_scr_' + "overLevelCondition"].call(this, undefined, this, 1);
+		break;
+	case "txt_closeDress_common_overLevelTitle1":
+		grou_overLevelCondition.objects['obj_Chest_hint_02_1'].x = 622;
+		current_game.scripts['al_scr_' + "overLevelCondition"].call(this, undefined, this, 2);
+		break;
+	default:
+		break;
+}
+/**
+ * Change_1
+ */
+
+//动作序列 Change   换装统一接口
+changePart(id);
+function changePart(id) {
+	if (id > 0) {
+		//是否是换套装
+		if (game.configs.suit[id]) {
+			var fashionIdArr = game.configs.suit[id].fashionId.split("|");
+			for (var i = 0; i < fashionIdArr.length; i++) {
+				arguments.callee(fashionIdArr[i]);
+			}
+		} else {
+			var jsonData = getConfig("fashion", id, "logicType") || getConfig("face", id, "logicType");
+		}
+		if (getConfig("config_partLogic", jsonData, "logicName")) {
+			game.scripts["al_scr_" + getConfig("config_partLogic", jsonData, "logicName")](null, null, id);
 		}
 	} else {
-		//默认是服饰
-		grou_clothesPressPanel.vars_.faceOrClothes = 1;
-		current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, whitchType[whitchBtn]);
+		console.log("时装id 为 0！！！");
 	}
-} else {
-	//默认是服饰
-	grou_clothesPressPanel.vars_.faceOrClothes = 1;
-	current_game.scripts['al_scr_' + "Button_SuitType"].call(this, undefined, this, whitchType[1]);
+	current_game.scripts['al_scr_' + "aboutChangeModel"].call(this, undefined, this, "grou_playerDress", game.vars_.playerCurrentCloths);
 }
 
 
 
 
+/**
+ * showWayType  result, itemId, unGet
+ */
+if (game.configs.suit[itemId]) {
+	result.objects['txt_closeDress_common_wayWord'].hide();
+	result.objects['obj_Chest_hint_06'].hide();
+	return;
+}
+var wayType = game.configs.fashion[itemId] || game.configs.face[itemId] || false;
+wayType = Number(wayType.getWay);
+var wayTypeWord = { 1: "赠送", 2: "钻石购买", 3: "制作", 4: "畅玩卡" };
+result.objects['txt_closeDress_common_wayWord'].hide();
+result.objects['obj_Chest_hint_06'].hide();
+result.objects['txt_closeDress_common_wayWord'].text = wayTypeWord[wayType];
+
+
+/**
+ * overLevelCondition  tab通关条件相关~   1畅玩卡 2制作
+ */
+if (tab == 1) {
+	grou_overLevelCondition.objects['obj_Chest_hint_02_1'].x = 397;
+	grou_goodPlay.show();
+	grou_overLevelMake.hide();
+	var tab = game.configs.suit;
+	var index = 0;
+	for (var i in tab) {
+		if (tab[i].card == 1) {
+			index++;
+			game.configs.config_goodPlayCard[index] = {
+				"id": index,
+				"icon": "obj_" + tab[i].icon + "_default",
+				"itemId": i
+			};
+		}
+	}
+	qyengine.guardId("scro_goodPlay").refreshRelations();
+} else {
+	grou_overLevelCondition.objects['obj_Chest_hint_02_1'].x = 622;
+	grou_goodPlay.hide();
+	grou_overLevelMake.show();
+	var overLevelData = game.configs.quest[game.vars_.selectQuestId];
+	if (overLevelData.successTip == -1) {
+		game.configs.config_overLevelMust = {};
+	} else {
+		var overLevelClothes = overLevelData.successTip.split("#");
+		for (var i = 0; i < overLevelClothes.length; i++) {
+			var clothesTable = game.configs.fashion[overLevelClothes[i]] || game.configs.face[overLevelClothes[i]] || game.configs.suit[overLevelClothes[i]];
+			game.configs.config_overLevelMust[i + 1] = {
+				"id": i + 1,
+				"name": clothesTable.name,
+				"icon": "obj_" + clothesTable.icon + "_default",
+			}
+		}
+	}
+	qyengine.guardId("scro_overLevelMust").refreshRelations();
+	if (overLevelData.perfectTip == -1) {
+		game.configs.config_overLevelPerfect = {};
+	} else {
+		var overLevelClothes = overLevelData.perfectTip.split("#");
+		for (var i = 0; i < overLevelClothes.length; i++) {
+			var clothesTable = game.configs.fashion[overLevelClothes[i]] || game.configs.face[overLevelClothes[i]] || game.configs.suit[overLevelClothes[i]];
+			var getNum = getclothesNum(overLevelClothes[i]);
+			var getWayText = "";
+			if (!getNum) {
+				getWayText = getWayWord(overLevelClothes[i]);
+			}
+			game.configs.config_overLevelPerfect[i + 1] = {
+				"id": i + 1,
+				"name": clothesTable.name,
+				"icon": "obj_" + clothesTable.icon + "_default",
+				"num": getNum ? getNum : "",
+				"getWayText": getWayText,
+				"getWay": overLevelClothes[i],
+				"itemId": overLevelClothes[i]
+			}
+		}
+		qyengine.guardId("scro_overlevelPerfect").refreshRelations();
+	}
+}
+
+function getWayWord(_markId) {
+	var wayType = game.configs.fashion[itemId] || game.configs.face[itemId] || false;
+	wayType = Number(wayType.getWay);
+	var wayTypeWord = { 1: "赠送", 2: "钻石购买", 3: "制作", 4: "畅玩卡" };
+	return wayTypeWord[wayType.gatWay];
+}
+function getclothesNum(_markId) {
+	var needLookNumTab = game.configs.fashion[overLevelClothes[i]] || game.configs.face[overLevelClothes[i]];
+	if (needLookNumTab) {
+		if (game.vars_.playInfoJson.bagList.cloth[_markId]) {
+			return game.vars_.playInfoJson.bagList.cloth[_markId].num;
+		} else {
+			return 0;
+		}
+	} else {
+		return 0;
+	}
+}
+/**
+ * 	initCropPark		种植园相关
+ */
+function callBack() {
+	if (arguments[1]) {
+		console.log(arguments);
+		game.scripts["al_scr_CommonInstanceCreate"](null, null, "grou_cropParkPanel");
+		qyengine['grou_cropParkPanelInstance'].vars_.data = arguments[2];
+		current_game.scripts['al_scr_' + "initLandInfo"].call(this, undefined, this);
+		if (!fromTimeLine) {
+			//默认是种子的tab界面
+			current_game.scripts['al_scr_' + "initSeedInfo"].call(this, undefined, this, 5);
+		}
+	} else {
+		console.log(arguments[2].code);
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+
+
+game.scripts["al_scr_gameloadCreate"](null, null);
+QyRpc.viewPlantGarden(callBack);
+
+/**
+ * grou_cropParkPanel的创建事件
+ */
+grou_cropParkPanel.addOneInstance("grou_pet_userInfo", 154, 76, {
+	id: "grou_pet_userInfo_crop"
+});
+/**
+ * initLandInfo
+ */
+//创建土地
+var table = game.configs.farm;
+for (var i in table) {
+	var hang = Math.floor((Number(i) - 1) / 3);
+	var lie = Math.floor((Number(i) - 1) % 3);
+	if (qyengine.guardId("grou_cropLandItem_" + i) && !qyengine.guardId("grou_cropLandItem_" + i).destroyed_) {
+		//原本对象存在
+	} else {
+		grou_cropParkPanel.addOneInstance("grou_cropLandItem", 154 + (131 + 30) * lie, 476 + hang * (135 + 30), {
+			id: "grou_cropLandItem_" + i
+		});
+	}
+	var result = qyengine.guardId("grou_cropLandItem_" + i);
+	result.show();
+	result.vars_.itemId = i;
+	var serverItemData = qyengine['grou_cropParkPanelInstance'].vars_.data[i];
+
+	//可种植||已种植
+	if (serverItemData) {
+		//可种植
+		if (serverItemData.seedId == -1) {
+			result.vars_.status = 0;
+		} else {
+			current_game.scripts['al_scr_' + "rechangeSeedSpriteByState"].call(this, undefined, this, serverItemData.seedId, result, serverItemData.state);
+			current_game.scripts['al_scr_' + "notGoodStateBySeed"].call(this, undefined, this, result, serverItemData.envirState);
+
+			if (serverItemData.state == 2) {
+				//已经成熟
+				result.vars_.status = 3;
+			} else {
+				//成长阶段
+				result.vars_.status = 1;
+				result.vars_.matureTime = serverItemData.time;
+				qyengine['grou_cropParkPanelInstance'].startTimeline();
+			}
+		}
+	} else {
+		//未解锁
+		result.vars_.status = 2;
+		result.objects['txt_cropParkCommon_openCondition'].text = showConditionText(i);
+	}
+	diffStatusShowObj(result, result.vars_.status);
+
+}
+
+function diffStatusShowObj(obj, status) {
+	if (status == 2) {
+		obj.objects['obj_plantation_home_06'].show();
+		obj.objects['obj_plantation_home_05'].show();
+		obj.objects['txt_cropParkCommon_openCondition'].show();
+		obj.objects['obj_plantation_home_07'].hide();
+		obj.objects['txt_cropParkCommon_matureTime'].hide();
+		obj.objects['obj_plantation_home_15_2'].hide();
+	} else if (status == 0) {
+		obj.objects['obj_plantation_home_06'].show();
+		obj.objects['obj_plantation_home_05'].show();
+		obj.objects['txt_cropParkCommon_openCondition'].hide();
+		obj.objects['obj_plantation_home_07'].show();
+		obj.objects['txt_cropParkCommon_matureTime'].hide();
+		obj.objects['obj_plantation_home_15_2'].hide();
+	} else {
+		obj.objects['obj_plantation_home_06'].show();
+		obj.objects['obj_plantation_home_05'].hide();
+		obj.objects['txt_cropParkCommon_openCondition'].hide();
+		obj.objects['obj_plantation_home_07'].hide();
+		obj.objects['obj_plantation_home_15_2'].show();
+		if (status == 1) {
+			obj.objects['txt_cropParkCommon_matureTime'].show();
+		} else {
+			obj.objects['txt_cropParkCommon_matureTime'].hide();
+		}
+
+	}
+}
+function showConditionText(_id) {
+	//1等级解锁 2钻石解锁
+	var unlockCondition = table[i].unlock.split("|");
+	var showText = "";
+	switch (Number(unlockCondition[0])) {
+		case 1:
+			showText = "医女" + unlockCondition[1] + "级解锁";
+			break;
+		case 2:
+			showText = unlockCondition[1] + "钻石解锁";
+			break;
+		default:
+			break;
+	}
+	return showText;
+}
+/**
+ * initSeedInfo  nowTab
+ */
+//种子 道具 和草药
+var textMapType = { 5: "txt_cropParkCommon_seedType_0", 4: "txt_cropParkCommon_seedType_1", 6: "txt_cropParkCommon_seedType_2" };
+for (var i in textMapType) {
+	if (i == nowTab) {
+		qyengine.guardId(textMapType[i]).setFontColor("#663366");
+	} else {
+		qyengine.guardId(textMapType[i]).setFontColor("#996699");
+	}
+}
+
+//qyengine.guardId("scro_cropSeed").removeAll();
+game.configs.config_seedScro = {};
+var table_prop = game.configs.prop;
+var index = 0;
+for (var i in table_prop) {
+	if (table_prop[i].type == nowTab) {
+		index++;
+		game.configs.config_seedScro[index] = {
+			"id": index,
+			"name": table_prop[i].name,
+			"num": getGoodNum(i),
+			"icon": "obj_" + table_prop[i].icon + "_default",
+			"itemId": i
+		};
+	}
+}
+qyengine.guardId("scro_cropSeed").refreshRelations();
+qyengine.guardId("scro_cropSeed").vars_.nowTab = nowTab;
+function getGoodNum(_id) {
+	var text = "";
+	switch (Number(nowTab)) {
+		case 5:
+			if (game.vars_.playInfoJson.seedItem[_id]) {
+				text = game.vars_.playInfoJson.seedItem[_id];
+			}
+			break;
+		case 4:
+			if (game.vars_.playInfoJson.propItem[_id]) {
+				text = game.vars_.playInfoJson.propItem[_id];
+			}
+			break;
+		case 6:
+			if (game.vars_.playInfoJson.herbItem[_id]) {
+				text = game.vars_.playInfoJson.herbItem[_id];
+			}
+			break;
+		default:
+			break;
+	}
+	return text;
+}
+
+/**
+ * tm_cropPark  时间轴
+ */
+var needStop = true;
+qyengine.forEach(function () {
+	if ("matureTime" in this.vars_ && this.vars_.matureTime > 0) {
+		var dataObj = qyengine['grou_cropParkPanelInstance'].vars_.data[this.vars_.itemId];
+		this.vars_.matureTime--;
+		this.objects['txt_cropParkCommon_matureTime'].text = current_game.scripts['al_scr_' + "secondConvertTime"].call(this, undefined, this, this.vars_.matureTime);
+		dataObj.time = this.vars_.matureTime;
+		needStop = false;
+		if (this.vars_.matureTime <= 0) {
+			current_game.scripts['al_scr_' + "initCropPark"].call(this, undefined, this, 1);
+		}
+	}
+}, "grou_cropLandItem");
+
+if (needStop) {
+	self.stopTimeline();
+	//current_game.scripts['al_scr_' + "initCropPark"].call(this, undefined, this, 1);
+}
+
+/**
+ * touchLandItem    点击单块的土地
+ */
+if (game.configs.farm[self.vars_.itemId].unlock == -1) {
+	return;
+}
+var table = game.configs.farm[self.vars_.itemId].unlock.split("|");
+//未解锁
+if (self.vars_.status == 2) {
+	if (table[0] == 1) {
+		current_game.scripts['al_scr_' + "AddTip_1"].call(this, undefined, this, "医女" + table[1] + "级解锁");
+	} else {
+		current_game.scripts['al_scr_' + "createCommonHint"].call(this, undefined, this, true, "是否消耗" + table[1] + "钻石解锁一块田地?", "openNewLand", null, null, null, self.vars_.itemId);
+	}
+} else if (self.vars_.status == 1) {
+	return;
+}
+
+/**
+ * openNewLand   开新地   itemId
+ */
+function callBack() {
+	if (arguments[1]) {
+		console.log(arguments);
+		var result = qyengine.guardId("grou_cropLandItem_" + itemId);
+		result.vars_.status = 0;
+		result.objects['obj_plantation_home_06'].show();
+		result.objects['obj_plantation_home_05'].show();
+		result.objects['txt_cropParkCommon_openCondition'].hide();
+		result.objects['obj_plantation_home_07'].show();
+		result.objects['txt_cropParkCommon_matureTime'].hide();
+		result.objects['obj_plantation_home_15_2'].hide();
+	} else {
+		console.log(arguments[2].code);
+		game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+	}
+	game.scripts["al_scr_gameloadDestroy"](null, null);
+}
+
+
+game.scripts["al_scr_gameloadCreate"](null, null);
+QyRpc.openFieldCell(itemId, callBack);
+
+
+
+/**
+ * txt_cropParkCommon 的点击事件
+ */
+var temp = { "txt_cropParkCommon_seedType_0": 5, "txt_cropParkCommon_seedType_1": 4, "txt_cropParkCommon_seedType_2": 6 };
+if (temp[self.id]) {
+	current_game.scripts['al_scr_' + "initSeedInfo"].call(this, undefined, this, temp[self.id]);
+}
+//grou_seedItem   种子和道具的点击事件
+game.vars_.lastSelectObj = self;
+var tabType = qyengine.guardId("scro_cropSeed").vars_.nowTab;
+if (tabType == 5 || tabType == 4) {
+	if (!self.objects["txt_cropParkCommon"].text) {
+		var table = game.configs.prop[self.vars_.itemId];
+		if (table.gatWay == -1) {
+			current_game.scripts['al_scr_' + "AddTip_1"].call(this, undefined, this, "数量为0");
+		} else {
+			var way = table.gatWay.split("|");
+			current_game.scripts['al_scr_' + "createCommonBox"].call(this, undefined, this, self.vars_.itemId, Number(way[0]), table.icon, table.name, "commonBuyGoodsSuccess");
+		}
+	}
+}
+
+
+/**
+ * grou_seedItem  的长按
+ */
+if (!self.objects["txt_cropParkCommon"].text) {
+	return;
+}
+var tabType = qyengine.guardId("scro_cropSeed").vars_.nowTab;
+if (tabType == 5 || (tabType == 4 && self.vars_.itemId == 120 || self.vars_.itemId == 121 || self.vars_.itemId == 122)) {
+	self.vars_.isLongPress = true;
+	game.vars_.lastSelectObj = self;
+	console.log("点住不放~~~~~~~");
+	if (qyengine.guardId("grou_seedItem_grow") && !qyengine.guardId("grou_seedItem_grow").destroyed_) {
+		var result = qyengine.guardId("grou_seedItem_grow");
+	} else {
+		var result = qyengine.instance_create(mouseX, mouseY, "grou_seedItem", {
+			"type": "grou_seedItem",
+			"id": "grou_seedItem_grow",
+			"zIndex": Number(grou_cropParkPanel.zIndex) + 5,
+			"layer": "layer0"
+		});
+		result.objects['txt_cropParkCommon'].hide();
+		result.objects['txt_cropParkCommon_itemSeedName'].text = self.objects['txt_cropParkCommon_itemSeedName'].text;
+		result.objects['obj_plantation_home_13_1'].changeSprite(self.objects['obj_plantation_home_13_1'].spriteName);
+	}
+	result.followMouse && result.followMouse(true, -result.width / 2, -result.height / 2, 'both', 'instant', 0);
+}
+
+
+/**
+ * grou_seedItem 的释放
+ */
+var tabType = qyengine.guardId("scro_cropSeed").vars_.nowTab;
+if (self.vars_.isLongPress) {
+	judgeRelease();
+	qyengine.guardId("grou_seedItem_grow").destroy && qyengine.guardId("grou_seedItem_grow").destroy();
+	self.vars_.isLongPress = false;
+}
+
+function judgeRelease() {
+	var growObj = qyengine.guardId("grou_seedItem_grow");
+	var landObj = null;
+
+	qyengine.forEach(function () {
+		var judgeX = (growObj.currentSprite.worldTransform.tx + growObj.width / 2) >= this.currentSprite.worldTransform.tx && (growObj.currentSprite.worldTransform.tx + growObj.width / 2) <= (this.currentSprite.worldTransform.tx + this.width);
+		var judgeY = (growObj.currentSprite.worldTransform.ty + growObj.height / 2) >= this.y && (growObj.currentSprite.worldTransform.ty + growObj.height / 2) <= (this.currentSprite.worldTransform.ty + this.height);
+		if (judgeX && judgeY) {
+			landObj = this;
+			game.vars_.landObj = landObj;
+			console.log(this.vars_);
+			return;
+		}
+	}, "grou_cropLandItem");
+	if (landObj) {
+		//可种植
+		if (landObj.vars_.status == 0 && tabType == 5) {
+			function callBack() {
+				if (arguments[1]) {
+					current_game.scripts['al_scr_' + "growOneLand"].call(this, undefined, this, game.vars_.landObj, arguments[2].cellId, arguments[2].seedId);
+					//原种子数量需要减少1
+					var lastTextObj = game.vars_.lastSelectObj.objects['txt_cropParkCommon'];
+					var nowText = Number(lastTextObj.text) - 1;
+					if (nowText) {
+						lastTextObj.text = nowText;
+					} else {
+						lastTextObj.text = "";
+					}
+
+					game.vars_.dropList = [{ 'type': 1, "id": arguments[2].seedId, "num": 1 }];
+					//稍后等陈政封装
+					//	current_game.scripts['al_scr_' + "RemoveFromBag"].call(this, undefined, this, arguments[2].seedId, 1, 1);
+				} else {
+					console.log(arguments[2].code);
+					game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+				}
+				game.scripts["al_scr_gameloadDestroy"](null, null);
+			}
+			game.scripts["al_scr_gameloadCreate"](null, null);
+			QyRpc.growPlant(landObj.vars_.itemId, game.vars_.lastSelectObj.vars_.itemId, callBack);
+		} else if (landObj.vars_.status == 1 && tabType == 4 && (game.vars_.lastSelectObj.vars_.itemId == 122 || game.vars_.lastSelectObj.vars_.itemId == 120 || game.vars_.lastSelectObj.vars_.itemId == 121)) {
+			//使用道具 施肥或者铲除
+			useProp();
+		}
+	}
+}
+
+function useProp() {
+	var killPlant = true;
+	var allData = qyengine['grou_cropParkPanelInstance'].vars_.data[game.vars_.landObj.vars_.itemId];
+	function propBack() {
+		if (arguments[1]) {
+			if (killPlant) {
+				allData.envirState = -1;
+				allData.seedId = -1;
+				allData.state = 0;
+				allData.time = 0;
+			} else {
+				//施肥
+				for (var i in arguments[2]) {
+					allData[i] = arguments[2][i];
+				}
+				current_game.scripts['al_scr_' + "initLandInfo"].call(this, undefined, this);
+				//稍后等陈政封装
+				//	current_game.scripts['al_scr_' + "RemoveFromBag"].call(this, undefined, this, game.vars_.lastSelectObj.vars_.itemId, 1, 1);
+			}
+			var lastTextObj = game.vars_.lastSelectObj.objects['txt_cropParkCommon'];
+			var nowText = Number(lastTextObj.text) - 1;
+			if (nowText) {
+				lastTextObj.text = nowText;
+			} else {
+				lastTextObj.text = "";
+			}
+		} else {
+			console.log(arguments[2].code);
+			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		}
+		game.scripts["al_scr_gameloadDestroy"](null, null);
+	}
+	game.scripts["al_scr_gameloadCreate"](null, null);
+	if (game.vars_.lastSelectObj.vars_.itemId == 122) {
+		QyRpc.killPlant(game.vars_.landObj.vars_.itemId, propBack);
+	} else {
+		killPlant = false;
+		var state = allData.state;
+		QyRpc.applyFertilizer(game.vars_.landObj.vars_.itemId, state, game.vars_.lastSelectObj.vars_.itemId, propBack);
+	}
+}
+
+
+/**
+ * growOneLand  单块土地上种植  obj  landId seedId
+ */
+var table = game.configs.prop[seedId];
+obj.vars_.status = 1;
+obj.vars_.matureTime = Number(table.time1);
+grou_cropParkPanel.startTimeline();
+current_game.scripts['al_scr_' + "rechangeSeedSpriteByState"].call(this, undefined, this, seedId, obj, 0);
+
+obj.objects['obj_plantation_home_06'].show();
+obj.objects['obj_plantation_home_05'].hide();
+obj.objects['txt_cropParkCommon_openCondition'].hide();
+obj.objects['obj_plantation_home_07'].hide();
+obj.objects['obj_plantation_home_15_2'].show();
+obj.objects['txt_cropParkCommon_matureTime'].show();
+
+
+
+/**
+ * notGoodStateBySeed   obj   envirState
+ */
+
+var envirStateSprite = { "-1": "plantation_home_06", 0: "plantation_home_06_2", 1: "plantation_home_06_1" };
+obj.objects['obj_plantation_home_06'].changeSprite("obj_" + envirStateSprite[envirState] + "_default");
+switch (Number(envirState)) {
+	case -1:
+		obj.objects['grou_wateringBtn'].hide();
+		break;
+	case 0:
+		obj.objects['grou_wateringBtn'].show();
+		obj.objects['grou_wateringBtn'].objects['obj_plantation_home_14_2'].changeSprite("obj_plantation_home_14_3_default");
+		break;
+	case 1:
+		obj.objects['grou_wateringBtn'].show();
+		obj.objects['grou_wateringBtn'].objects['obj_plantation_home_14_2'].changeSprite("obj_plantation_home_14_2_default");
+		break;
+	default:
+		break;
+}
+obj.objects['grou_wateringBtn'].vars_.parentObj = obj;
+/**
+ * grou_wateringBtn 的点击事件
+ */
+var itemId = self.vars_.parentObj.vars_.itemId;
+var data = qyengine['grou_cropParkPanelInstance'].vars_.data[itemId];
+if (data.envirState == 0 || data.envirState == 1) {
+	function callBack() {
+		if (arguments[1]) {
+			var showText = ["除草成功", "浇水成功"];
+			current_game.scripts['al_scr_' + "AddTip_1"].call(this, undefined, this, showText[data.envirState]);
+			for (var i in arguments[2]) {
+				if (!(i in data)) {
+					console.error("需要查看");
+				}
+				data[i] = arguments[2][i];
+			}
+			self.vars_.parentObj.vars_.matureTime = arguments[2]["time"];
+			current_game.scripts['al_scr_' + "notGoodStateBySeed"].call(this, undefined, this, self.vars_.parentObj, data.envirState);
+
+		} else {
+			console.log(arguments[2].code);
+			game.scripts["al_scr_CodeTips"](null, null, arguments[2].code);
+		}
+		game.scripts["al_scr_gameloadDestroy"](null, null);
+	}
+	game.scripts["al_scr_gameloadCreate"](null, null);
+	QyRpc.cleanEnvironmentDamage(itemId, data.state, callBack);
+}
