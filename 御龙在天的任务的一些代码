@@ -1,0 +1,1769 @@
+game.configs['guild_mission']['' + (repeatTime + 1)].name
+
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['txt_incenseContribution'].setText(game.configs['guild_mission']['' + (repeatTime + 1)].name);
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['obj_帮派任务图标'].changeSprite("obj_" + game.configs['guild_mission']['' + (repeatTime + 1)].icon + "_default");
+var markMission = ["silver", "gold", "gold", "pk", "boss", "dragon_soul", "equip", "pvp", "escort"];
+if (repeatTime < 3) {
+	var dayLimit = Number(game.configs['guild_mission']['' + (repeatTime + 1)][markMission[repeatTime]].split("|")[1]);
+	var consumeNum = Number(game.configs['guild_mission']['' + (repeatTime + 1)][markMission[repeatTime]].split("|")[0]);
+	var contributionNum = Number(game.configs['guild_mission']['' + (repeatTime + 1)][markMission[repeatTime]].split("|")[2]);
+	var integrationNum = Number(game.configs['guild_mission']['' + (repeatTime + 1)][markMission[repeatTime]].split("|")[3]);
+} else {
+	var dayLimit = Number(game.configs['guild_mission']['' + (repeatTime + 1)][markMission[repeatTime]].split("|")[0]);
+	var contributionNum = Number(game.configs['guild_mission']['' + (repeatTime + 1)][markMission[repeatTime]].split("|")[1]);
+	var integrationNum = Number(game.configs['guild_mission']['' + (repeatTime + 1)][markMission[repeatTime]].split("|")[2]);
+	qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['obj_帮派任务_上香按钮文字_faction'].changeSprite("obj_帮派任务_前往按钮文字_faction_default");
+}
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['txt_limitNum'].setText("/" + dayLimit);
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['txt_contributionNum'].setText("贡献+" + contributionNum + "  积分+" + integrationNum);
+
+
+//帮派管理界面3种界面
+var markMessageObject = ["obj_factionOrangeBar", "obj_factionGreemBar", "obj_factionGreemBar_1", "obj_factionGreemBar_2"];
+var markMessageName = ["申请", "修改", "设置", "解散"];
+var markHideObject = [];
+if (game.vars_.backFaction[1][0] == 2) {
+	markHideObject = ["obj_factionGreemBar_1", "obj_factionSetWord", "obj_factionGreemBar_2", "obj_factionDisbandWord"];
+	qyengine.guardId("grou_factionManageMent").objects['obj_factionModifyNoticeWord'].changeSprite("obj_factionExitWord_default");
+	qyengine.guardId(markMessageObject[0]).dispatchMessage({
+		"type": 'message',
+		"message": "申请",
+	});
+	qyengine.guardId("grou_factionManageMent").objects['obj_factionModifyNoticeWord'].changeSprite("obj_factionExitWord_default");
+	qyengine.guardId(markMessageObject[0]).dispatchMessage({
+		"type": 'message',
+		"message": "退出",
+	});
+} else if (game.vars_.backFaction[1][0] == 3) {
+	markHideObject = ["obj_factionGreemBar_1", "obj_factionSetWord", "obj_factionGreemBar_2", "obj_factionDisbandWord", "obj_factionGreemBar", "obj_factionModifyNoticeWord"];
+	qyengine.guardId("grou_factionManageMent").objects['obj_factionEnterApply'].changeSprite("obj_factionExitWord_default");
+	qyengine.guardId(markMessageObject[0]).dispatchMessage({
+		"type": 'message',
+		"message": "退出",
+	});
+} else {
+	for (var i = 0; i < markMessageObject.length; i++) {
+		qyengine.guardId(markMessageObject[i]).dispatchMessage({
+			"type": 'message',
+			"message": markMessageName[i],
+		});
+	}
+}
+for (var i = 0; i < markHideObject.length; i++) {
+	qyengine.guardId("grou_factionManageMent").objects[markHideObject[i]].hide();
+}
+
+
+//申请界面
+qyengine.guardId('grou_factionApplyItem' + repeatTime).objects['obj_通用_小按钮_01_pwang'].vars_.applyId = data[0][repeatTime][0];
+qyengine.guardId('grou_factionApplyItem' + repeatTime).objects['obj_通用_小按钮_01_pwang_1'].vars_.applyId = data[0][repeatTime][0];
+qyengine.guardId('grou_factionApplyItem' + repeatTime).objects['obj_通用_小按钮_01_pwang'].vars_.listIndex = repeatTime + 1;
+qyengine.guardId('grou_factionApplyItem' + repeatTime).objects['obj_通用_小按钮_01_pwang_1'].vars_.listIndex = repeatTime + 1;
+qyengine.guardId('grou_factionApplyItem' + repeatTime).objects['txt_factionApplyItemLevel'].setText(data[0][repeatTime][1]);
+qyengine.guardId('grou_factionApplyItem' + repeatTime).objects['txt_factionApplyItemName'].setText(data[0][repeatTime][2]);
+qyengine.guardId('grou_factionApplyItem' + repeatTime).objects['txt_factionApplyItemFight'].setText(data[0][repeatTime][3]);
+
+obj_factionOrangeBar obj_factionGreemBar obj_factionGreemBar_1 obj_factionGreemBar_2
+
+
+
+current_scene['nowAllowNum']
+current_scene['nowLimitNum']
+
+getConfig('factionJoinLimit', current_scene['nowLimitNum'], 'limitNum')
+
+grou_commonPopUp txt_popUpText
+qyengine.guardId("txt_popUpText").setText("退出帮派后24小时之内不可建帮或加入其他帮派,是否退出?");
+
+grou_factionManageMent
+
+current_scene['sureFunction']
+
+
+var linShiMark = ["obj_factionTaskButton", "obj_factionSendGoodButton", "obj_factionFightBossButton", "obj_帮派福利_帮派宝库", "obj_帮派福利_帮派旗帜"];
+for (var i = 0; i < linShiMark.length - 2; i++) {
+	qyengine.guardId(linShiMark[i]).hide();
+}
+for (var i = linShiMark.length - 2; i < linShiMark.length; i++) {
+	qyengine.guardId(linShiMark[i]).show();
+}
+
+//保留未开启职业最高评分装备
+game.vars_.userInfo.roles[0].id
+
+game.configs.role[10001].type
+
+var markMaxProfessionEquip = [];
+for (var i = 0; i < game.vars_.userInfo.roles.length; i++) {
+	markMaxProfessionEquip.push(game.configs.role[game.vars_.userInfo.roles[i].id].profession);
+}
+var nowProfression = function judge(nowProfressionType) {
+	for (i = 0; i < markMaxProfessionEquip.length; i++) {
+		if (markMaxProfessionEquip[i] == nowProfressionType) {
+			return true;
+		}
+	}
+	return false;
+}
+nowProfression(1);
+var storageNoEquip = [];
+for (var f = 1; f <= 3; f++) {
+	if (!nowProfression(f)) {
+		var linShiNum = findMaxProfession(f);
+		if (linShiNum) {
+			storageNoEquip.push(linShiNum);
+		}
+
+	}
+}
+//找出未开启职业最高评分。
+findMaxProfession(2);
+
+function findMaxProfession(nowProfressionType) {
+	var markMaxIndex = 0;
+	var judgeEnterOne = false;
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+		if (game.vars_.userInfo.packageInfo.packEquip[i].profession == nowProfressionType && !judgeEnterOne) {
+			judgeEnterOne = true;
+			markMaxIndex = i;
+			continue;
+		}
+		if (game.vars_.userInfo.packageInfo.packEquip[i].profession == nowProfressionType) {
+			if (game.vars_.userInfo.packageInfo.packEquip[markMaxIndex].gearscore < game.vars_.userInfo.packageInfo.packEquip[i].gearscore) {
+				markMaxIndex = i;
+			}
+		}
+	}
+	if (markMaxIndex == 0 && !judgeEnterOne) {
+		return false;
+	} else {
+		return markMaxIndex;
+	}
+}
+
+
+
+for (var z = 0; z < current_scene.storageNoEquip.length; z++) {
+	game.vars_.userInfo.packageInfo.packEquip[current_scene.storageNoEquip[z]].isUnopeneEuip = true;
+}
+
+current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"] && current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"].call(this, undefined, this);
+grou_fusion.vars_.isOpenEquipMaxGearScore = true;
+
+if (grou_fusion.vars_.isOpenEquipMaxGearScore) {
+	current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"] && current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"].call(this, undefined, this);
+	for (var z = 0; z < current_scene.storageNoEquip.length; z++) {
+		game.vars_.userInfo.packageInfo.packEquip[current_scene.storageNoEquip[z]].isUnopeneEuip = true;
+	}
+}
+
+
+var isHide = false;
+for (var i = 0; i < masterTaskUI.vars_.taskInfoUiList.length; i++) {
+	if (masterTaskUI.vars_.taskInfoUiList[i].objects['obj_每日_前往'].spriteName == "obj_每日_领取奖励_default" && masterTaskUI.vars_.taskInfoUiList[i].objects['obj_每日_前往'].isVisible) {
+		taskUI.objects['obj_主城_红点_主线'].show();
+		isHide = true;
+		console.log('会进来么？');
+		break;
+	}
+}
+dayTaskUI.vars_.taskInfoUiList[i].isVisible
+	//密探成功后的一些代码
+qyengine.guardId('obj_pkPlayerPhotoFrame_OutFight_' + game.vars_.secretLocation).show();
+qyengine.guardId("obj_pkPlayerPhotoImage_" + game.vars_.secretLocation).show();
+qyengine.guardId("obj_pkPlayerPhotoImage_" + game.vars_.secretLocation).changeSprite("obj_" + game.configs.role[Number(data[1].profession)].photo + "_default");
+qyengine.guardId("txt_outPkVipNum_" + game.vars_.secretLocation).hide();
+qyengine.guardId("txt_pkOutName_OutFight_" + game.vars_.secretLocation).show();
+qyengine.guardId("obj_pkFightButton_OutFight_" + game.vars_.secretLocation).changeSprite("obj_pkFightButton_A0");
+qyengine.guardId("txt_pkSecret_" + game.vars_.secretLocation).destroy();
+qyengine.guardId("txt_outPkVipNum_" + game.vars_.secretLocation).setText("VIP" + data[1].vip);
+qyengine.guardId("txt_pkOutName_OutFight_" + game.vars_.secretLocation).setText(data[1].nick);
+qyengine.guardId("obj_pkFightButton_OutFight_" + game.vars_.secretLocation).setVar('fightPlayerProperty', data[1]);
+qyengine.guardId("obj_pkFightButton_OutFight_" + game.vars_.secretLocation).setVar('type', "挑战");
+
+//野外pk的其它玩家的的数据的信息的返回
+qyengine.guardId("txt_pkSecret_0").setText();
+var secretIndex = 0; //密探人数
+qyengine.guardId('txt_pkRoleNick').setText(game.vars_.userInfo.nick);
+for (var i = 0; i < game.vars_.rewardOutPkPlayer.length; i++) {
+	if (!game.vars_.rewardOutPkPlayer[i].uid) {
+		qyengine.guardId("obj_pkPlayerPhotoFrame_OutFight_" + i).hide();
+		qyengine.guardId("txt_outPkVipNum_" + i).hide();
+		qyengine.guardId("txt_pkOutName_OutFight_" + i).hide();
+		qyengine.guardId("obj_pkPlayerPhotoImage_" + i).hide();
+		if (secretIndex == 0) {
+			var deltaTime = 20 * 60 - (time() * 0.001 - game.vars_.rewardOutPkPlayer[i].data);
+			calTime(deltaTime, i);
+			qyengine.guardId("txt_pkSecret_" + i).setTimeline('tm_pkSecretTime', {
+				"position": 0,
+				"start": true,
+				"loop": true,
+				"actionIndex": 1
+			});
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).changeSprite("obj_pkFightButton_A1");
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('type', "密探");
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).vars_.id = i;
+			qyengine.guardId('obj_pkSecretButtonFrame_' + i).show();
+		} else {
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).hide();
+			qyengine.guardId('obj_pkSecretButtonFrame_' + i).hide();
+			qyengine.guardId("txt_pkSecret_" + i).show();
+			qyengine.guardId("txt_pkSecret_" + i).setText("暂无对手,等待寻找");
+		}
+		secretIndex++;
+	} else {
+		qyengine.guardId("txt_outPkVipNum_" + i).setText("VIP" + game.vars_.rewardOutPkPlayer[i].vip);
+		qyengine.guardId("txt_pkOutName_OutFight_" + i).setText(game.vars_.rewardOutPkPlayer[i].nick);
+		qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+		qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('type', "挑战");
+		qyengine.guardId("grou_pkBigBg").objects['cont_pkOutFight'].objects['obj_pkPlayerPhotoImage_' + i].changeSprite("obj_" + game.configs.role[Number(game.vars_.rewardOutPkPlayer[i].profession)].photo + "_default");
+	}
+
+}
+//根据时间计算分秒
+function calTime(nowTime, location) {
+	if (nowTime > 60) {
+
+		var minusTime = Math.floor(nowTime / 60);
+		var secondTime = Math.floor(nowTime - minusTime * 60);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + secondTime);
+
+	} else {
+		nowTime = Math.floor(nowTime);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + nowTime);
+	}
+	qyengine.guardId("txt_pkSecret_" + location).show();
+	game.vars_.txt_pkSecretTimeNum = {
+		"nowTime": nowTime,
+		"location": location
+	};
+}
+
+
+
+//主界面上的pk的显示
+var secretIndex = 0;
+for (var i = 0; i < game.vars_.rewardOutPkPlayer.length; i++) {
+	if (!game.vars_.rewardOutPkPlayer[i].uid) {
+		qyengine.guardId('obj_通用_圆形头像框底图_wh_' + repeatTime).hide();
+		qyengine.guardId('obj_通用_圆形头像框_wh_' + repeatTime).hide();
+		if (secretIndex == 0) {
+			var deltaTime = 20 * 60 - (time() * 0.001 - game.vars_.rewardOutPkPlayer[i].data);
+			calTime(deltaTime, i);
+			qyengine.guardId('obj_PVEicon_计时_' + repeatTime).show();
+			qyengine.guardId('obj_mainScenePkTimeFrame_' + repeatTime).show();
+			qyengine.guardId('txt_PKtime_' + repeatTime).show();
+
+		} else {
+			qyengine.guardId('obj_PVEicon_计时_' + repeatTime).hide();
+			qyengine.guardId('obj_mainScenePkTimeFrame_' + repeatTime).hide();
+			qyengine.guardId('txt_PKtime_' + repeatTime).hide();
+		}
+		secretIndex++;
+
+	} else {
+		qyengine.guardId('obj_通用_圆形头像框底图_wh_' + repeatTime).show();
+		qyengine.guardId('obj_通用_圆形头像框_wh_' + repeatTime).show();
+		qyengine.guardId('obj_通用_圆形头像框底图_wh_' + repeatTime).changeSprite("obj_" + game.configs.role[Number(game.vars_.rewardOutPkPlayer[i].profession)].photo + "_default");
+	}
+}
+
+//根据时间计算分秒
+function calTime(nowTime, location) {
+	if (nowTime > 60) {
+
+		var minusTime = Math.floor(nowTime / 60);
+		var secondTime = Math.floor(nowTime - minusTime * 60);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + secondTime);
+
+	} else {
+		nowTime = Math.floor(nowTime);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + nowTime);
+	}
+	qyengine.guardId("txt_pkSecret_" + location).show();
+	game.vars_.txt_pkSecretTimeNum = {
+		"nowTime": nowTime,
+		"location": location
+	};
+}
+
+
+
+mainSceneRequestPkPlayer
+//主界面上的显示问题
+obj_PVEicon_计时_0 obj_mainScenePkTimeFrame_0 txt_PKtime_0
+obj_通用_圆形头像框底图_wh_0 //切换图片用的
+obj_通用_圆形头像框_wh //切换图片的底框用的
+
+
+
+//密探返回,赋值
+if (qyengine.getInstanceCount('grou_pkBigBg') == 0) {
+	qyengine.guardId('txt_PKtime_' + game.vars_.secretLocation).hide();
+	qyengine.guardId('txt_PKtime_' + game.vars_.secretLocation).stopTimeline();
+	qyengine.guardId('obj_mainScenePkTimeFrame_' + game.vars_.secretLocation).hide();
+	qyengine.guardId('txt_PKtime_' + game.vars_.secretLocation).hide();
+	qyengine.guardId('obj_PVEicon_计时_' + game.vars_.secretLocation).show();
+	qyengine.guardId('obj_PVEicon_计时_' + game.vars_.secretLocation).changeSprite('obj_通用_圆形头像框_wh_default');
+	qyengine.guardId("obj_PVEicon_计时_" + game.vars_.secretLocation).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+	qyengine.guardId("obj_PVEicon_计时_" + game.vars_.secretLocation).setVar('type', "挑战");
+	qyengine.guardId('obj_通用_圆形头像框底图_wh_' + game.vars_.secretLocation).show();
+	qyengine.guardId('obj_通用_圆形头像框底图_wh_' + game.vars_.secretLocation).changeSprite("obj_" + game.configs.role[Number(data[1].profession)].photo + "_default");
+	qyengine.guardId('obj_通用_圆形头像框底图_wh_' + game.vars_.secretLocation).setSize(90, 90);
+} else {
+	qyengine.guardId('obj_pkPlayerPhotoFrame_OutFight_' + game.vars_.secretLocation).show();
+	qyengine.guardId("obj_pkPlayerPhotoImage_" + game.vars_.secretLocation).show();
+	qyengine.guardId("obj_pkPlayerPhotoImage_" + game.vars_.secretLocation).changeSprite("obj_" + game.configs.role[Number(data[1].profession)].photo + "_default");
+	qyengine.guardId("txt_outPkVipNum_" + game.vars_.secretLocation).hide();
+	qyengine.guardId("txt_pkOutName_OutFight_" + game.vars_.secretLocation).show();
+	qyengine.guardId("obj_pkFightButton_OutFight_" + game.vars_.secretLocation).changeSprite("obj_pkFightButton_A0");
+	qyengine.guardId("txt_pkSecret_" + game.vars_.secretLocation).destroy();
+	qyengine.guardId("txt_outPkVipNum_" + game.vars_.secretLocation).setText("VIP" + data[1].vip);
+	qyengine.guardId("txt_pkOutName_OutFight_" + game.vars_.secretLocation).setText(data[1].nick);
+	qyengine.guardId("obj_pkFightButton_OutFight_" + game.vars_.secretLocation).setVar('fightPlayerProperty', data[1]);
+	qyengine.guardId("obj_pkFightButton_OutFight_" + game.vars_.secretLocation).setVar('type', "挑战");
+}
+
+
+grou_pkBigBg.objects['txt_pkKillNum'].setText(game.vars_.userInfo.killPk);
+
+
+if (Number(data) == 0) {
+	var markMoveInstance = ['obj_redNameCursor', 'obj_pkRedPointFrame', 'txt_redPointNum'];
+	var markInitPos = [-201, -204, -146];
+	for (var i = 0; i < markMoveInstance.length; i++) {
+		grou_pkBigBg.objects['cont_pkBigContent'].objects[markMoveInstance[i]].x = markInitPos[i];
+	}
+} else {
+	var markMoveInstance = ['obj_redNameCursor', 'obj_pkRedPointFrame', 'txt_redPointNum'];
+	for (var i = 0; i < markMoveInstance.length; i++) {
+		if (Number(KBEngine.app.player().redPoint) >= 100) {
+			grou_pkBigBg.objects['cont_pkBigContent'].objects[markMoveInstance[i]].x += 100 * 0.01 * (250 + 204);
+		} else {
+			grou_pkBigBg.objects['cont_pkBigContent'].objects[markMoveInstance[i]].x += Number(KBEngine.app.player().redPoint) * 0.01 * (250 + 204);
+		}
+	}
+}
+
+
+grou_pkRankList.objects['txt_pkRankListNum'].setText(data[1][0]);
+grou_pkRankList.objects['txt_pkGoodAndBadNum'].setText(data[1][1]);
+qyengine.guardId('grou_pkRankListItem' + ).objects['txt_pkRankListFightNum'].setText('战斗力:' + game.vars_.killRankList[0][repeatTime][8]);
+qyengine.guardId('grou_pkRankListItem' + ).objects['txt_pkRankListGangName'].setText('[' + '' + ']');
+
+this.vars_.fightPlayerProperty.nick
+
+qyengine.guardId('grou_pkNearbyPlayerInfo').objects['txt_pkSecretPlayer'].setText(self.vars_.fightPlayerProperty.nick);
+
+game.vars_.expansion
+
+game.vars_.expansion = 120;
+
+var nowCapConsume = game.configs.bag_add[game.vars_.expansion].gold;
+grou_packCapacityFrame.objects['cont_packCapacityFrame'].objects['obj_packCapacityFrame'].text('是否花费' + game.configs.bag_add[game.vars_.expansion].gold + '金子扩充4格背包?');
+
+
+
+var markMaxProfessionEquip = [];
+for (var i = 0; i < game.vars_.userInfo.roles.length; i++) {
+	markMaxProfessionEquip.push(game.configs.role[game.vars_.userInfo.roles[i].id].type);
+}
+var nowProfression = function judge(nowProfressionType) {
+	for (i = 0; i < markMaxProfessionEquip.length; i++) {
+		if (markMaxProfessionEquip[i] == nowProfressionType) {
+			return true;
+		}
+	}
+	return false;
+}
+var storageNoEquip = [];
+for (var f = 1; f <= 3; f++) {
+	if (!nowProfression(f)) {
+		var linShiNum = findMaxProfession(f);
+		if (linShiNum) {
+			storageNoEquip.push(linShiNum);
+		}
+
+	}
+}
+current_scene.storageNoEquip = storageNoEquip;
+//找出未开启职业最高评分。
+function findMaxProfession(nowProfressionType) {
+	var markMaxIndex = 0;
+	var judgeEnterOne = false;
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+		if (game.vars_.userInfo.packageInfo.packEquip[i].profession == nowProfressionType && !judgeEnterOne) {
+			judgeEnterOne = true;
+			markMaxIndex = i;
+			continue;
+		}
+		if (game.vars_.userInfo.packageInfo.packEquip[i].profession == nowProfressionType) {
+			if (game.vars_.userInfo.packageInfo.packEquip[markMaxIndex].gearscore < game.vars_.userInfo.packageInfo.packEquip[i].gearscore) {
+				markMaxIndex = i;
+			}
+		}
+	}
+	if (markMaxIndex == 0 && !judgeEnterOne) {
+		return false;
+	} else {
+		return markMaxIndex;
+	}
+}
+
+
+isUnopeneEuip
+
+
+
+qyengine.guardId("txt_pkSecret_0").setText();
+var secretIndex = 0; //密探人数
+qyengine.guardId('txt_pkRoleNick').setText(game.vars_.userInfo.nick);
+for (var i = 0; i < game.vars_.rewardOutPkPlayer.length; i++) {
+	if (!game.vars_.rewardOutPkPlayer[i].uid) {
+		qyengine.guardId("obj_pkPlayerPhotoFrame_OutFight_" + i).hide();
+		qyengine.guardId("txt_outPkVipNum_" + i).hide();
+		qyengine.guardId("txt_pkOutName_OutFight_" + i).hide();
+		qyengine.guardId("obj_pkPlayerPhotoImage_" + i).hide();
+		if (secretIndex == 0) {
+			var deltaTime = 20 * 60 - (time() * 0.001 - game.vars_.rewardOutPkPlayer[i].data);
+			calTime(deltaTime, i);
+			qyengine.guardId("txt_pkSecret_" + i).setTimeline('tm_pkSecretTime', {
+				"position": 0,
+				"start": true,
+				"loop": true,
+				"actionIndex": 1
+			});
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).changeSprite("obj_pkFightButton_A1");
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('type', "密探");
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).vars_.id = game.vars_.rewardOutPkPlayer[i].location;
+			qyengine.guardId('obj_pkSecretButtonFrame_' + i).show();
+		} else {
+			qyengine.guardId('txt_pkSecret_' + i).stopTimeline();
+			qyengine.guardId("obj_pkFightButton_OutFight_" + i).hide();
+			qyengine.guardId('obj_pkSecretButtonFrame_' + i).hide();
+			qyengine.guardId("txt_pkSecret_" + i).show();
+			qyengine.guardId("txt_pkSecret_" + i).setText("暂无对手,等待寻找");
+		}
+		secretIndex++;
+	} else {
+		qyengine.guardId('txt_pkSecret_' + i).stopTimeline();
+		qyengine.guardId("txt_outPkVipNum_" + i).setText("VIP" + game.vars_.rewardOutPkPlayer[i].vip);
+		qyengine.guardId("txt_pkOutName_OutFight_" + i).setText(game.vars_.rewardOutPkPlayer[i].nick);
+		qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+		qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('type', "挑战");
+		qyengine.guardId("grou_pkBigBg").objects['cont_pkOutFight'].objects['obj_pkPlayerPhotoImage_' + i].changeSprite("obj_" + game.configs.role[Number(game.vars_.rewardOutPkPlayer[i].profession)].photo + "_default");
+	}
+
+}
+//根据时间计算分秒
+function calTime(nowTime, location) {
+	if (nowTime > 60) {
+
+		var minusTime = Math.floor(nowTime / 60);
+		var secondTime = Math.floor(nowTime - minusTime * 60);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + secondTime);
+
+	} else {
+		nowTime = Math.floor(nowTime);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + nowTime);
+	}
+	qyengine.guardId("txt_pkSecret_" + location).show();
+	game.vars_.txt_pkSecretTimeNum = {
+		"nowTime": nowTime,
+		"location": location
+	};
+}
+
+
+
+qyengine.guardId("obj_pkPlayerPhotoFrame_OutFight_" + secretLocation).hide();
+qyengine.guardId("txt_outPkVipNum_" + secretLocation).hide();
+qyengine.guardId("txt_pkOutName_OutFight_" + secretLocation).hide();
+qyengine.guardId("obj_pkPlayerPhotoImage_" + secretLocation).hide();
+var deltaTime = 20 * 60 - (time() * 0.001 - game.vars_.rewardOutPkPlayer[secretLocation].data);
+calTime(deltaTime, secretLocation);
+qyengine.guardId("txt_pkSecret_" + secretLocation).setTimeline('tm_pkSecretTime', {
+	"position": 0,
+	"start": true,
+	"loop": true,
+	"actionIndex": 1
+});
+qyengine.guardId("obj_pkFightButton_OutFight_" + secretLocation).show();
+qyengine.guardId("obj_pkFightButton_OutFight_" + secretLocation).changeSprite("obj_pkFightButton_A1");
+qyengine.guardId("obj_pkFightButton_OutFight_" + secretLocation).setVar('type', "密探");
+qyengine.guardId("obj_pkFightButton_OutFight_" + secretLocation).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[secretLocation]);
+qyengine.guardId("obj_pkFightButton_OutFight_" + secretLocation).vars_.id = game.vars_.rewardOutPkPlayer[secretLocation].location;
+qyengine.guardId('obj_pkSecretButtonFrame_' + secretLocation).show();
+
+//根据时间计算分秒
+function calTime(nowTime, location) {
+	if (nowTime > 60) {
+
+		var minusTime = Math.floor(nowTime / 60);
+		var secondTime = Math.floor(nowTime - minusTime * 60);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + secondTime);
+
+	} else {
+		nowTime = Math.floor(nowTime);
+		qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + nowTime);
+	}
+	qyengine.guardId("txt_pkSecret_" + location).show();
+	game.vars_.txt_pkSecretTimeNum = {
+		"nowTime": nowTime,
+		"location": location
+	};
+}
+
+
+
+if (game.vars_.secretLocation == 2) {
+	return;
+}
+
+onRespPvpFieldSpyPlayerResult
+
+
+current_game.scripts["al_scr_" + "realizeAfterSecretTimeShow"] && current_game.scripts["al_scr_" + "realizeAfterSecretTimeShow"].call(this, undefined, this, game.vars_.secretLocation + 1);
+qyengine.guardId("txt_pkSecret_" + game.vars_.secretLocation).stopTimeline();
+Math.floor(12.0)
+	//容错处理
+if (qyengine.getInstanceCount('grou_pkBigBg') > 0) {
+	self.stopTimeline();
+	return;
+}
+
+
+
+//by函数接受一个成员名字符串做为参数
+//并返回一个可以用来对包含该成员的对象数组进行排序的比较函数
+var by = function(name) {
+	return function(o, p) {
+		var a, b;
+		if (typeof o === "object" && typeof p === "object" && o && p) {
+			a = o[name];
+			b = p[name];
+			if (a === b) {
+				return 0;
+			}
+			if (typeof a === typeof b) {
+				return a > b ? -1 : 1;
+			}
+			return typeof a > typeof b ? -1 : 1;
+		} else {
+			throw ("error");
+		}
+	}
+}
+
+game.vars_.userInfo.packageInfo.packBox.sort(by("num")); //熔炼的排序
+
+if (grou_fusion.vars_.isOpenEquipMaxGearScore) {
+	current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"] && current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"].call(this, undefined, this);
+	for (var z = 0; z < current_scene.storageNoEquip.length; z++) {
+		game.vars_.userInfo.packageInfo.packEquip[current_scene.storageNoEquip[z]].isUnopeneEuip = true;
+	}
+}
+var markIndex = 0;
+for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+	if (game.vars_.userInfo.packageInfo.packEquip[i].data === 1 || game.vars_.userInfo.packageInfo.packEquip[i].isUnopeneEuip) {
+		continue;
+	}
+	qyengine.guardId("obj_道具框_小框_" + markIndex).show();
+	qyengine.guardId("obj_道具框_小框_" + markIndex).changeSprite('obj_packEquipProperty_A' + getConfig('equipment', game.vars_.userInfo.packageInfo.packEquip[i].id, 'profession'));
+	qyengine.guardId("obj_道具框_" + markIndex).changeSprite("obj_packageSmallFrame_A" + game.vars_.userInfo.packageInfo.packEquip[i].quality);
+	qyengine.guardId("txt_packFusionLevel_" + markIndex).setText("LV " + getConfig("equipment", game.vars_.userInfo.packageInfo.packEquip[i].id, "level"));
+	qyengine.guardId("obj_道具框_" + markIndex).setVar('uuid', game.vars_.userInfo.packageInfo.packEquip[i].uuid);
+	game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion = true;
+	grou_fusion.objects['cont_fusion'].objects['obj_equipImage_' + markIndex].changeSprite("obj_" + game.configs.equipment[game.vars_.userInfo.packageInfo.packEquip[i].id].icon + "_default");
+	grou_fusion.objects['cont_fusion'].objects['obj_equipImage_' + markIndex].show();
+	markIndex++;
+	if (markIndex >= 9) {
+		break;
+	}
+}
+for (var j = 8; j >= markIndex; j--) {
+	qyengine.guardId("txt_packFusionLevel_" + j).hide();
+}
+
+var nowCostCoin = Number(txt_saleRewardCoin.text.split(":")[1]);
+qyengine.guardId('txt_saleEquipIsSureAndCancel').setText("是否出售物品?出售后\n获得银子X<font color='#fa0303'> " + nowCostCoin + "</font>");
+
+
+
+isUseOrOpen grou_packagePopUp_Box
+grou_packagePopUp_Box.vars_.isUseOrOpen
+
+
+
+qyengine.guardId('txt_PorpUpWord').setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "name"));
+qyengine.guardId("txt_saleGoodDec").setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "dec"));
+qyengine.guardId('txt_equipNeedLevel').hide();
+qyengine.guardId('txt_packagePopUpBoxWord').setText('请选择数量');
+qyengine.guardId('txt_saleRewardCoin').hide();
+qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects['obj_equipImage'].changeSprite("obj_" + game.configs.box[current_scene['nowSaleButton'].vars_.Id].icon + '_default');
+//使用或者开启宝箱界面的元素的一些初始化
+var showLinShi = ['txt_openBoxCostWord', 'obj_openBoxCost', 'txt_openBoxCostName', 'txt_openBoxHaveGoodNum', 'txt_openBoxCostGoodNum'];
+for (var i = 0; i < showLinShi.length; i++) {
+	qyengine.guardId(showLinShi[i]).show();
+}
+//qyengine.guardId('txt_openBoxCostGoodNum').setText('1');
+openBoxOpera(current_scene['nowSaleButton'].vars_.Id);
+
+function openBoxOpera(markId) {
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packBox.length; i++) {
+		if (markId == game.vars_.userInfo.packageInfo.packBox[i].id) {
+			if (Number(game.vars_.userInfo.packageInfo.packBox[i].type) == 2) {
+				qyengine.guardId('obj_装备出售_使用按钮').changeSprite('obj_装备出售_使用按钮_A1');
+				var costGoodNum = Number(game.vars_.userInfo.packageInfo.packBox[i].cost.split(':')[1]);
+				var costGoodType = Number(game.vars_.userInfo.packageInfo.packBox[i].cost.split(':')[0]);
+				qyengine.guardId('txt_openBoxCostGoodNum').setText('' + costGoodNum);
+				qyengine.guardId('obj_openBoxCost').changeSprite('obj_' + game.configs.item[costGoodType].icon + '_default'); //消耗的物品的icon
+				qyengine.guardId('obj_openBoxCost').setScale(0.6, 0.6);
+				qyengine.guardId('txt_openBoxCostName').setText(game.configs.item[costGoodType].name); //消耗的物品的name
+				qyengine.guardId('txt_openBoxHaveGoodNum').setText(calNowHaveCostGood(costGoodType) + '/'); //拥有本物品的数量
+				qyengine.guardId('grou_packagePopUp_Box').dispatchMessage({
+					"type": 'message',
+					"message": "显示红点",
+					"argument0": 0
+				});
+			} else {
+				qyengine.guardId('obj_装备出售_使用按钮').changeSprite('obj_装备出售_使用按钮_A0');
+				var hideLinShi = ['txt_openBoxCostWord', 'obj_openBoxCost', 'txt_openBoxCostName', 'txt_openBoxHaveGoodNum', 'txt_openBoxCostGoodNum'];
+				for (var j = 0; j < hideLinShi.length; j++) {
+					qyengine.guardId(hideLinShi[j]).hide();
+				}
+				qyengine.guardId('grou_packagePopUp_Box').dispatchMessage({
+					"type": 'message',
+					"message": "显示红点",
+					"argument0": 1
+				});
+			}
+			return;
+		}
+	}
+}
+//计算需要消耗的物品的数量
+function calNowHaveCostGood(costId) {
+	for (var i = 0; i < game.vars_.userInfo.packageInfo.packGood.length; i++) {
+		if (Number(game.vars_.userInfo.packageInfo.packGood[i].id) == Number(costId)) {
+			return Number(game.vars_.userInfo.packageInfo.packGood[i].num);
+		}
+	}
+	return 0;
+}
+
+
+grou_fusion
+isHaveFusion
+
+grou_fusion fusionRewardIndex game.vars_.fusionGoods "获得:   强化石 X" + (game.vars_.fusionGoods[1]) 银子 强化石 金子 txt_packFusionRewardStone
+
+
+calRedPointPosition
+
+
+
+txt_BigEquipSaleCoin txt_BigEquipSaleGoods
+
+if (!qyengine.guardId('txt_BigEquipSaleCoin').isVisible && !qyengine.guardId('txt_BigEquipSaleGoods').isVisible) {
+	current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "请先选择!");
+	return;
+}
+
+
+
+current_scene['nowSaleButton'].vars_.Id
+current_scene['nowSaleNum']
+
+
+markNeedProperty[j]
+current_scene['nowSaleButton'].vars_
+grou_saleEquipSureAndCancel
+txt_saleEquipIsSureAndCancel
+
+帮派任务 game.vars_.backFaction[0].upperLimitFaction
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['obj_通用_按钮_04_peng'].vars_.taskType = repeatTime + 1;
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['obj_通用_按钮_04_peng'].vars_.dayLimit = dayLimit;
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['obj_通用_按钮_04_peng'].vars_.contributionNum = contributionNum;
+qyengine.guardId("grou_factionTaskItem" + repeatTime).objects['obj_通用_按钮_04_peng'].vars_.integrationNum = integrationNum;
+
+
+getConfig('factionTaskJump', self.vars_.taskType, 'action');
+
+
+obj_战斗_真气 factionTaskGotoPk
+isChangeMainScene
+	'' + getConfig('factionTaskJump', self.vars_.taskType, 'isChangeMainScene')
+current_game.scripts['scr_kbe_regsterEntityEvent'].call(this, "Account", "onRespCrossServerDefendInfo", "onRespCrossServerDefendInfo");
+
+
+
+var fusionRewardShowContent = ["获得:   银子 X", "获得:   强化石 X", "获得:   金子X", "获得:   "];
+local.rewardText = '';
+for (var i = 0; i < fusionRewardShowContent.length; i++) {
+	if (i == 3) {
+		if (game.vars_.fusionGoods[3].length == 0) {
+			break;
+		} else {
+			local.rewardTextEquip = local.rewardTextEquip = '';
+			for (var j = 0; j < game.vars_.fusionGoods[3].length; j++) {
+				local.rewardTextEquip = local.rewardTextEquip + game.configs.equipment[game.vars_.fusionGoods[3][j]].name + '  ';
+			}
+			local.rewardText = local.rewardText + fusionRewardShowContent[i] + local.rewardTextEquip;
+
+		}
+	} else {
+		local.rewardText = local.rewardText + fusionRewardShowContent[i] + game.vars_.fusionGoods[i] + '\n';
+	}
+}
+qyengine.instance_create(0, 0, "txt_packFusionRewardStone", {
+	"type": "txt_packFusionRewardStone",
+	"id": 'txt_packFusionRewardStone_reward',
+	"zIndex": 20,
+	"scene": 'main_scene',
+	"layer": 'layer_headerfeet'
+});
+qyengine.guardId('txt_packFusionRewardStone_reward').setText(local.rewardText);
+
+
+
+//by函数接受一个成员名字符串做为参数
+//并返回一个可以用来对包含该成员的对象数组进行排序的比较函数
+var by = function(name) {
+	return function(o, p) {
+		var a, b;
+		if (typeof o === "object" && typeof p === "object" && o && p) {
+			a = o[name];
+			b = p[name];
+			if (a === b) {
+				return 0;
+			}
+			if (typeof a === typeof b) {
+				return a < b ? -1 : 1;
+			}
+			return typeof a < typeof b ? -1 : 1;
+		} else {
+			throw ("error");
+		}
+	}
+}
+
+game.vars_.userInfo.packageInfo.packEquip.sort(by("quality")); //熔炼的排序
+
+if (grou_fusion.vars_.isOpenEquipMaxGearScore) {
+	current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"] && current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"].call(this, undefined, this);
+	//for (var z = 0; z < current_scene.storageNoEquip.length; z++) {
+	//game.vars_.userInfo.packageInfo.packEquip[current_scene.storageNoEquip[z]].isUnopeneEuip = true;
+	//}
+}
+var markIndex = 0;
+var judgeIsOpenMax = function(fromIndex) {
+	if (current_scene.storageNoEquip.length == 0) {
+		return false;
+	}
+	for (var k = 0; k < current_scene.storageNoEquip.length; k++) {
+		if (fromIndex == current_scene.storageNoEquip[k]) {
+			return true;
+		}
+	}
+}
+for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+	if (game.vars_.userInfo.packageInfo.packEquip[i].data === 1 || (grou_fusion.vars_.isOpenEquipMaxGearScore && judgeIsOpenMax(i))) {
+		if (grou_fusion.vars_.isOpenEquipMaxGearScore && judgeIsOpenMax(i)) {
+			game.vars_.userInfo.packageInfo.packEquip[i].isUnOpenEquip = true;
+		}
+		continue;
+	}
+	qyengine.guardId("obj_道具框_小框_" + markIndex).show();
+	qyengine.guardId("obj_道具框_小框_" + markIndex).changeSprite('obj_packEquipProperty_A' + getConfig('equipment', game.vars_.userInfo.packageInfo.packEquip[i].id, 'profession'));
+	qyengine.guardId("obj_道具框_" + markIndex).changeSprite("obj_packageSmallFrame_A" + game.vars_.userInfo.packageInfo.packEquip[i].quality);
+	qyengine.guardId("txt_packFusionLevel_" + markIndex).setText("LV " + getConfig("equipment", game.vars_.userInfo.packageInfo.packEquip[i].id, "level"));
+	qyengine.guardId("obj_道具框_" + markIndex).setVar('uuid', game.vars_.userInfo.packageInfo.packEquip[i].uuid);
+	game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion = true;
+	grou_fusion.objects['cont_fusion'].objects['obj_equipImage_' + markIndex].changeSprite("obj_" + game.configs.equipment[game.vars_.userInfo.packageInfo.packEquip[i].id].icon + "_default");
+	grou_fusion.objects['cont_fusion'].objects['obj_equipImage_' + markIndex].show();
+	markIndex++;
+	if (markIndex >= 9) {
+		break;
+	}
+}
+for (var j = 8; j >= markIndex; j--) {
+	qyengine.guardId("txt_packFusionLevel_" + j).hide();
+}
+
+
+game.vars_.userInfo.packageInfo.packEquip[i].isUnOpenEquip
+
+
+
+game.vars_.test = {
+	'a': 123,
+	'b': 345,
+	'c': 'xyc'
+};
+delete game.vars_.test.a;
+
+for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+	if (game.vars_.userInfo.packageInfo.packEquip[i].isUnOpenEquip) {
+		delete game.vars_.userInfo.packageInfo.packEquip[i].isUnOpenEquip;
+	}
+}
+
+
+var propertyToName = {
+	'atk': '攻击力',
+	'cri': '暴击',
+	'dodge': '闪避',
+	'hit': '命中',
+	'hp': '血量',
+	'mdef': '法防',
+	'pdef': '物防',
+	'rcri': '抗暴'
+};
+calAllProperty();
+
+function calAllProperty() {
+	var loneText = '';
+	for (loneValue in propertyToName) {
+		if (current_scene['nowSaleButton'].vars_.allProperty[loneValue] != 0) {
+			if (game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id][loneValue].split(';')[current_scene['nowSaleButton'].vars_.allProperty.quality] == '-1') {
+				continue;
+			}
+			var baseProperty = game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id][loneValue].split(';')[current_scene['nowSaleButton'].vars_.allProperty.quality].split('|')[0];
+			var increaseProperty = Number(current_scene['nowSaleButton'].vars_.allProperty[loneValue]) - Number(baseProperty);
+			if (increaseProperty < 0) {
+				increaseProperty = 0;
+				continue;
+			}
+			loneText = loneText + propertyToName[loneValue] + ': ' + baseProperty + '+  ' + increaseProperty + '\n';
+		}
+	}
+	qyengine.guardId("txt_equipAttack").setText(loneText);
+}
+
+
+
+game.configs.equipment[20001]['atk'].split(';')
+
+发送消息给标签, 判断是是否放大并恢复
+
+
+actionlist_scenePopUp
+actionlist_userRegister
+
+
+actionlist_achieveData actionlist_1
+
+obj_diamondIcon(211, 143) scale(0.5, 0.5) obj_pickNameWord1_fromMainSce(398, 74)
+actionlist_showTitleAndCal
+
+
+local.findTimes = self.vars_.fightPlayerProperty.spy;
+local.costGold = 15 + Math.floor(local.findTimes / 2) * 5;
+if (game.vars_.userInfo.gold < local.costGold) {
+	current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this, "金币不足!");
+	return;
+}
+
+
+current_scene.findTimes = obj_pkFightButton_OutFight_2.vars_.fightPlayerProperty.spy;
+current_scene.costGold = 15 + Math.floor(current_scene.findTimes / 2) * 5;
+
+//移动100个像素
+obj_pickNameWord1_fromMainSce obj_experienceBarTransparent obj_diamondIcon
+obj_experienceBarYellow obj_expPrintedNum1_2 obj_expPrintedNum1_1 obj_expPrintedNum1_0
+obj_back_slantExp
+
+
+obj_boneButtonMainRanking
+obj_rankingListButton
+if (Number(game.configs['guild_mission']['' + (current_scene.markTaskType)].gold) > Number(KBEngine.app.player.gold)) {
+	current_game.scripts["al_scr_" + "CreateGrou_guide"] && current_game.scripts["al_scr_" + "CreateGrou_guide"].call(this, undefined, this, '金子不足!');
+	return;
+}
+if (Number(game.configs['guild_mission']['' + (current_scene.markTaskType)].silver) > Number(game.vars_.userInfo.silver)) {
+	current_game.scripts["al_scr_" + "CreateGrou_guide"] && current_game.scripts["al_scr_" + "CreateGrou_guide"].call(this, undefined, this, '银子不足!');
+	return;
+}
+
+
+
+obj_familyMask_task
+obj_factionLevelBarOut
+
+obj_familyMask
+obj_factionLevelBarOut
+
+
+
+var updateNeedExp = game.configs.guild_up[game.vars_.backFaction[0].level].exp;
+var nowExp = game.vars_.backFaction[0].exp;
+if (game.vars_.backFaction[0].level == 0) {
+	local.needMoveDis = (nowExp / updateNeedExp) * 429 - 374;
+} else {
+	var lastUpdateNeedExp = game.configs.guild_up[game.vars_.backFaction[0].level - 1].exp;
+	local.needMoveDis = (1 - (Math.abs(updateNeedExp - nowExp) / Math.abs(updateNeedExp - lastUpdateNeedExp))) * 429 - 374;
+}
+grou_factionDailyActivity.objects['obj_familyMask'].x = local.needMoveDis;
+
+
+
+var updateNeedExp = game.configs.guild_up[game.vars_.backFaction[0].level].exp;
+var nowExp = game.vars_.backFaction[0].exp;
+if (game.vars_.backFaction[0].level == 0) {
+	current_scene.nowPosX = (nowExp / updateNeedExp) * 429 - 156;
+} else {
+	var lastUpdateNeedExp = game.configs.guild_up[game.vars_.backFaction[0].level - 1].exp;
+	current_scene.nowPosX = (1 - (Math.abs(updateNeedExp - nowExp) / Math.abs(updateNeedExp - lastUpdateNeedExp))) * 429 - 156;
+}
+
+grou_factionTask.objects['obj_familyMask_task'].x = local.nowPosX;
+
+
+
+updataFaction();
+qyengine.guardId('txt_factionLevel_DailyActivity').setText('Lv.' + game.vars_.backFaction[0].level);
+var nowVipGrade = nowVipGrade();
+var jiFenShangXian = game.configs.guild_member[nowVipGrade].exp;
+qyengine.guardId('txt_factionTaskVip').setText(nowVipGrade + '级会员:' + game.vars_.backFaction[1][4] + '/' + jiFenShangXian);
+
+var markX = game.vars_.backFaction[1][4] * 474 / (game.configs.guild_up[game.vars_.backFaction[0].level + 1].exp);
+//qyengine.guardId('obj_factionLevelBarOut').setSize(markX, 32);
+qyengine.guardId('txt_factionTaskFactionLevel').setText('Lv.' + game.vars_.backFaction[0].level);
+qyengine.guardId('txt_factionTaskContributionWord').setText("我的贡献" + game.vars_.backFaction[1][4]);
+qyengine.guardId('txt_factionTaskIntegrate').setText("我的积分" + game.vars_.backFaction[1][3]);
+qyengine.guardId('txt_factionSilver').setText('' + game.vars_.userInfo.silver);
+qyengine.guardId('txt_factionGold').setText('' + game.vars_.userInfo.gold);
+//主界面的积分的更改 huiyuan更改
+grou_factionDailyActivity.objects['txt_myCalculusWord'].setText('我的积分:' + game.vars_.backFaction[1][3]);
+grou_factionDailyActivity.objects['txt_myMemberWord'].setText(nowVipGrade + '级会员');
+grou_factionDailyActivity.objects['txt_myMember'].setText(game.vars_.backFaction[1][4] + '/' + jiFenShangXian);
+
+function updataFaction() {
+	for (var i = 1; i < configDataLength('guild_up'); i++) {
+		if (game.vars_.backFaction[0].exp >= game.configs.guild_up[i].exp) {
+
+		} else {
+			game.vars_.backFaction[0].level = i;
+			return;
+		}
+	}
+}
+
+function nowVipGrade() {
+	for (var j = 0; j <= configDataLength('guild_member') - 1; j++) {
+		if (game.configs.guild_member[j].exp > game.vars_.backFaction[1][4]) {
+			return j;
+		}
+	}
+	return 20;
+}
+
+
+
+switch (grou_treasuryMainUI.vars_.curSelectedTab) {
+	case "obj_国库_国库文字":
+		current_game.scripts["al_scr_" + "createHelpPanel"] && current_game.scripts["al_scr_" + "createHelpPanel"].call(this, undefined, this, 20, "exchequer_help1");
+		break;
+	case "obj_国库_建设文字":
+		current_game.scripts["al_scr_" + "createHelpPanel"] && current_game.scripts["al_scr_" + "createHelpPanel"].call(this, undefined, this, 21, "exchequer_help2");
+		break;
+	case "obj_国库_守卫文字":
+		current_game.scripts["al_scr_" + "createHelpPanel"] && current_game.scripts["al_scr_" + "createHelpPanel"].call(this, undefined, this, 22, "exchequer_help3");
+		break;
+}
+
+
+qyengine.guardId("grou_packageGodItem_" + repeatTime).objects['obj_equipImage'].changeSprite("obj_" + game.configs.dragon_soul[game.vars_.userInfo.packageInfo.packGod[repeatTime].id].icon + "_default");
+
+
+Math.floor((obj_boneButtonMainSet.x - obj_boneButtonMainRanking.x) / 3) + obj_boneButtonMainRanking.x
+Math.floor((obj_boneButtonMainSet.x - obj_boneButtonMainRanking.x) / 3) * 2 + obj_boneButtonMainRanking.x
+
+obj_registerButtonLast.x = Math.floor((obj_boneButtonMainSet.x - obj_boneButtonMainRanking.x) / 3) + obj_boneButtonMainRanking.x;
+obj_taskButtonLast.x = Math.floor((obj_boneButtonMainSet.x - obj_boneButtonMainRanking.x) / 3) * 2 + obj_boneButtonMainRanking.x;
+txt_factionFlagFighting
+
+grou_guardRecord_cell(-19, -9)
+layer_headerfeet
+// config_heroRecord  allData
+for (var i = 0; i < data.length; i++) {
+	var color0 = "<font color='#0ec3f0'>";
+	var color1 = "<font  color='#d670d1'>";
+	var color2 = "<font  color='#f2082b'>";
+	var color3 = "<font  color='#f2bc09'>";
+	var text = "";
+	if (!Number(data[i][0])) {
+		text = formatSeconds(data[i][6]) + color0 + data[i][5] + '.' + data[i][4] + "< /font>" + "";
+	} else {
+		text = formatSeconds(data[i][6]) + color0 + data[i][3] + '.' + data[i][4] + "< /font>" + "击破了" + color1 + data[i][3] + "< /font>" +
+			"服的" + color2 + data[i][1] + data[i][2] + "< /font>" + ",为我服贡献了" + color3 + 0 + "< /font>" + "积分";
+	}
+	game.configs.config_heroRecord[i + 1] = {
+		allData: text
+	};
+}
+qyengine.guardId("scro_defend").refreshRelations();
+
+function formatSeconds(value) {
+	var theTime = parseInt(value); // 秒 
+	var theTime1 = 0; // 分 
+	var theTime2 = 0; // 小时 
+	// alert(theTime); 
+	if (theTime > 60) {
+		theTime1 = parseInt(theTime / 60);
+		theTime = parseInt(theTime % 60);
+		// alert(theTime1+"-"+theTime); 
+		if (theTime1 > 60) {
+			theTime2 = parseInt(theTime1 / 60);
+			theTime1 = parseInt(theTime1 % 60);
+		}
+	}
+	var result = "";
+	if (theTime1 > 0) {
+		result = "" + parseInt(theTime1) + "分" + result;
+	}
+	if (theTime2 > 0) {
+		result = "  " + parseInt(theTime2) + "小时" + result;
+	}
+	return result;
+}
+
+
+
+5: 30 s217. < font color = '#0ec3f0' > 霸王酥 < /font>击破了<font  color='#d670d1'>s219服</font >
+	的玄武守卫 < font color = '#f2082b' > sb0.寒冬 < /font>,为我服贡献了<font  color='#f2bc09'>3</font > 跨服积分!
+
+
+	var xx = formatSeconds(time());
+console.log(time());
+
+function formatSeconds(value) {
+	var theTime = parseInt(value); // 秒 
+	var theTime1 = 0; // 分 
+	var theTime2 = 0; // 小时 
+	// alert(theTime); 
+	if (theTime > 60) {
+		theTime1 = parseInt(theTime / 60);
+		theTime = parseInt(theTime % 60);
+		// alert(theTime1+"-"+theTime); 
+		if (theTime1 > 60) {
+			theTime2 = parseInt(theTime1 / 60);
+			theTime1 = parseInt(theTime1 % 60);
+		}
+	}
+	var result = "";
+	if (theTime1 > 0) {
+		result = "" + parseInt(theTime1) + "分" + result;
+	}
+	if (theTime2 > 0) {
+		result = "  " + parseInt(theTime2) + "小时" + result;
+	}
+	return result;
+}
+
+txt_showProgressNum_Task
+if (qyengine.guardId('txt_showProgressNum_Task') || qyengine.guardId('txt_showProgressNum_Task').destroyed_) {
+	qyengine.guardId('txt_showProgressNum_Task').setText(nowExp + "/" + updateNeedExp);
+}
+
+
+
+obj_战斗_商城.x - obj_战斗_底框3
+var twoDistance = obj_战斗_商城.x - obj_战斗_商城.width / 2 - (obj_战斗_底框3.x + obj_战斗_底框3.width / 2);
+var twoDistance = twoDistance / 5;
+x0 = obj_战斗_底框3.x + obj_战斗_底框3.width / 2 + twoDistance;
+x1 = obj_战斗_底框3.x + obj_战斗_底框3.width / 2 + twoDistance * 2;
+x2 = obj_战斗_底框3.x + obj_战斗_底框3.width / 2 + twoDistance * 3;
+x3 = obj_战斗_底框3.x + obj_战斗_底框3.width / 2 + twoDistance * 4;
+
+var width = obj_战斗_商城.currentSprite.getGlobalPosition().x - (obj_战斗_底框3.currentSprite.getGlobalPosition().x + obj_战斗_底框3.width);
+
+var buttons = [
+	["obj_战斗_底框2_3", "obj_PVEicon_主城", "obj_战斗_主城"],
+	["obj_战斗_底框2_2", "obj_PVEicon_角色", "obj_战斗_角色"],
+	["obj_战斗_底框2_1", "obj_PVEicon_打造", "obj_战斗_打造"],
+	["obj_战斗_底框2", "obj_PVEicon_包裹", "obj_战斗_包裹"]
+];
+width /= buttons.length;
+
+for (var i = 0; i < buttons.length; i++) {
+	var x = ((i + 1) * width) - (current_scene.screenAdaptation.x + obj_战斗_底框3.x) / 2;
+	for (var j = 0; j < buttons[i].length; j++) {
+		qyengine.guardId(buttons[i][j]).x = x;
+	}
+}
+
+
+/*obj_战斗_底框2_3.x=x0;
+obj_战斗_底框2_2.x=x1;
+obj_战斗_底框2_1.x=x2;
+obj_战斗_底框2.x=x3;
+
+obj_PVEicon_主城.x=x0;
+obj_PVEicon_角色.x=x1;
+obj_PVEicon_打造.x=x2;
+obj_PVEicon_包裹.x=x3;*/
+
+qyengine.guardId("obj_道具框_熔炼外_" + i).show();
+
+
+
+//by函数接受一个成员名字符串做为参数
+//并返回一个可以用来对包含该成员的对象数组进行排序的比较函数
+var by = function(name) {
+	return function(o, p) {
+		var a, b;
+		if (typeof o === "object" && typeof p === "object" && o && p) {
+			a = o[name];
+			b = p[name];
+			if (a === b) {
+				return 0;
+			}
+			if (typeof a === typeof b) {
+				return a < b ? -1 : 1;
+			}
+			return typeof a < typeof b ? -1 : 1;
+		} else {
+			throw ("error");
+		}
+	}
+}
+
+game.vars_.userInfo.packageInfo.packEquip.sort(by("quality")); //熔炼的排序
+
+if (grou_fusion.vars_.isOpenEquipMaxGearScore) {
+	current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"] && current_game.scripts["al_scr_" + "isOpenEquipMaxGearScore"].call(this, undefined, this);
+	//for (var z = 0; z < current_scene.storageNoEquip.length; z++) {
+	//game.vars_.userInfo.packageInfo.packEquip[current_scene.storageNoEquip[z]].isUnopeneEuip = true;
+	//}
+}
+var markIndex = 0;
+var judgeIsOpenMax = function(fromIndex) {
+	if (current_scene.storageNoEquip.length == 0) {
+		return false;
+	}
+	for (var k = 0; k < current_scene.storageNoEquip.length; k++) {
+		if (fromIndex == current_scene.storageNoEquip[k]) {
+			return true;
+		}
+	}
+}
+for (var i = 0; i < game.vars_.userInfo.packageInfo.packEquip.length; i++) {
+	if (game.vars_.userInfo.packageInfo.packEquip[i].data === 1 || (grou_fusion.vars_.isOpenEquipMaxGearScore && judgeIsOpenMax(i))) {
+		if (grou_fusion.vars_.isOpenEquipMaxGearScore && judgeIsOpenMax(i)) {
+			game.vars_.userInfo.packageInfo.packEquip[i].isUnOpenEquip = true;
+		}
+		continue;
+	}
+	qyengine.guardId("obj_道具框_小框_" + markIndex).show();
+	qyengine.guardId("obj_道具框_小框_" + markIndex).changeSprite('obj_packEquipProperty_A' + getConfig('equipment', game.vars_.userInfo.packageInfo.packEquip[i].id, 'profession'));
+	qyengine.guardId("obj_道具框_" + markIndex).changeSprite("obj_packageSmallFrame_A" + game.vars_.userInfo.packageInfo.packEquip[i].quality);
+	qyengine.guardId("obj_道具框_熔炼外_" + markIndex).hide();
+	qyengine.guardId("txt_packFusionLevel_" + markIndex).setText("LV " + getConfig("equipment", game.vars_.userInfo.packageInfo.packEquip[i].id, "level"));
+	qyengine.guardId("obj_道具框_" + markIndex).setVar('uuid', game.vars_.userInfo.packageInfo.packEquip[i].uuid);
+	game.vars_.userInfo.packageInfo.packEquip[i].selectedfusion = true;
+	grou_fusion.objects['cont_fusion'].objects['obj_equipImage_' + markIndex].changeSprite("obj_" + game.configs.equipment[game.vars_.userInfo.packageInfo.packEquip[i].id].icon + "_default");
+	grou_fusion.objects['cont_fusion'].objects['obj_equipImage_' + markIndex].show();
+	markIndex++;
+	if (markIndex >= 9) {
+		break;
+	}
+}
+for (var j = 8; j >= markIndex; j--) {
+	qyengine.guardId("txt_packFusionLevel_" + j).hide();
+}
+
+
+
+if (qyengine.guardId('txt_showProgressNum_Task') || !qyengine.guardId('txt_showProgressNum_Task').destroyed_) {
+	qyengine.guardId('txt_showProgressNum_Task').setText(nowExp + "/" + updateNeedExp);
+}
+
+
+if (qyengine.guardId("txt_showProgressNum_Task") > 0) {
+	qyengine.guardId('txt_showProgressNum_Task').setText(nowExp + "/" + updateNeedExp);
+}
+
+if (qyengine.getInstancesByType("txt_showProgressNum").length > 1) {
+	qyengine.guardId('txt_showProgressNum_Task').setText(nowExp + "/" + updateNeedExp);
+}
+
+grou_factionbaoku.vars_.consumeScore
+game.vars_.backFaction[1][3]
+	//剩余积分显示
+game.vars_.backFaction[1][3] -= grou_factionbaoku.vars_.consumeScore;
+if (game.vars_.backFaction[1][3] <= 0) {
+	game.vars_.backFaction[1][3]
+}
+txt_residueScore_factionbaoku_wh.setText("剩余可消耗贡献积分：" + game.vars_.backFaction[1][3]);
+
+
+//滚轴容器的优化
+qyengine.guardId("scro_1").addOneInstance('grou_1', Math.floor(i / 2) + 1, i % 2 + 1, {
+	"way": 'objectName',
+	"type": 'grou_1',
+	"id": "grou_1",
+	"center": '',
+	"px": 23,
+	"py": 26,
+	"x": Math.floor(i / 2),
+	"y": i % 2,
+	"allowMultiple": 'true'
+	"extend": {
+		"变量名": {
+			variable: "变量名",
+			value: "变量值"
+		}
+	}
+}, {
+	"obj_1": {
+		variable: {
+			a: 1,
+			b: 2
+		},
+		changeSprite: "dsfkjdskfhd",
+		hide: true,
+		destroy: true
+	},
+	"obj_1": {
+		variable: {
+			a: 1,
+			b: 2
+		},
+		changeSprite: "dsfkjdskfhd",
+		hide: true,
+		destroy: true
+	}
+
+});
+
+
+
+//已经申请个的帮派的列表
+current_scene.vars_.alreadyApplyList
+grou_factionListItem
+obj_factionEnterWord
+qyengine.guardId('grou_factionListItem' + repeatTime).objects['obj_factionEnterWord'].changeSprite("obj_factionEnterWord_A1");
+
+
+function isAlreadyApply(value) {
+	for (var j = 0; j < current_scene.vars_.alreadyApplyList.length; i++) {
+		if (Number(current_scene.vars_.alreadyApplyList[i]) == Number(value)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+if (isAlreadyApply(game.vars_.backFactionList[repeatTime][0])) {
+	qyengine.guardId('grou_factionListItem' + repeatTime).objects['obj_factionEnterWord'].changeSprite("obj_factionEnterWord_A1");
+}
+
+game.configs.factionJoinResult['' + Number(data[0])].dec
+
+
+	"obj_factionSelectEnterButton_" + repeatTime
+
+
+
+qyengine.guardId('obj_PVEicon_计时_' + i).vars_.markVip = game.vars_.rewardOutPkPlayer[i].vip;
+qyengine.guardId("obj_pkFightButton_OutFight_" + i).vars_.markVip = game.vars_.rewardOutPkPlayer[i].vip;
+
+
+current_scene.vars_.outPlayerMarkVip //记录野外pk玩家的vip等级
+
+txt_grou_pkNearbyPlayerInfoData_0
+
+var markInfo = [];
+markInfo[0] = game.vars_.respPvpFightingEnemys[3] == "" ? "无家族" : ("" + game.vars_.respPvpFightingEnemys[3]);
+markInfo[1] = "VIP " + current_scene.vars_.outPlayerMarkVip;
+markInfo[2] = "lv." + game.vars_.respPvpFightingEnemys[3];
+for (var j = 0; j < 3; j++) {
+	qyengine.guardId("txt_grou_pkNearbyPlayerInfoData_" + j).setText(markInfo[j]);
+}
+
+
+
+//发送消息
+qyengine.guardId("grou_pkNearbyPlayerInfo").dispatchMessage({
+	"type": 'message',
+	"message": 'addEnemyObj',
+	"argument0": local.pk_heroObjShow_clothes
+});
+current_game.scripts[""]
+
+game.vars_.userInfo.packageInfo.packEquip.length
+
+
+var markValue = (game.vars_.userInfo.packageInfo.packEquip.length / game.vars_.expansion);
+markValue = Number(markValue.toFixed(2));
+if (markValue >= 0.6) {
+	current_game.scripts["al_scr_" + "createBtnEffect"] && current_game.scripts["al_scr_" + "createBtnEffect"].call(this, undefined, this, "grou_fight", "obj_PVEicon_熔炉");
+} else {
+	current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this, "grou_fight", "obj_PVEicon_熔炉");
+}
+
+var markText = [];
+markText[1] = "服务器还没有准备好,请稍后登陆.";
+markText[8] = "操作过于繁忙,请稍后登陆.";
+markText[13] = "服务器正在关闭,请退出游戏.";
+markText[20] = "服务器正在启动请稍后再试.";
+switch (Number(data[0])) {
+	case 1:
+		current_game.scripts["al_scr_" + "createSystemTipUI"] && current_game.scripts["al_scr_" + "createSystemTipUI"].call(this, undefined, this, Number(data[0]));
+		break;
+	case 8:
+		current_game.scripts["al_scr_" + "createSystemTipUI"] && current_game.scripts["al_scr_" + "createSystemTipUI"].call(this, undefined, this, Number(data[0]));
+		break;
+	case 13:
+		current_game.scripts["al_scr_" + "createSystemTipUI"] && current_game.scripts["al_scr_" + "createSystemTipUI"].call(this, undefined, this, Number(data[0]));
+		break;
+	case 20:
+		current_game.scripts["al_scr_" + "createSystemTipUI"] && current_game.scripts["al_scr_" + "createSystemTipUI"].call(this, undefined, this, Number(data[0]));
+		break;
+}
+
+
+
+local.markTxt_baoKuNotice = "【系统】";
+local.markTxt_baoKuNotice = game.vars_.userInfo.serverName + "." + data[repeatTime][1] + "在家族宝库中获得" + game.configs.item[data[repeatTime][0]].name;
+game.configs.baction_baokunotice[repeatTime + 1] = {};
+game.configs.baction_baokunotice[repeatTime + 1].notice = local.markTxt_baoKuNotice;
+
+
+
+if (data[repeatTime].length == 0) {
+	continue;
+}
+
+
+//炼狱入场券   祈福石   高等淬炼宝石
+
+
+game.vars_.offLineRewardMuch: 2084, 22096, 31760, 3, 2, 7, 26
+
+
+Number(game.configs.box[current_scene['nowSaleButton'].vars_.Id].cost.split(':')[1]) //打开单个宝箱需要消耗钥匙的数量
+
+
+current_scene['nowSaleButton'].vars_.num //宝箱总的数量
+
+current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum //现在拥有的钥匙的数量
+
+txt_openBoxHaveGoodNum
+
+
+
+var markNeedKeyMax = Number(game.configs.box[current_scene['nowSaleButton'].vars_.Id].cost.split(':')[1]) * current_scene['nowSaleButton'].vars_.num;
+var openOneBoxConsumeKey = Number(game.configs.box[current_scene['nowSaleButton'].vars_.Id].cost.split(':')[1]);
+local.markConsumeBoxMax = 0;
+if (markNeedKeyMax > current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum) {
+	local.markConsumeBoxMax = openOneBoxConsumeKey * Math.floor(current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum / openOneBoxConsumeKey);
+	qyengine.guardId("txt_openBoxCostGoodNum").setText(local.markConsumeBoxMax);
+	qyengine.guardId("txt_packagePopUpBoxSelectNum").setText(Math.floor(current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum / openOneBoxConsumeKey));
+	current_scene["nowSaleNum"] = Math.floor(current_scene['nowSaleButton'].vars_.openBoxHaveGoodNum / openOneBoxConsumeKey);
+} else {
+	qyengine.guardId("txt_openBoxCostGoodNum").setText(Number(game.configs.box[current_scene['nowSaleButton'].vars_.Id].cost.split(':')[1]) * Number(current_scene['nowSaleNum']));
+}
+
+
+
+var markValue = (game.vars_.userInfo.packageInfo.packEquip.length / game.vars_.expansion);
+markValue = Number(markValue.toFixed(2));
+if (markValue >= 0.6) {
+	console.log("需要添加熔炼效果~~~~" + markValue);
+	//current_game.scripts["al_scr_" + "createBtnEffect"] && current_game.scripts["al_scr_" + "createBtnEffect"].call(this, undefined, this, "grou_fight", "obj_PVEicon_熔炉");
+} else {
+	console.log("需要减少熔炼效果~~~~" + markValue);
+	//current_game.scripts["al_scr_" + "removeBtnEffect"] && current_game.scripts["al_scr_" + "removeBtnEffect"].call(this, undefined, this, "grou_fight", "obj_PVEicon_熔炉");
+}
+
+
+
+//js的计时器
+qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime = setInterval(function() {
+	game.vars_.txt_pkSecretTimeNum.nowTime--;
+	calTime(game.vars_.txt_pkSecretTimeNum.nowTime, game.vars_.txt_pkSecretTimeNum.location);
+}, 1000);
+
+function calTime(nowTime, location) {
+	if (nowTime > 60) {
+
+		var minusTime = Math.floor(nowTime / 60);
+		var secondTime = Math.floor(nowTime - minusTime * 60);
+		if (secondTime < 10) {
+			qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + "0" + secondTime);
+		} else {
+			qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + minusTime + ":" + secondTime);
+		}
+
+
+	} else {
+		if (nowTime < 10) {
+			qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + '0' + nowTime);
+		} else {
+			qyengine.guardId("txt_pkSecret_" + location).setText("寻找对手中        " + "0:" + nowTime);
+		}
+
+	}
+	qyengine.guardId("txt_pkSecret_" + location).show();
+	game.vars_.txt_pkSecretTimeNum = {
+		"nowTime": Math.floor(nowTime),
+		"location": location
+	};
+}
+
+function stopCalTime() {
+	clearInterval(qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime); //停止计时器
+}
+
+
+
+if (qyengine.guardId("txt_pkSecret_" + i) && qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime) {
+	clearInterval(qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime);
+}
+
+
+cancelCalTime();
+
+function cancelCalTime() {
+	for (var i = 0; i < 3; i++) {
+		if (qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime) {
+			clearInterval(qyengine.guardId("txt_pkSecret_" + i).vars_.markCalTime);
+		}
+	}
+}
+
+
+
+//19:45来自serverName服的name击败了玄武守卫name,我服国库玄武门被击破!      失败
+
+//19:45来自serverName服的name攻击了我服国库玄武门,被改门守卫name击败,灰溜溜得逃走了。   胜利 
+
+
+//name击破了serverName的白虎守卫s5.name,为我服贡献了1跨服积分;
+
+
+
+var fusionRewardShowContent = ["获得:   银子 X", "获得:   强化石 X", "获得:   金子X", "获得:   "];
+local.rewardText = '';
+for (var i = 0; i < fusionRewardShowContent.length; i++) {
+	if (i == 3) {
+		if (game.vars_.fusionGoods[3].length == 0) {
+			break;
+		} else {
+			local.rewardTextEquip = local.rewardTextEquip = '';
+			for (var j = 0; j < game.vars_.fusionGoods[3].length; j++) {
+				local.rewardTextEquip = local.rewardTextEquip + game.configs.equipment[game.vars_.fusionGoods[3][j]].name + '\n';
+			}
+			local.rewardText = local.rewardText + fusionRewardShowContent[i] + local.rewardTextEquip;
+
+		}
+	} else {
+		if (Number(game.vars_.fusionGoods[i]) == 0) {
+			continue;
+		}
+		local.rewardText = local.rewardText + fusionRewardShowContent[i] + game.vars_.fusionGoods[i] + '\n';
+	}
+}
+qyengine.instance_create(0, 0, "txt_packFusionRewardStone", {
+	"type": "txt_packFusionRewardStone",
+	"id": 'txt_packFusionRewardStone_reward',
+	"zIndex": 20,
+	"scene": 'main_scene',
+	"layer": 'layer_headerfeet'
+});
+qyengine.guardId('txt_packFusionRewardStone_reward').setText(local.rewardText);
+
+
+
+obj_packageSmallFrame_A0 obj_packageSmallFrame_A4 current_scene.vars_.markFusionData.push(game.vars_.userInfo.packageInfo.packEquip[i]);
+
+obj_bossReplaceIcon grou_pkFailAndSuccess obj_90010
+qyengine.guardId("grou_pkFailAndSuccess").objects['obj_bossReplaceIcon'].changeSprite("obj_90010_default");
+
+
+var color0 = "<font color='#0ec3f0'>";
+var color1 = "<font  color='#d670d1'>";
+var color2 = "<font  color='#f2082b'>";
+var color3 = "<font  color='#f2bc09'>";
+"</font>"
+
+
+
+var fusionRewardShowContent = ["获得:   银子 X", "获得:   强化石 X", "获得:   金子X", "获得:   "];
+var markColor = ["<font color='#f9f9f9'>", "<font color='#85aeac'>", "<font color='#8ba4c0'>", "<font color='#ba9cad'>",
+	"<font color='#d8bfa9'>"
+];
+local.rewardText = '';
+for (var i = 0; i < fusionRewardShowContent.length; i++) {
+	if (i == 3) {
+		if (game.vars_.fusionGoods[3].length == 0) {
+			break;
+		} else {
+			local.rewardTextEquip = local.rewardTextEquip = '';
+			for (var j = 0; j < game.vars_.fusionGoods[3].length; j++) {
+				local.rewardTextEquip = local.rewardTextEquip + markColor[Number(game.vars_.fusionGoods[3][j][1])] + game.configs.equipment[game.vars_.fusionGoods[3][j][0]].name + "</font>" + '\n';
+			}
+			local.rewardText = local.rewardText + fusionRewardShowContent[i] + local.rewardTextEquip;
+
+		}
+	} else {
+		if (Number(game.vars_.fusionGoods[i]) == 0) {
+			continue;
+		}
+		local.rewardText = local.rewardText + fusionRewardShowContent[i] + game.vars_.fusionGoods[i] + '\n';
+	}
+}
+console.log("local.rewardText", local.rewardText);
+qyengine.instance_create(0, 0, "txt_packFusionRewardStone", {
+	"type": "txt_packFusionRewardStone",
+	"id": 'txt_packFusionRewardStone_reward',
+	"zIndex": 20,
+	"scene": 'main_scene',
+	"layer": 'layer_headerfeet'
+});
+qyengine.guardId('txt_packFusionRewardStone_reward').setText(local.rewardText);
+
+
+
+game.vars_.offLineRewardMuch: 115, 0, 0, 0, 0, 0, 0
+
+
+if (Number(game.vars_.offLineRewardMuch[6]) === 0) {
+	txt_offLineTimeDec.hide();
+} else {
+	txt_offLineTimeDec.setText("因背包已满,自动出售" + game.vars_.offLineRewardMuch[6] + "件装备");
+}
+
+
+
+var marktime0 = 0;
+var marktime1 = 0;
+var marktime2 = 0;
+if (game.vars_.offLineRewardNew[0][0] > 3600) {
+	marktime0 = Math.floor(game.vars_.offLineRewardNew[0][0] / 3600);
+	marktime1 = Math.floor((game.vars_.offLineRewardNew[0][0] - marktime0 * 3600) / 60);
+	marktime2 = (game.vars_.offLineRewardNew[0][0] - marktime0 * 3600 - marktime1 * 60) % 60;
+} else if (game.vars_.offLineRewardNew[0][0] > 60) {
+	marktime0 = '0';
+	marktime1 = Math.floor(game.vars_.offLineRewardNew[0][0] / 60);
+	marktime2 = game.vars_.offLineRewardNew[0][0] % 60;
+} else if (game.vars_.offLineRewardNew[0][0] <= 60) {
+	marktime0 = '0';
+	marktime1 = '0';
+	marktime2 = game.vars_.offLineRewardNew[0][0];
+}
+grou_offLineReward.objects['txt_offLineTime'].setText(marktime0 + '时' + marktime1 + '分' + marktime2 + '秒');
+grou_offLineReward.objects['txt_offLineExp'].setText('经验:' + game.vars_.offLineRewardMuch[1]);
+grou_offLineReward.objects['txt_offLineGold'].setText('银子:' + game.vars_.offLineRewardMuch[2]);
+grou_offLineReward.objects['txt_offLineCopperKey'].setText('青铜钥匙:' + game.vars_.offLineRewardMuch[3]);
+grou_offLineReward.objects['txt_offLineSilverKey'].setText('白银钥匙:' + game.vars_.offLineRewardMuch[4]);
+if (game.vars_.offLineRewardMuch[5] == 0) {
+	grou_offLineReward.objects['txt_offLineGoldBox'].setText('10级白银箱:0个');
+} else {
+	grou_offLineReward.objects['txt_offLineGoldBox'].setText(game.configs.box[97001].name + ':1个');
+}
+if (Number(game.vars_.offLineRewardMuch[6]) === 0) {
+	txt_offLineTimeDec.hide();
+} else {
+	txt_offLineTimeDec.setText("因背包已满,自动出售" + game.vars_.offLineRewardMuch[6] + "件装备");
+}
+
+
+
+obj_道具框_5
+for (var markIndex = 0; markIndex < (game.vars_.fusionData.lengh > 9 ? 9 : game.vars_.fusionData.lengh); markIndex++) {
+	qyengine.instance_create(qyengine.guardId("obj_道具框_" + markIndex).x + grou_fusion.x, qyengine.guardId("obj_道具框_" + markIndex).y + grou_fusion.y, "obj_fusionEffect", {
+		"type": "obj_fusionEffect",
+		"id": 'obj_fusionEffect_' + markIndex,
+		"zIndex": 10,
+		"scene": 'main_scene',
+		"layer": 'layer_headerfeet'
+	});
+}
+
+
+qyengine.guardId("obj_道具框_" + markIndex).x
+current_scene.vars_.emaillGoodsInfoQuality
+
+
+
+gengsGuide
+
+if (Number(data) === 0) {
+	current_scene.vars_.openGrouUI = false;
+	current_game.scripts["al_scr_" + "guide_sendinformation"] && current_game.scripts["al_scr_" + "guide_sendinformation"].call(this, undefined, this);
+} else if (Number(data) === 1) {
+	current_scene.vars_.openGrouUI = true;
+}
+
+
+
+for (var i = 0; i < game.vars_.heroRecord.length; i++) {
+	local.markRecord = eval(game.vars_.heroRecord[i]);
+	var color0 = "<font color='#0ec3f0'>";
+	var color1 = "<font  color='#d670d1'>";
+	var color2 = "<font  color='#f2082b'>";
+	var color3 = "<font  color='#f2bc09'>";
+	var text = "";
+	var markXuanWu0 = ["青龙门", "白虎门", "玄武门", "朱雀门"];
+	var markXuanWu1 = ["青龙守卫", "白虎守卫", "玄武守卫", "朱雀守卫"];
+	//if (!Number(local.markRecord[0])) {
+	//text = formatSeconds(local.markRecord[6]) + color0 + local.markRecord[5] + '.' + local.markRecord[4] + "</font>" + "";
+	//} else {
+	if (Number(local.markRecord[0])) {
+		text = formatSeconds(local.markRecord[6]) + color0 + local.markRecord[4] + "</font>" + "击破了" + color1 + local.markRecord[5] + "</font>" + "服的" + markXuanWu1[Number(local.markRecord[1])] + color2 + local.markRecord[5] + "." + local.markRecord[2] + "</font>" + ".";
+	}
+	//}
+	game.configs.config_heroRecord[i + 1] = {
+		id: i + 1,
+		allData: text
+	};
+}
+qyengine.guardId("scro_defend").refreshRelations();
+
+function formatSeconds(value) {
+	var markValue = Math.floor(value * 1000);
+	var myDate = new Date(markValue);
+	if (Number(myDate.getHours()) < 10) {
+		if (Number(myDate.getMinutes()) < 10) {
+			var result = "0" + myDate.getHours() + ":0" + myDate.getMinutes();
+		} else {
+			var result = "0" + myDate.getHours() + ":" + myDate.getMinutes();
+		}
+	} else {
+		if (Number(myDate.getMinutes()) < 10) {
+			var result = "" + myDate.getHours() + ":0" + myDate.getMinutes();
+		} else {
+			var result = "" + myDate.getHours() + ":" + myDate.getMinutes();
+		}
+	}
+	return result;
+}
+
+
+
+game.vars_.offLineRewardNew
+
+txt_offLineTime
+97101 97001 90005 90004
+
+
+
+var marktime0 = 0;
+var marktime1 = 0;
+var marktime2 = 0;
+if (game.vars_.offLineRewardNew[0][0] > 3600) {
+	marktime0 = Math.floor(game.vars_.offLineRewardNew[0][0] / 3600);
+	marktime1 = Math.floor((game.vars_.offLineRewardNew[0][0] - marktime0 * 3600) / 60);
+	marktime2 = (game.vars_.offLineRewardNew[0][0] - marktime0 * 3600 - marktime1 * 60) % 60;
+} else if (game.vars_.offLineRewardNew[0][0] > 60) {
+	marktime0 = '0';
+	marktime1 = Math.floor(game.vars_.offLineRewardNew[0][0] / 60);
+	marktime2 = game.vars_.offLineRewardNew[0][0] % 60;
+} else if (game.vars_.offLineRewardNew[0][0] <= 60) {
+	marktime0 = '0';
+	marktime1 = '0';
+	marktime2 = game.vars_.offLineRewardNew[0][0];
+}
+grou_offLineReward.objects['txt_offLineTime'].setText(marktime0 + '时' + marktime1 + '分' + marktime2 + '秒');
+grou_offLineReward.objects['txt_offLineExp'].setText('经验:' + game.vars_.offLineRewardNew[0][1]);
+grou_offLineReward.objects['txt_offLineGold'].setText('银子:' + game.vars_.offLineRewardNew[0][2]);
+txt_offLineCopperKey.hide();
+txt_offLineSilverKey.hide()
+local.offLineTxt = "";
+if (game.vars_.offLineRewardNew[1].length != 0) {
+	for (var i = 0; i < game.vars_.offLineRewardNew[1].length; i++) {
+		if (game.configs.item[game.vars_.offLineRewardNew[1][i][0]]) {
+			local.offLineTxt = local.offLineTxt + game.configs.item[game.vars_.offLineRewardNew[1][i][0]].name + ":" + game.vars_.offLineRewardNew[1][i][1] + "\n";
+			continue;
+		}
+		if (game.configs.box[game.vars_.offLineRewardNew[1][i][0]]) {
+			local.offLineTxt = local.offLineTxt + game.configs.box[game.vars_.offLineRewardNew[1][i][0]].name + ":" + game.vars_.offLineRewardNew[1][i][1] + "\n";
+			continue;
+		}
+	}
+}
+qyengine.guardId("grou_offLineReward").objects["txt_offLineGoldBox"].setText(local.offLineTxt);
+if (Number(game.vars_.offLineRewardMuch[6]) === 0) {
+	txt_offLineTimeDec.hide();
+} else {
+	txt_offLineTimeDec.setText("因背包已满,自动出售" + game.vars_.offLineRewardNew[0][3] + "件装备");
+}
+
+
+txt_offLineCopperKey.hide();
+txt_offLineSilverKey.hide()
+local.offLineTxt = "";
+if (game.vars_.offLineRewardNew[1].length != 0) {
+	for (var i = 0; i < game.vars_.offLineRewardNew[1].length; i++) {
+		if (game.configs.item[game.vars_.offLineRewardNew[1][i][0]]) {
+			local.offLineTxt = local.offLineTxt + game.configs.item[game.vars_.offLineRewardNew[1][i][0]].name + ":" + game.vars_.offLineRewardNew[1][i][1] + "\n";
+			continue;
+		}
+		if (game.configs.box[game.vars_.offLineRewardNew[1][i][0]]) {
+			local.offLineTxt = local.offLineTxt + game.configs.box[game.vars_.offLineRewardNew[1][i][0]].name + ":" + game.vars_.offLineRewardNew[1][i][1] + "\n";
+			continue;
+		}
+	}
+}
+qyengine.guardId("grou_offLineReward").objects["txt_offLineGoldBox"].setText(local.offLineTxt);
+
+
+
+for (var i = 0; i < qyengine.getInstancesByType("grou_fusion").length; i++) {
+	qyengine.getInstancesByType("grou_fusion")[i].destroy();	
+}	
+
+
+
+97621   资源小宝箱
+
+
+
+
+
+
+
+
+
+
+
+
+
+var fusionRewardShowContent = ["获得:   银子 X", "获得:   强化石 X", "获得:   金子X", "获得:   "];
+var markColor= ["<font color='#ffffff'>","<font color='#73ffc9'>","<font color='#77b1ff'>","<font color='#ffa3fe'>",
+"<font color='#fff8af'>"];
+local.rewardText = '';
+for (var i = 0; i < fusionRewardShowContent.length; i++) {
+	if (i == 3) {
+		if (game.vars_.fusionGoods[3].length == 0) {
+			break;
+		} else {
+			local.rewardTextEquip = local.rewardTextEquip = '';
+			for (var j = 0; j < game.vars_.fusionGoods[3].length; j++) {
+				local.rewardTextEquip = local.rewardTextEquip + markColor[Number(game.vars_.fusionGoods[3][j][1])]+game.configs.equipment[game.vars_.fusionGoods[3][j][0]].name+"</font>" + '\n'+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+			}
+			local.rewardText = local.rewardText + fusionRewardShowContent[i] + local.rewardTextEquip;
+
+		}
+	} else {
+		if(Number(game.vars_.fusionGoods[i])==0){
+			continue;
+		}
+		local.rewardText = local.rewardText + fusionRewardShowContent[i] + game.vars_.fusionGoods[i] + '\n';
+	}
+}
+console.log("local.rewardText-----------",local.rewardText);
+qyengine.instance_create(0, 0, "txt_packFusionRewardStone", {
+	"type": "txt_packFusionRewardStone",
+	"id": 'txt_packFusionRewardStone_reward',
+	"zIndex": 20,
+	"scene": 'main_scene',
+	"layer": 'layer_headerfeet'
+});
+qyengine.guardId('txt_packFusionRewardStone_reward').setText(local.rewardText);

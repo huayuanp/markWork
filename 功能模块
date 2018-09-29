@@ -1,0 +1,150 @@
+复仇模块
+
+数据填充写在滚轴容器的创建事件上，对应的跳转传值也在对应的item的按钮上
+
+
+
+
+
+
+打造模块
+
+一些grou_dazao下面的变量初始化在组合UI创建事件里
+
+动作序列 ：
+
+hideXXXPanel~showXXXPanel：隐藏,显示相应界面的独立元素。
+
+create_dazao_scene ：创建打造界面
+
+onRespResult16 18 19：强化回调 铭刻回调 宝石回调
+
+open_dazaoXXXX:打开打造（或者里面的某个）界面（界面跳转用）
+
+selectedEquipXXXX:点击八个部位的时候调用的相应的代码(根据功能不同而走不同的动作序列)
+
+update_dazao_redPoint_data:判断是否需要亮红点并记录数据(调用这个动作序列他会自己调用update_dazao_red_point)
+
+update_dazao_red_point：根据上一个动作序列记录的数据亮红点
+
+打造里面的大部分点击事件是直接写在对象上的 有部分对象在组合UI里是隐藏的需要点开再去看,有的点击事件是几张叠在一起的图片里比较靠下的一张里写的比如8个装备位 玩家角色头像 强化按钮（强化文字图片太大整个按钮遮住了）
+
+
+
+
+竞技场模块
+
+reopenXXXX ：挑战失败界面界面跳转的部分功能的动作序列。新手引导里面的跳转走的也是这个动作序列
+
+
+
+
+排行榜模块
+
+updateRankingData:所有的切换排行榜调用的数据都是走这里 然后去分别调用对应的updateRankingXXX显示对应的排行榜内容
+
+
+
+
+
+祈福模块
+
+没什么好说的 都比较简单 不过祈福我一直怀疑有一些细节或者bug还没有处理好,以前跟测试提过需要好好测一下 也不知道最后有没有完整的测试，毕竟本身需要50+的装备才能测。
+
+打造模块   //毋晗      
+复仇模块   //耿树群
+竞技场模块  //耿树群  
+排行榜模块  //徐光源 
+祈福模块    // 徐光源 
+登陆到主场景 //汪鹏
+充值         //汪鹏
+
+
+(qqDB605CB75E9BE// yulongzaitianH5_登录到主场景
+qqDB605CB75E9BE// ylzt_pray
+qqDB605CB75E9BE// ylzt_foes
+qqDB605CB75E9BE// ylzt_dazao
+qqDB605CB75E9BE// ylzt_ranking
+qqDB605CB75E9BE// ylzt_arena)领模块了,每人两个,领打造的只需要一个;    
+
+"qqDB605CB75E9BE//yulongzaitianH5_登录到主场景_2期",
+        "qqDB605CB75E9BE// yulongzaitianH5_充值_2期",
+        "qqDB605CB75E9BE//   ylzt_dazao_2期",
+        "qqDB605CB75E9BE//   ylzt_arena_2期",
+        "qqDB605CB75E9BE//   ylzt_ranking_2期",
+        "qqDB605CB75E9BE//   ylzt_foes_2期",
+        "qqDB605CB75E9BE//    ylzt_pray_2期",
+
+
+
+        geng957       ylzt1_foes_2期    ylzt1_arena_2期
+        pwangrd_qiyun    yulongzaitianH5_登录到主场景_2期    yulongzaitianH5_充值_2期
+        gyxurd_qiyun         ylzt_ranking_2期      ylzt_pray_2期
+        hwurd_qiyun       ylzt_dazao_2期
+
+//最新的三期项目~~~~~
+//老耿
+yulong3_fuli
+yulong3_role
+yulong3_arena
+yulong3_foes
+yulong3_xinshouyindao
+yulong3_yimin
+yulong3_battlelog
+yulong3_breakout
+yulong3_getway
+yulong3_bangpaipaihangbang
+yulong3_bangpaibiaoju
+yulong3_liaotian            yulongzaitianH5_geng
+//徐光源
+yulongzaitianH5_battle_3期
+ylzt_pray_3期
+ylzt_ranking_3期
+yulongzaitian_task_3期
+yulongzaitian_observedRoleInfo_3期
+yulongzaitian_smriti_3期
+yulongzaitian_stealPig_3期
+
+
+
+["pwangrd_qiyun/yulongzaitianH5_登录到主场景_三期",
+"pwangrd_qiyun/yulongzaitianH5_充值_三期",
+"pwangrd_qiyun/yulongzaitianH5_国库_三期",
+"pwangrd_qiyun/yulongzaitianH5_商城_三期",
+"gyxurd_qiyun/yulongzaitianH5_battle_3期",
+"pwangrd_qiyun/yulongzaitianH5_三期",
+"geng957/yulong3_liaotian",
+"geng957/yulong3_battlelog",
+"pwangrd_qiyun/yulongzaitian_wuhan_三期",
+"geng957/yulong3_role",
+"gyxurd_qiyun/yulongzaitian_task_3期",
+"gyxurd_qiyun/ylzt_pray_三期",
+"pwangrd_qiyun/yulongzaitianH5_MailBox_三期",
+"geng957/yulong3_foes",
+"hwurd_qiyun/ylzt_dazao_3期",
+"geng957/yulong3_fuli",
+"gyxurd_qiyun/yulongzaitian_smriti_3期",
+"gyxurd_qiyun/ylzt_ranking_3期",
+"pwangrd_qiyun/yulongzaitianH5_factionbaoku_三期",
+"pwangrd_qiyun/yulongzaitianH5_factionFlag_三期",
+"geng957/yulong3_bangpaibiaoju",
+"pwangrd_qiyun/yulongzaitian_member_三期",
+"hapanrd_qiyun/yulongzaitian_overtheworld",
+"geng957/yulong3_bangpaipaihangbang",
+"geng957/yulong3_arena",
+"gyxurd_qiyun/yulongzaitian_observedRoleInfo_3期",
+"geng957/yulong3_getway",
+"pwangrd_qiyun/yulongzaitian_goldConvertSilver_三期",
+"geng957/yulong3_breakout",
+"geng957/yulong3_xinshouyindao",
+"pwangrd_qiyun/yulongzaitianH5_activity_三期",
+"pwangrd_qiyun/yulongzaitianH5_factionFight_三期"]
+//3期
+//服务端能及时支持的情况下,前端的预估时间
+新的功能:
+摸金大战:   徐光源   7天 
+批量熔炼:   汪鹏  1天 
+失败界面优化: 汪鹏 耿树群 徐光源  0.5天
+一键强化:   耿树群 1天
+主城主界面(包含任务): 汪鹏  7天
+

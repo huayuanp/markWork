@@ -1,5 +1,13 @@
+//申请的qq号码
+wangpeng
+2231329633 / qiyun321
+3339140440 / qiyun321
 //玩吧调试
-https://1106097089.urlshare.cn/home?_proxy=1&_wv=2147628839&_offline=1&debugkey=zTMM0DEN0TMOA3xMslJUKXdRs3hSxFYfO0FXTF9R3V8UujAL0F8MfjJMCVlW%3D0QX
+https://wiki.qzone.qq.com/debug/index.html
+开发者账号: 1106097089
+724243216
+jsc199121..@
+
 //王号的账号
 //hwangrd 18655950910 wh
 //nginx
@@ -9,6 +17,8 @@ https://open.mobile.qq.com/api/h5plus/debug.html
 operationRemind //通用的提示接口
 actionlist_createLoadingCircle //通用的创建加载圈圈
 actionlist_destroyLoadingCircle //通用的销毁圈圈
+
+current_scene.background.setComEffect.apply(current_scene.background, a)
 KBEngine.app.player().baseCall('reqTestAddEquipment', 22116, 5, 0, 0);
 //拿滚轴里面的对象
 scro_equip.getCell(0, 0).children[0].qyobj
@@ -29,6 +39,8 @@ current_scene.dispatchMessage({
     "argument0": 1234
 });
 KBEngine.app.player().baseCall('reqTestAddGoods', 90011, 30);
+//找出gamemei编辑器下面的所有的组合ui
+$.utils.getAllJson().groupUIs
 //执行动作序列
 current_game.scripts["al_scr_" + "createCommonFlutterTxt"] && current_game.scripts["al_scr_" + "createCommonFlutterTxt"].call(this, undefined, this);
 
@@ -67,6 +79,7 @@ qyengine.stop_all_sounds();
 game.scripts["al_scr_" + "actionlist_getway"](null, null, 90014);
 //添加对象到滚轴容器
 qyengine.guardId('scro_equip')._batchCreate = true
+
 qyengine.guardId('scro_equip').addOneInstance('grou_packageEquipItem', Math.floor(repeatTime / 4) + 1 - 1, (repeatTime % 4) + 1 - 1, {
     "way": 'objectName',
     "type": 'grou_packageEquipItem',
@@ -108,6 +121,7 @@ current_scene.screenAdaptation
 mainGrouUIReturnBtnLogic
 
 //将实例移出滚轴容器
+qyengine.guardId('scro_change_clothBtn').removeById("obj_1")
 能不能判断实例在滚轴容器中的行和列
 
 
@@ -125,6 +139,10 @@ qyengine.instance_create(1414, 1226, "txt_rankListNumber", {
     "layer": 'layer_headerfeet'
 });
 
+//在gamemei项目中删除对象~
+$.utils.getAllJson().objects.obj_pet_02_3
+$.utils.getAllJson().sprites.obj_pet_02_3_default
+$.utils.getAllJson().structure
 //删除默认的作用区域
 delete $.utils.getAllJson().sprites["obj_Btn_Exchange_Use_default"].collisionData
 //查看user-agent，useragent
@@ -189,8 +207,35 @@ qyengine.forEachTag(function () { this.dispatchMessage({ "type": 'message', "mes
 scro_1.refreshRelations();
 //获取对象绑定的文本的实例
 obj_pkFailAndSuccessSure.currentSprite.txtLabel_
+//图片加载完成的监听
 
+iconObj.currentSprite.texture.on("update", function () {
+    var iconObj_temp = this._sprite.qyobj;
+    var numobj = 58 / iconObj_temp.width;
+    var needScale = numobj.toFixed(2);
+    iconObj_temp.setScale(needScale, needScale);
+    console.log(this._sprite.qyobj.id);
+});
 
+//重写显示和隐藏事件
+grou_Main.setHidden = function (_visible) {
+    if (!_visible) {
+        grou_Main.dispatchMessage({
+            "type": "message",
+            "message": "MainSetVisible"
+        });
+    } else {
+        grou_Main.dispatchMessage({
+            "type": "message",
+            "message": "MainSetVisible2"
+        });
+    }
+    setHidden.call(this, _visible);
+}
+//图片是否加载完
+grou_playerDress.objects.dress.currentSprite.texture.baseTexture.hasLoaded
+//合图 合图路径
+obj_FontImage_friends.currentSprite.texture.baseTexture.source.image
 //设置文本的颜色
 qyengine.guardId('txt_pkRoleNick').setFontColor('#f7ad0d');
 //预加载在preloader 中
@@ -220,7 +265,18 @@ if (!this.addOneInstance("grou_factionFightRankListItem", repeatTime, 0, {
     this.vars_.itemSize = Math.max(repeatTime - 1, 0);
     break;
 }
+//停止moveTo事件
+obj.stopAnimation();
 
+//阻止点一下离开的事件的穿透~
+arguments[0] && arguments[0].gesture && arguments[0].gesture.stopDetect();
+//滚轴的坐标 标记 滚轴子元素的位置
+scro_goodPlay.currentSprite.moving_.position.x = -660
+
+//阻止滚轴容器滑动  
+result.unlisten(['mousedown', 'touchstart']);
+//放开滚轴容器滑动            
+result.addEventListener(['mousedown', 'touchstart'], result.downHandler_.bind(result));
 //添加实例到滚轴容器
 qyengine.guardId("scro_1").appendChild("xxxxxxxxxx", 120, 30, 1 - 1, 2 - 1, false, true);
 //滚轴容器跳转到指定的行和列
@@ -241,10 +297,16 @@ location.reload();
 //跟随移动
 heroObj.vars_.objNameTxt.setFollowObj(heroObj.id, -heroObj.vars_.objNameTxt.currentSprite.realWidth * 0.5,
     -heroObj.height * 0.2 * heroObj.scaleY - heroObj.vars_.objNameTxt.currentSprite.realHeight, "both");
+
+//设置鼠标的完全跟随
+qyengine.guardId("xxxx").followMouse && qyengine.guardId("xxxx").followMouse(true, 100, 0, 'both', 'instant', 0);
 //消除延迟
 qyengine.unscheduleTask(current_scene.vars_.markLoading0);
 //删除滚轴容器的单元格
 qyengine.guardId('scro_1').removeOneCell && qyengine.guardId('scro_1').removeOneCell(2 - 1, 3 - 1);
+
+//重新设置sprite的大小
+obj_clothDetailBg_black.currentSprite.setSize(obj_clothDetailBg_black.currentSprite.getSize())
 //js原声的计时器
 myVar = setInterval("javascript function", milliseconds);
 clearInterval(myVar);
@@ -289,6 +351,10 @@ var imageH = " height = '40'";
 var imageUrl = "<img src='/zhj7618/Avg_Main/assets/image/Fate/Fate_interaction/Fate_interaction_prop_icon/" + icon + ".png'" + imageW + imageH + "></img>";
 //获取对象的图片的路径
 gmx_[gmx_.obj_Main_interface_qirimubiao_baihuabi.defaultOpt.sprite].defaultOpt.fill
+gmx_[gmx_.obj_UI_Active_interface_Can_receive.defaultOpt.sprite].defaultOpt
+//动态设置文本的对齐方式
+txt_fruitRewardTitle.currentSprite.style.align="left";
+txt_fruitRewardTitle.currentSprite.updateText();
 //主动断点
 debugger;
 //紫色的颜色值
@@ -309,6 +375,36 @@ KBEngine.app.player().baseCall('reqMainCityPlayers');
 current_game.scripts['al_scr_' + "main_sceneBattleInfoInit"].call(this, undefined, this);
 //修正引擎的bug,组合UI改名
 $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
+
+
+//滤镜相关  addFilter添加不清除上一个滤镜效果
+obj.addFilter("toReverse") / obj.addComEffect("gray")
+//设置滤镜 会清除上一个滤镜的效果
+obj.setFilter("toReverse") / obj.setComEffect("gray")
+//清除滤镜
+obj.clearFilter();
+//设置颜色 
+obj_Image_dress_25023.currentSprite.tint = ""
+
+//重写显示和隐藏~
+//grou_Main  create
+var setHidden = qyengine.guardId("obj_Btn_Share_button_02").setHidden;
+
+grou_Main.setHidden = function (_visible) {
+    if (!_visible) {
+        grou_Main.dispatchMessage({
+            "type": "message",
+            "message": "MainSetVisible"
+        });
+    }
+    else {
+        grou_Main.dispatchMessage({
+            "type": "message",
+            "message": "MainSetVisible2"
+        });
+    }
+    setHidden.call(this, _visible);
+}
 //内部链接: http://debug.games.gamemei.com/ylzt_ios/v73/gamecode.min.js
 /**git remote add origin git@github.com:huayuanp/markWork.git
  * $ git push origin master
@@ -326,6 +422,8 @@ $.utils.getAllJson().structure.groupUIs.push("grou_noticeNew_cell_scro")
 7, 输入框的一系列问题
 8, 组合UI右边的图层视图下正确拖动极其困难。
 9, 项目管理中可以建立文件夹, 方便对不同项目进行管理;
+10, 滚轴的对象能方便的拿出来和组合ui中的相互复用;
+11, 组合UI支持标签
 /*
 yulongzaitianH5_pre_lxjt   新增加的
 //chrome调试地址
@@ -364,91 +462,4 @@ vs的快捷键
 
 
 
-//绘制 角色的形象
-// wh 加
-var roleId = data[0][0];
-var rolesSurtId;
-var rolesWeapenId;
-var rolesWingLv;
-var roleInfo = {};
 
-console.log("data:" + data);
-
-roleInfo["id"] = roleId;
-roleInfo["equips"] = [];
-roleInfo["wing"] = {};
-
-if (data[0][1] != 0) {
-    rolesSurtId = data[0][1];
-    var equipData = {};
-    equipData["id"] = rolesSurtId;
-    equipData["type"] = 3;
-    roleInfo["equips"].push(equipData);
-}
-if (data[0][2] != 0) {
-    rolesWeapenId = data[0][2];
-    var equipData = {};
-    equipData["id"] = rolesWeapenId;
-    equipData["type"] = 1;
-    roleInfo["equips"].push(equipData);
-}
-
-rolesWingLv = data[0][3];
-roleInfo.wing["level"] = rolesWingLv;
-
-
-
-
-if (qyengine.getInstancesByType("grou_ranking").length > 0) {
-
-    console.log("roleInfo=" + roleInfo);
-    //（参数1，角色数据，参数二，需要换装的对象）
-    grou_ranking.vars_.heroObjShow = game.scripts["al_scr_" + "changeShowObjModel"](null, null, roleInfo, grou_ranking.vars_.heroObjShow);
-    grou_ranking.vars_.heroObjShow.setScale(0.4, 0.4);
-    grou_ranking.vars_.heroObjShow.show();
-    //grou_ranking.vars_.heroObjShow.x = 308;
-    //grou_ranking.vars_.heroObjShow.y = 170;
-    grou_show_hero_panel.appendChild(grou_ranking.vars_.heroObjShow.id, -42, -204);
-    grou_ranking.vars_.nowHeroInfo = roleInfo;
-}
-else {
-
-    grou_foes_details.vars_.heroObjShow = qyengine.instance_create(0, 0, 'heroObjShow', {
-        "type": 'heroObjShow',
-        "id": 'heroObjShow',
-        "zIndex": 0,
-    });
-    grou_foes_details.vars_.heroObjShow.setScale(0.8, 0.8);
-    foesSprite.appendChild("heroObjShow", foesSprite.width / 2, foesSprite.height / 2);
-
-
-    //（参数1，角色数据，参数二，需要换装的对象）
-    game.scripts["al_scr_" + "changeShowObjModel"](null, null, roleInfo, grou_foes_details.vars_.heroObjShow);
-
-}
-
-
-
-
-
-
-
-
-
-
-grou_ranking.vars_.heroObjShow = game.scripts["al_scr_" + "changeShowObjModel"](null, null, grou_ranking.vars_.nowHeroInfo);
-grou_ranking.vars_.heroObjShow.setScale(0.4, 0.4);
-grou_ranking.vars_.heroObjShow.show();
-//grou_ranking.vars_.heroObjShow.x = 308;
-//grou_ranking.vars_.heroObjShow.y = 170;
-grou_show_hero_panel.appendChild(grou_ranking.vars_.heroObjShow.id, -42, -204);
-
-
-
-
-
-
-heroObjShow.hide();
-if (grou_ranking.vars_.heroObjShow && !grou_ranking.vars_.heroObjShow.isVisible) {
-    grou_ranking.vars_.heroObjShow.isVisible = true;
-}

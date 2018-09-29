@@ -1,0 +1,19 @@
+王号的部分分配:
+未完成部分:
+1,充值的功能;(界面已经有)                          董宇  
+已经基本完成的部分:(后期如果出现bug,维护分配)
+1,进入到游戏场景之前的部分，包括登陆、选角色、选服务器等                董宇
+2,商城的整个模块                                   汪鹏
+3,主城中的邮箱功能                                 彭杰
+4,主城中的国库模块                                 汪鹏
+5,家族中的家族旗帜                                 汪鹏
+6,主界面的按钮的维护(主要是接入其它成员的模块)和信息的显示     董宇
+7,主界面上按钮上的红点的维护                       董宇
+(暂时就上面这些)
+
+
+1,董宇把不用的字体文件去掉
+
+
+
+'obj_battleBg_1','obj_factionManagementBG', 'obj_通用_大框_外框_02pw', 'obj_createAndEnterBotton', 'obj_factionMengBan', 'obj_popUI_bg', 'obj_factionListBottonMengBan', 'obj_通用_大框_外框_02pw', 'obj_通用_大框_外框_02', 'obj_熔炼_背景图片', 'obj_packageBigFrame', 'obj_选择装备_外框', 'obj_选择装备_内框', 'obj_包裹_弹出框_外框', 'obj_pkBgMengBan', 'obj_pkBgUiOut', 'obj_pkBgUi', 'obj_pkFailAndSuccess', 'obj_pkBgMengBan', 'obj_pkAttackNearbyBg', 'obj_pkAttackNearbyFrameOut', 'obj_通用_大框_内框_02', 'obj_通用_界面背景_factionFlag_wh', 'obj_通用_大框_外框_01_factionbaoku', 'obj_通用_大框_内框_02_factionbaoku_wh', 'obj_通用_界面背景_factionbaoku', 'obj_通用_大框_外框_03_guardExcitation', 'obj_国库_框框背景图','obj_副本弹出框遮罩', 'obj_通用_大框_内框_01', 'obj_通用_大框_外框_01', 'obj_通用_大框_内框_03', 'obj_通用_大框_外框_03', 'obj_hangUpBg_1', 'obj_obj_hangUpBg_2', 'obj_任务界面背景', 'obj_任务界面内框', 'obj_任务界面外框', 'obj_任务界面内框_1', 'obj_任务界面外框_1', 'obj_传承装备展示背景图', 'obj_传承装备界面内框', 'obj_传承装备界面外框', 'obj_传承装备展示背景图_1', 'obj_装备传承_背景', 'obj_传承装备展示背景框',"obj_battlelog_duibi", "obj_chat_bg", "obj_fuliBG", "obj_biaoju_bg", "obj_bangpai_paihangbang_BG3", "obj_getway_BG1", "obj_breakout_BG1", "obj_breakout_BG2", "obj_battlelogtitle", "obj_liaotian_bg", "obj_七天登录_底框", "obj_家族镖局_背景图片", "obj_bangpai_paihangbang_BG2", "obj_getway_BG2", "obj_breakout_BG2", "obj_新手引导_欢迎",'role_bg_inside', 'role_common_BG', 'creatRole_BG', 'roleSkill_bgIn', 'starShow_BGIn', 'wing_bgIn', 'obj_王城擂台赛_背景图', 'obj_BOSS战_框3', 'obj_新手引导_新玩法框', 'obj_膜拜霸主_底框', 'obj_虚伪以待_背景图', 'obj_虚伪以待_背景图_1', 'obj_王者披风_底图', 'vacantPositionPanelBGImage', 'obj_通用_大框_内框_02_goodDetail_wh', 'obj_通用_大框_内框_03_shopUI', 'obj_通用_界面背景_shop_wh', 'obj_通用_小内框_shop_wh', 'obj_mailBoxMask_wh', 'obj_通用_大框_内框_02', 'obj_通用_大框_内框_03_mailBox_wh', 'ChuckRoleInfoBG_show', 'equipmentBGIn_show', 'loognNum_bg_show', 'role_bg_inside_show', 'role_common_BG_show', 'roleSkill_bgIn_show', 'starShow_BGIn_show', 'wing_bgIn_show','arena_bg', 'obj_通用_内框_01', 'obj_竞技场商店_小框', 'ringKingPanelBg', 'ranking_item_btn', 'obj_通用_界面背景', 'obj_通用_内框_02', 'obj_通用_大框_内框_03', 'grou_foes_scene_zhezhao', 'obj_登录注册_背景', 'obj_battlelog_duibi', 'obj_chat_bg', 'obj_fuliBG', 'obj_biaoju_bg', 'obj_bangpai_paihangbang_BG3', 'obj_getway_BG1', 'obj_breakout_BG1',"obj_bloodEffect", "obj_magicEffect", "obj_自动挑战特效", "grou_offLineReward", "NoticeMainPanel", "Notice", "heroObj_10001", "heroObj_10002", "heroObj_10003", "heroObj_10004", "heroObj_10005", "heroObj_10006", "enemy_11001", "enemy_11002", "enemy_11003", "enemy_11004", "enemy_11005", "enemy_11006", "enemy_11007", "enemy_19001", "enemy_19002", "enemy_19003", "otherHeroObj_10001", "otherHeroObj_10002", "otherHeroObj_10003", "otherHeroObj_10004", "otherHeroObj_10005", "otherHeroObj_10006", "heroObjShow", "heroObjShowAll", "obj_guide_click", "obj_xinshouyindao_BG", "obj_新手引导_箭头", "obj_新手引导_进入", "obj_guide_newopen_info","role_frame_bg"

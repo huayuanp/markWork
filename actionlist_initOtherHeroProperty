@@ -1,0 +1,141 @@
+//by pwang
+//主角属性赋值  game.vars_.respPvpFightingEnemys[5].length
+for (var i = 0; i < 1; i++) {
+	var otherHeroObj = qyengine.instance_create(0, random(current_scene.height * 0.5), "otherHeroObj", {
+		"id": "otherHeroObj" + i,
+		"zIndex": 0,
+		"layer": "layer_fight"
+	});
+	var heroInfo = game.configs.role[10001];
+	console.log('game.vars_.respPvpFightingEnemys[5][i].attrs[0]----' + game.vars_.respPvpFightingEnemys[5][i].attrs[0]);
+	otherHeroObj.vars_.allHp = game.vars_.respPvpFightingEnemys[5][i].attrs[0];
+	otherHeroObj.vars_.atk = game.vars_.respPvpFightingEnemys[5][i].attrs[1];
+	otherHeroObj.vars_.pdef = game.vars_.respPvpFightingEnemys[5][i].attrs[2];
+	otherHeroObj.vars_.mdef = game.vars_.respPvpFightingEnemys[5][i].attrs[3];
+	otherHeroObj.vars_.hit = game.vars_.respPvpFightingEnemys[5][i].attrs[4];
+	otherHeroObj.vars_.dodg = game.vars_.respPvpFightingEnemys[5][i].attrs[5];
+	otherHeroObj.vars_.cri = game.vars_.respPvpFightingEnemys[5][i].attrs[6];
+	otherHeroObj.vars_.rcri = game.vars_.respPvpFightingEnemys[5][i].attrs[7];
+	otherHeroObj.vars_.adddamage = game.vars_.respPvpFightingEnemys[5][i].attrs[8];
+	otherHeroObj.vars_.dedamage = game.vars_.respPvpFightingEnemys[5][i].attrs[9];
+	otherHeroObj.vars_.para = game.vars_.respPvpFightingEnemys[5][i].attrs[10];
+	otherHeroObj.vars_.rpara = game.vars_.respPvpFightingEnemys[5][i].attrs[11];
+	otherHeroObj.vars_.nick = game.vars_.respPvpFightingEnemys[2];
+	otherHeroObj.vars_.guildName = game.vars_.respPvpFightingEnemys[3];
+	otherHeroObj.vars_.level = game.vars_.respPvpFightingEnemys[4];
+	otherHeroObj.vars_.currentHp = otherHeroObj.vars_.allHp;
+	otherHeroObj.vars_.currentDirection = "front";
+	otherHeroObj.vars_.currentState = "stand";
+	otherHeroObj.vars_.skillList = game.vars_.respPvpFightingEnemys[5][0].skills;
+	otherHeroObj.vars_.skillIDList = getConfig("role", heroInfo.id, "skill").split("|");
+	otherHeroObj.vars_.currentSkillID = Number(otherHeroObj.vars_.skillIDList[0]);
+	otherHeroObj.vars_.currentSkillIndex = 0;
+	otherHeroObj.vars_.currentSkillNum = 0;
+	otherHeroObj.vars_.oldSkillID = null;
+	otherHeroObj.vars_.currentObjId = heroInfo.id;
+	otherHeroObj.vars_.objUUID = game.vars_.respPvpFightingEnemys[1];
+	otherHeroObj.vars_.objType = getConfig("role", heroInfo.id, "type");
+	otherHeroObj.vars_.skillCdList = [];
+	//otherHeroObj.vars_.skillCd = 0;
+	for (var i = 0; i < otherHeroObj.vars_.skillIDList.length; i++) {
+		otherHeroObj.vars_.skillCdList.push(getConfig("skill", otherHeroObj.vars_.skillIDList[i], "cd"));
+	}
+	//if (heroInfo.type == 1) {
+
+	//otherHeroObj.vars_.skillId = 50001;
+
+	//} else if (heroInfo.type == 2) {
+
+	//otherHeroObj.vars_.skillId = 51001;
+
+	//} else {
+
+	//	otherHeroObj.vars_.skillId = 52001;
+	//}
+
+	console.log("otherHeroObj.vars_.skillId-------" + otherHeroObj.vars_.skillId);
+	otherHeroObj.vars_.bloodBg = qyengine.instance_create(0, 0, "obj_通用_人物血条_空槽_1", {
+		"id": otherHeroObj.id + "bloodBg",
+		"zIndex": 0,
+		"layer": "layer_fight"
+	});
+
+	otherHeroObj.vars_.bloodBg.setFollowObj(otherHeroObj.id, -otherHeroObj.vars_.bloodBg.width * 0.7, -otherHeroObj.height * 0.2 - otherHeroObj.vars_.bloodBg.height, 'both');
+
+	otherHeroObj.vars_.bloodImg = qyengine.instance_create(0, 0, "obj_通用_人物血条_红_1", {
+		"id": otherHeroObj.id + "bloodImg",
+		"zIndex": 0,
+		"layer": "layer_fight"
+	});
+
+	otherHeroObj.vars_.bloodImg.setFollowObj(otherHeroObj.id, -otherHeroObj.vars_.bloodImg.width * 0.7, -otherHeroObj.height * 0.2 - otherHeroObj.vars_.bloodImg.height, 'both');
+
+	otherHeroObj.vars_.pkingHp = qyengine.instance_create(0, 0, 'txt_pkingHp', {
+		"type": 'txt_pkingHp',
+		"id": 'txt_pkingHp',
+		"layer": 'layer_fight',
+		"scene": 'main_scene'
+	});
+
+	qyengine.guardId("txt_pkingHp").setText(otherHeroObj.vars_.hp);
+
+	otherHeroObj.vars_.pkingHp.setFollowObj(otherHeroObj.id, otherHeroObj.x - otherHeroObj.vars_.pkingHp.width * 0.5, otherHeroObj.y - otherHeroObj.height * 0.5 - otherHeroObj.vars_.pkingHp.height, "both");
+	if (i == 0) {
+		otherHeroObj.vars_.name = game.vars_.respPvpFightingEnemys[2];
+		otherHeroObj.vars_.currentAtkObj = null;
+		otherHeroObj.vars_.objNameTxt = qyengine.instance_create(0, 0, "objNameTxt", {
+			"id": game.vars_.respPvpFightingEnemys[1] + "objNameTxt",
+			"zIndex": 0,
+			"layer": "layer_fight"
+		});
+		objNameTxt.text = "Lv: " + otherHeroObj.vars_.level + "  " + otherHeroObj.vars_.nick;
+		otherHeroObj.vars_.objNameTxt.setFollowObj(otherHeroObj.id, otherHeroObj.x - otherHeroObj.vars_.objNameTxt.width * 0.5, otherHeroObj.vars_.pkingHp.y - otherHeroObj.vars_.pkingHp.height, "both");
+	}
+	otherHeroObj.dispatchMessage({
+		"type": 'message',
+		"message": "startMove",
+		"argument0": 0
+	});
+	current_scene.vars_.enemyArr.push(otherHeroObj);
+	current_game.scripts["al_scr_" + "changeObjModel"] && current_game.scripts["al_scr_" + "changeObjModel"].call(this, undefined, this, 3);
+}
+
+
+
+//传给徐广原的还装的动作序列
+game.vars_.respPvpFightingEnemys[5][0].profession
+game.vars_.respPvpFightingEnemys[5][0].attrs
+game.vars_.respPvpFightingEnemys[5][0].equips
+game.vars_.respPvpFightingEnemys[5][0].rings
+game.vars_.respPvpFightingEnemys[5][0].skills
+var markProperty = ['equips', 'id', 'wing'];
+
+
+
+if (game.vars_.respPvpFightingEnemys[0] === 0) {
+	var rangeEquipId = [];
+	switch (game.vars_.respPvpFightingEnemys[5][0].profession) {
+		case 10001:
+		
+			break;
+		case 10002:
+
+			break;
+	}
+} else {
+	var markOtherInfo = {
+		'id': game.vars_.respPvpFightingEnemys[5][0].profession,
+		'equips': [{
+			'id': game.vars_.respPvpFightingEnemys[5][0].equips[0],
+			'type': game.configs.equipment[game.vars_.respPvpFightingEnemys[5][0].equips[0]].type
+		}, {
+			'id': game.vars_.respPvpFightingEnemys[5][0].equips[1],
+			'type': game.configs.equipment[game.vars_.respPvpFightingEnemys[5][0].equips[1]].type
+		}],
+		'wing': {
+			'level': game.vars_.respPvpFightingEnemys[5][0].equips[3]
+		}
+	};
+}
+
+game.configs.equipment[game.vars_.respPvpFightingEnemys[5][0].equips[2]].type

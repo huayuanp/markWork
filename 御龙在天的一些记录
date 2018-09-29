@@ -1,0 +1,937 @@
+//外网使用内网来开发的地址   https://hq.gamemei.com:4443/qiyun/gamemei_sln_new/gamemei/
+//svn的新的地址:svn://hq.gamemei.com:9988/svn   有SVN的更新下地址
+//公司电信的wifi地址: QyYdWifi  qiyunsoftwar2yd     qywifi  Qiyun123456
+//原传奇的网址:http://gc.hgame.com/home/game/appid/100052/gameid/100220/pt/16/sw/1
+//js  字符串切割的方法:markObject.split("xx");
+//发送请求:current_game.scripts['scr_kbe_sendMessage']("reqBackpackEquipInfo", [], false);
+//qyremote.pushProj("pwangrd_qiyun/yulongzaitianH5_613", "qiyun/yulongzaitianH5_613")      
+//qyremote.deployProj("qiyun/yulongzaitianH5_613")
+装备的配置表: equipment 参数: name level
+	//以上是游戏中的表的数据的一些记录
+nowSaleButton
+switch (self.id) {
+	case "obj_packTabFrame0":
+		qyengine.guardId("obj_packTabFrame1").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame2").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame3").changeSprite("obj_packTabFrame_A0");
+		var arrayObjectStringShow = new Array("scro_equip", "obj_expandButton", "obj_packSaleButton", "obj_fusionButton");
+		HideObject(true, arrayObjectStringShow);
+		var arrayObjectStringHide = new Array("scro_goods", "scro_god", "scro_box");
+		HideObject(false, arrayObjectStringHide);
+		break;
+	case "obj_packTabFrame1":
+		qyengine.guardId("obj_packTabFrame0").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame2").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame3").changeSprite("obj_packTabFrame_A0");
+		var arrayObjectStringShow = new Array("scro_goods");
+		HideObject(true, arrayObjectStringShow);
+		var arrayObjectStringHide = new Array("scro_god", "scro_box", "scro_equip", "obj_expandButton", "obj_packSaleButton", "obj_fusionButton");
+		HideObject(false, arrayObjectStringHide);
+		break;
+	case "obj_packTabFrame2":
+		qyengine.guardId("obj_packTabFrame0").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame1").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame3").changeSprite("obj_packTabFrame_A0");
+		var arrayObjectStringShow = new Array("scro_god");
+		HideObject(true, arrayObjectStringShow);
+		var arrayObjectStringHide = new Array("scro_goods", "scro_box", "scro_equip", "obj_expandButton", "obj_packSaleButton", "obj_fusionButton");
+		HideObject(false, arrayObjectStringHide);
+		break;
+	case "obj_packTabFrame3":
+		qyengine.guardId("obj_packTabFrame0").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame1").changeSprite("obj_packTabFrame_A0");
+		qyengine.guardId("obj_packTabFrame2").changeSprite("obj_packTabFrame_A0");
+		var arrayObjectStringShow = new Array("scro_box");
+		HideObject(true, arrayObjectStringShow);
+		var arrayObjectStringHide = new Array("scro_goods", "scro_god", "scro_equip", "obj_expandButton", "obj_packSaleButton", "obj_fusionButton");
+		HideObject(false, arrayObjectStringHide);
+		break;
+		this.changeSprite("obj_packTabFrame_A1");
+}
+//隐藏和显示对象
+function HideObject(isShow, arrayTemp) {
+	for (var i = 0; i < arrayTemp.lengh; i++) {
+		if (isShow) {
+			qyengine.guardId(arrayTemp[i]).show();
+		} else {
+			qyengine.guardId(arrayTemp[i]).hide();
+		}
+	}
+}
+
+//一些组合ui的位置的一些记录。
+grou_packageEquipItem(140, 112);
+grou_fusionSelectItem(138, 355);
+grou_packageGoodItem(-8, 57)
+grou_packCapacityFrame(252, 261)
+txt_packCapacityNum / txt_packCapacityWord[{
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}, {
+	"uuid": u1214141414,
+	"id": 20001,
+	"hp": 0,
+	"atk": 0,
+	"pdef": 0,
+	"mdef": 0,
+	"hit": 0,
+	"dodge": 0,
+	"cri": 0,
+	"rcri": 0,
+	"lock": 0,
+	"quality": 0,
+	"gearscore",
+	0
+}];
+//创建一些数据结构来接收数据。
+game.vars_.packEquip = [];
+game.vars_.packGood = [];
+game.vars_.packGod = [];
+game.vars_.packBox = [];
+game.vars_.expansion = 120;
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	getConfig('equipment', game.vars_.packEquip[i].id, 'name'); //获取装备的name
+	getConfig('equipment', game.vars_.packEquip[i].id, 'level'); //等级
+	getConfig('equipment', game.vars_.packEquip[i].id, ''); //颜色
+}
+//包裹的四个数据结构的改版。
+game.vars_.userInfo.packageInfo.packEquip
+game.vars_.userInfo.packageInfo.packGood
+game.vars_.userInfo.packageInfo.packGod
+game.vars_.userInfo.packageInfo.packBox
+	//设置售卖弹窗的真实属性
+qyengine.guardId("txt_PorpUpWord").setText(current_scene['nowSaleButton'].vars_.Name);
+qyengine.guardId("txt_equipNeedLevel").setText("需求等级:LV" + current_scene['nowSaleButton'].vars_.level);
+qyengine.guardId("txt_equipScore").setText("评分:" + current_scene['nowSaleButton'].vars_.allProperty.gearscore); //装备的评分
+var temp_part = ["武器", "项链", "衣服", "头盔", "手环", "戒指"];
+qyengine.guardId("txt_equipPart").setText("部位:" + temp_part[current_scene['nowSaleButton'].vars_.type - 1]);
+qyengine.guardId("txt_equipAttack").setText("攻击:" + 300 + "+" + current_scene['nowSaleButton'].vars_.allProperty.atk);
+if (current_scene['nowSaleButton'].vars_.lock == 1) {
+
+}
+//创建装备item的时候初始化item
+qyengine.guardId("grou_packageEquipItem_" + repeatTime).objects["txt_packageEquipLevel"].setText("lv." + getConfig('equipment', game.vars_.packEquip[repeatTime].id, 'level'));
+if (game.vars_.packEquip[repeatTime].lock) {
+	qyengine.guardId("grou_packageEquipItem_" + repeatTime).objects["obj_equipLock"].show();
+} else {
+	qyengine.guardId("grou_packageEquipItem_" + repeatTime).objects["obj_equipLock"].hide();
+}
+qyengine.guardId("grou_packageEquipItem_" + repeatTime).objects["obj_packEquipProperty"].changeSprite("obj_packEquipProperty_A" + getConfig("equipment", game.vars_.packEquip[repeatTime].id, "profession"));
+//创建物品item的时候初始化
+qyengine.guardId("grou_packageGoodItem_" + repeatTime).objects['txt_packageGoodName'].setText(getConfig("item", game.vars_.packGood[repeatTime].id, "name"));
+qyengine.guardId("grou_packageGoodItem_" + repeatTime).objects['txt_packageGoodLevel'].setText(game.vars_.packGood[repeatTime].num);
+
+//设置物品售卖弹窗的真实属性
+qyengine.guardId('txt_PorpUpWord').setText(getConfig("item", current_scene['nowSaleButton'].vars_.Id, "name"));
+qyengine.guardId("txt_saleGoodDec").setText(getConfig("item", current_scene['nowSaleButton'].vars_.Id, "dec"));
+qyengine.guardId("txt_saleRewardCoin").setText("获得:" + getConfig("item", current_scene['nowSaleButton'].vars_.Id, "sale"));
+
+
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].uuid == markId) {
+		game.vars_.packEquip.splice(i, 1);
+		break;
+	}
+}
+
+for (var j = 0; j < game.vars_.packGood.length; j++) {
+	if (game.vars_.packGood[j].id == markId) {
+		game.vars_.packEquip[j].num -= current_scene['nowSaleNum'];
+		if (game.vars_.packEquip[j].num == 0) {
+			game.vars_.packEquip.splice(j, 1);
+		}
+		break;
+	}
+}
+for (var k = 0; k < game.vars_.packBox.length; k++) {
+	if (game.vars_.packBox[k].id == markId) {
+		game.vars_.packBox[k].num -= current_scene['nowSaleNum'];
+		if (game.vars_.packBox[k].num == 0) {
+			game.vars_.packBox.splice(k, 1);
+		}
+		break;
+	}
+}
+
+
+//宝箱在创建的时候更改的一些东西
+qyengine.guardId('txt_equipNeedLevel').hide();
+qyengine.guardId('txt_packagePopUpBoxWord').setText('请选择数量');
+qyengine.guardId('txt_saleRewardCoin').hide();
+
+qyengine.guardId('txt_PorpUpWord').setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "name"));
+qyengine.guardId("txt_saleGoodDec").setText(getConfig("box", current_scene['nowSaleButton'].vars_.Id, "dec"));
+
+
+qyengine.guardId("txt_packNowCapacityNum").setText(game.vars_.packEquip.length + "/");
+
+
+//熔炼的一开始初始化逻辑
+for (var i = 0; i < 9; i++) {
+	qyengine.guardId("obj_道具框_小框_" + i).hide();
+	qyengine.guardId("obj_道具框_" + i).changeSprite("obj_道具框_A1");
+
+}
+//by函数接受一个成员名字符串做为参数
+//并返回一个可以用来对包含该成员的对象数组进行排序的比较函数
+var by = function(name) {
+	return function(o, p) {
+		var a, b;
+		if (typeof o === "object" && typeof p === "object" && o && p) {
+			a = o[name];
+			b = p[name];
+			if (a === b) {
+				return 0;
+			}
+			if (typeof a === typeof b) {
+				return a < b ? -1 : 1;
+			}
+			return typeof a < typeof b ? -1 : 1;
+		} else {
+			throw ("error");
+		}
+	}
+}
+
+game.vars_.packEquip.sort(by("quality")); //熔炼的排序
+var markIndex = 0;
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].lock === 1) {
+		continue;
+	}
+	qyengine.guardId("obj_道具框_小框_" + markIndex).show();
+	qyengine.guardId("obj_道具框_" + markIndex).changeSprite("obj_道具框_A0");
+	qyengine.guardId("txt_packFusionLevel_" + markIndex).setText("LV " + getConfig("equipment", game.vars_.packEquip[markIndex].id, "level"));
+	qyengine.guardId("obj_道具框_" + markIndex).setVar('uuid', game.vars_.packEquip[markIndex].uuid);
+	game.vars_.packEquip[markIndex].selectedfusion = true;
+	markIndex++;
+	if (markIndex >= 9) {
+		break;
+	}
+}
+for (var j = 8; j >= markIndex; j--) {
+	qyengine.guardId("txt_packFusionLevel_" + j).hide();
+}
+//点击删除单个熔炼的装备
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].uuid == self.vars_.uuid) {
+		if (game.vars_.packEquip[i].selectedfusion) {
+			delete game.vars_.packEquip[i].selectedfusion;
+		}
+	}
+}
+
+//提交熔炼
+game.vars_.fusionData = new Array();
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].selectedfusion != undefined && game.vars_.packEquip[i].selectedfusion) {
+		game.vars_.fusionData.push(game.vars_.packEquip[i].uuid);
+	}
+}
+
+
+
+//
+qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["txt_packFusionSelectItemName"].setText(getConfig("equipment", game.vars_.packEquip[repeatTime].id, "name"));
+qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["txt_packFusionSelectItemGearScore"].setText("评分:" + game.vars_.packEquip[repeatTime].gearscore);
+qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["txt_packFusionSelectItemMagic"].setText("法防:" + game.vars_.packEquip[repeatTime].mdef);
+qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["txt_packFusionSelectItemPhysics"].setText("物防:" + game.vars_.packEquip[repeatTime].pdef);
+qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["txt_packFusionItemLevel"].setText("lv." + getConfig("equipment", game.vars_.packEquip[repeatTime].id, "level"));
+if (game.vars_.packEquip[repeatTime].selectedfusion == undefined) {
+	qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["obj_注册登录_对勾"].hide();
+}
+
+
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].lock == 1) {
+		continue;
+	}
+	if (game.vars_.packEquip[i].uuid == self.vars_.uuid) {
+		if (current_scene["isAdd"]) {
+			game.vars_.packEquip[i].selectedfusion = true;
+		} else {
+			delete game.vars_.packEquip[i].selectedfusion;
+		}
+	}
+}
+
+
+
+qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["obj_注册登录_对勾框"]
+qyengine.guardId("grou_fusionSelectItem" + repeatTime).objects["obj_注册登录_对勾"].id
+
+qyengine.guardId("obj_道具框_2").isVisible
+qyengine.guardId("obj_packFusionSelectMarkTickFrame" + repeatTime).id
+
+//fusion界面点击选择item   确定后的处理
+var markIndex = 0;
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].lock === 1) {
+		continue;
+	}
+	if (game.vars_.packEquip[i].selectedfusion != undefined && game.vars_.packEquip[i].selectedfusion) {
+		qyengine.guardId("obj_道具框_小框_" + markIndex).show();
+		qyengine.guardId("obj_道具框_" + markIndex).changeSprite("obj_道具框_A0");
+		qyengine.guardId("txt_packFusionLevel_" + markIndex).setText("LV " + getConfig("equipment", game.vars_.packEquip[i].id, "level"));
+		qyengine.guardId("obj_道具框_" + markIndex).setVar('uuid', game.vars_.packEquip[i].uuid);
+		markIndex++;
+	}
+
+	if (markIndex >= 9) {
+		break;
+	}
+}
+
+//熔炼过后的一些数据的处理等
+for (var i = 0; i < 9; i++) {
+	qyengine.guardId("obj_道具框_小框_" + i).hide();
+	qyengine.guardId("obj_道具框_" + i).changeSprite("obj_道具框_A1")
+}
+var llll = false;
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].lock == 1) {
+		continue;
+	}
+	for (var j = 0; j < game.vars_.fusionData.length; j++) {
+		if (game.vars_.fusionData[j] == game.vars_.packEquip[i].uuid) {
+			llll = true;
+			game.vars_.packEquip.splice(i, 1);
+			if (i != 0) {
+				i--;
+			}
+
+		}
+	}
+}
+
+//熔炼完成过后重新绘制
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].selectedfusion != undefined) {
+		delete game.vars_.packEquip[i].selectedfusion;
+	}
+
+}
+
+
+//锁定后更改packEquip中的lock属性
+for (var i = 0; i < game.vars_.packEquip.length; i++) {
+	if (game.vars_.packEquip[i].uuid == current_scene['nowSaleButton'].vars_.uuid) {
+		game.vars_.packEquip[i].lock = 1;
+		break;
+	}
+}
+
+
+//数据结构的更改。
+game.vars_.userInfo.packageInfo.packEquip
+game.vars_.userInfo.packageInfo.packGood
+game.vars_.userInfo.packageInfo.packGod
+game.vars_.userInfo.packageInfo.packBox
+
+scro_box.isVisible
+OutFight_0
+qyengine.guardId("grou_pkBigBg").isVisible
+
+obj_packCapacityFrame
+game.vars_.userInfo.redNameNum
+current_scene["redNameNum"]
+txt_pkRankListNum
+
+
+qyengine.instance_create(Number(getConfig("UIConfig", "grou_pkBigBg", "position").split(",")[0]), Number(getConfig("UIConfig", "grou_pkBigBg", "position").split(",")[1]), "grou_pkBigBg", {
+	"type": "grou_pkBigBg",
+	"id": 'grou_pkBigBg',
+	"zIndex": Number(getConfig("UIConfig", "grou_pkBigBg", "zIndex")),
+	"scene": 'main_scene',
+	"layer": 'layer_headerfeet',
+	"actionIndex": 0
+});
+qyengine.guardId("obj_pkDetailAndOutButton_0").changeSprite("obj_pkDetailAndOutButton_A1");
+current_scene.vars_.curPopUI = "grou_pkBigBg";
+
+
+
+//一下是组合ui及其坐标的一些记录   grou_factionDailyActivity   (358,112)
+Number(getConfig("UIConfig", "grou_pkNearbyPlayerInfo", "position").split(",")[0])
+Number(getConfig("UIConfig", "grou_pkNearbyPlayerInfo", "zIndex"))
+current_scene['curPopUI']
+grou_ApplyListing(357, 634)
+grou_factionManageMent(357, 262)
+grou_factionApplyItem(95, 17)
+
+
+qyengine.guardId("grou_factionDailyActivity").objects['txt_factionName_DailyActivity'].text = game.vars_.backFaction.name //帮派的名称
+qyengine.guardId("grou_factionDailyActivity").objects['txt_factionId_DailyActivity'].text = game.vars_.backFaction.guildid; //帮派的id
+qyengine.guardId("grou_factionDailyActivity").objects['txt_factionRankList_DailyActivity'].text = game.vars_.backFaction.rank //排名
+qyengine.guardId("grou_factionDailyActivity").objects['txt_factionLevel_DailyActivity'].text = game.vars_.backFaction.level //等级
+qyengine.guardId("grou_factionDailyActivity").objects['txt_factionMaster_DailyActivity'].text = game.vars_.backFaction //帮主的名称.
+qyengine.guardId("grou_factionDailyActivity").objects['txt_factionMaster_DailyActivity'].text //人数
+qyengine.guardId("grou_factionDailyActivity").objects['txt_myJob'].text //我的职位
+qyengine.guardId("grou_factionDailyActivity").objects['txt_myCalculus'].text //我的积分
+qyengine.guardId("grou_factionDailyActivity").objects['txt_myCreating'].text //平民
+qyengine.guardId("grou_factionDailyActivity").objects['txt_myMember'].text //0级会员
+
+
+
+qyengine.guardId('grou_factionListItem' + repeatTime).objects['txt_factionLevel'].setText("Lv." + game.vars_.backFactionList[repeatTime][1]);
+qyengine.guardId('grou_factionListItem' + repeatTime).objects['txt_factionName'].setText(game.vars_.backFactionList[repeatTime][2]);
+qyengine.guardId('grou_factionListItem' + repeatTime).objects['txt_factionNum'].setText(game.vars_.backFactionList[repeatTime][3] + "/26");
+
+qyengine.guardId('grou_factionListItem' + repeatTime).objects['obj_factionSelectEnterButton'].id
+
+qyengine.guardId("grou_factionCreateAndEnterPop") == undefined
+
+qyengine.guardId("grou_factionCreateAndEnterPop").isVisible
+Number(qyengine.guardId("inpu_factionName").getValue())
+qyengine.guardId("grou_pkBigBg").objects['txt_redPointNum'].setText(game.vars_.userInfo.redPoint);
+//玩家角色的json
+game.vars_.userInfo = {
+	'uid': null,
+	'nick': null,
+	'level': 1,
+	'vip': null,
+	'gateways': null, //当前关卡
+	'exp': 0, //
+	'silver': 0, //元宝
+	'gold': 0, //金币
+	'fighting': 0, //战斗力
+	'killPk': 0, //击杀PK 善恶值
+	'gangId': null, //帮派ID
+	'roles': {
+		'role1': {},
+		'role2': {},
+		'role3': {}
+	}, //角色列表
+	'foes': [], //仇人列表
+	'shopEquipmentInfo': {}, //商城刷新的装备信息
+	'packageInfo': {
+		"packEquip": [],
+		"packGood": [],
+		"packGod": [],
+		"packBox": []
+	}, //包裹信息
+	"expansion": 0, //装备栏扩容
+	'taskInfo': null, //任务
+	'achievement': null, //成就
+	'sign_weeks_Info': null, //七日签到
+	'sign_month_Info': null, //每月签到
+	'off_line_earnings': null, //挂机离线收益数据
+	'autoHangupBttnState': null, //自动挂机按钮的状态
+	'curGatewaysKillMonsterNum': null, //当前关卡杀怪波数
+	'counterpartInfo': null, //副本信息（包含各个副本小关卡星级，剩余次数）
+	'gangInfo': null, //帮派信息
+	'mailInfo': null,
+	//信息
+	'arenaInfo': null, //竞技场
+	'RankingList': null, //排行榜（十大排行榜）
+	'chatInfo': null, //聊天（需要系统推送的一些信息）
+	'autobuyhorn': false, //自用购买喇叭
+	'novipchat': true, //过滤非VIP玩家聊天
+	'redPoint': 0 //玩家的红名点
+}
+if (!qyengine.guardId("txt_redPointNum").text) {
+	qyengine.guardId("txt_redPointNum").setText(0);
+} else {
+	qyengine.guardId("txt_redPointNum").setText(game.vars_.userInfo.redPoint);
+}
+qyengine.guardId("txt_redPointNum").setText(game.vars_.userInfo.redPoint);（
+408, 586）
+
+grou_pkNearbyPlayerInfo(356, 637)
+
+//野外pk的玩家列表的初始化。
+qyengine.guardId("txt_outPkVipNum_0").setText("VIP" + );
+qyengine.guardId("txt_pkOutName_OutFight_0").setText();
+for (var i = 0; i < game.vars_.rewardOutPkPlayer.length; i++) {
+	qyengine.guardId("txt_outPkVipNum_" + i).setText("VIP" + game.vars_.rewardOutPkPlayer[i].vip);
+	qyengine.guardId("txt_pkOutName_OutFight_0").setText(game.vars_.rewardOutPkPlayer[i].name);
+	qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('fightPlayerProperty', game.vars_.rewardOutPkPlayer[i]);
+	qyengine.guardId("obj_pkFightButton_OutFight_" + i).setVar('type', "挑战");
+}
+
+
+qyengine.guardId("grou_pkNearbyPlayerInfo").objects['txt_pkNearbyInfoRewardCoin'].setText(5000 + 50 * self.vars_.fightPlayerProperty.level);
+qyengine.guardId("grou_pkNearbyPlayerInfo").objects['txt_pkNearbyInfoRewardExp'].setText(5000 + 2 * self.vars_.fightPlayerProperty.level);
+
+qyengine.guardId("grou_pkNearbyPlayerInfo").objects['obj_pkAttackButton'].setVar('enemyProperty', self.vars_.fightPlayerProperty);
+self.vars_.enemyProperty.uid
+
+
+//敌人属性赋值-----by pwang
+self.vars_.hp = game.vars_.respPvpFightingEnemys[5][0].attrs[0];
+self.vars_.atk = game.vars_.respPvpFightingEnemys[5][0].attrs[1];
+self.vars_.pdef = game.vars_.respPvpFightingEnemys[5][0].attrs[2];
+self.vars_.mdef = game.vars_.respPvpFightingEnemys[5][0].attrs[3];
+self.vars_.hit = game.vars_.respPvpFightingEnemys[5][0].attrs[4];
+self.vars_.dodg = game.vars_.respPvpFightingEnemys[5][0].attrs[5];
+self.vars_.cri = game.vars_.respPvpFightingEnemys[5][0].attrs[6];
+self.vars_.rcri = game.vars_.respPvpFightingEnemys[5][0].attrs[7];
+self.vars_.adddamage = game.vars_.respPvpFightingEnemys[5][0].attrs[8];
+self.vars_.dedamage = game.vars_.respPvpFightingEnemys[5][0].attrs[9];
+self.vars_.para = game.vars_.respPvpFightingEnemys[5][0].attrs[10];
+self.vars_.rpara = game.vars_.respPvpFightingEnemys[5][0].attrs[11];
+self.vars_.nick = game.vars_.respPvpFightingEnemys[2];
+self.vars_.guildName = game.vars_.respPvpFightingEnemys[3];
+self.vars_.level = game.vars_.respPvpFightingEnemys[4];
+if (Number(game.vars_.respPvpFightingEnemys[0]) == 0) { //玩家
+	self.vars_.selfType = 0;
+} else {
+	self.vars_.selfType = 1;
+	var rowProperty = game.configs.robot[game.vars_.respPvpFightingEnemys[0]];
+	self.vars_.vip = number(rowProperty.vip);
+
+}
+self.vars_.bloodBg = qyengine.instance_create(0, 0, "bloodBg", {
+	"id": self.id + "bloodBg",
+	"zIndex": 0,
+	"layer": "layer_fight"
+});
+self.vars_.bloodBg.setFollowObj(self.id, -self.vars_.bloodBg.width * 0.5, -self.height * 0.5 - self.vars_.bloodBg.height, 'both');
+self.vars_.bloodImg = qyengine.instance_create(0, 0, "bloodImg", {
+	"id": self.id + "bloodImg",
+	"zIndex": 0,
+	"layer": "layer_fight"
+});
+self.vars_.bloodImg.setFollowObj(self.id, -self.vars_.bloodImg.width * 0.5, -self.height * 0.5 - self.vars_.bloodImg.height, 'both');
+self.text = "LV." + self.vars_.level + "  " + self.vars_.hp;
+
+
+//主角属性赋值
+var heroInfo = game.configs.role[current_scene.vars_.heroId];
+self.vars_.allHp = heroInfo.hp;
+self.vars_.atk = heroInfo.atk;
+self.vars_.pdef = heroInfo.pdef;
+self.vars_.mdef = heroInfo.mdef;
+self.vars_.rdr = heroInfo.rdr;
+self.vars_.dr = heroInfo.dr;
+self.vars_.cr = heroInfo.cr;
+self.vars_.rcr = heroInfo.rcr;
+self.vars_.adddamage = heroInfo.adddamage;
+self.vars_.dedamage = heroInfo.dedamage;
+self.vars_.para = heroInfo.para;
+self.vars_.rpara = heroInfo.rpara;
+self.vars_.currentAtkObj = null;
+self.vars_.skillCd = 0;
+self.vars_.currentHp = self.vars_.allHp;
+
+if (heroInfo.type == 1) {
+
+	self.vars_.skillId = 50001;
+
+} else if (heroInfo.type == 2) {
+
+	self.vars_.skillId = 51001;
+
+} else {
+
+	self.vars_.skillId = 52001;
+}
+
+self.vars_.bloodBg = qyengine.instance_create(0, 0, "bloodBg", {
+	"id": self.id + "bloodBg",
+	"zIndex": 0,
+	"layer": "layer_fight"
+});
+self.vars_.bloodBg.setFollowObj(self.id, -self.vars_.bloodBg.width * 0.5, -self.height * 0.5 - self.vars_.bloodBg.height, 'both');
+self.vars_.bloodImg = qyengine.instance_create(0, 0, "bloodImg", {
+	"id": self.id + "bloodImg",
+	"zIndex": 0,
+	"layer": "layer_fight"
+});
+self.vars_.bloodImg.setFollowObj(self.id, -self.vars_.bloodImg.width * 0.5, -self.height * 0.5 - self.vars_.bloodImg.height, 'both');
+
+
+
+//动态创建敌人
+current_scene.setVar("enemyArr", []);
+
+var enemyArr = getConfig("battle", current_scene.vars_.currentLevel, "enemy").split(":");
+
+var enemyInfo = game.configs.monster[enemyArr[0]];
+
+enemyInfo.pic = "enemyObj";
+
+for (var i = 0; i < Number(enemyArr[1]); i++) {
+
+	var enemyObj = qyengine.instance_create(random_range(-50, current_scene.width + 50), random_range(current_scene.height * 0.5 - 50, current_scene.height - 100), enemyInfo.pic, {
+		"id": "enemyObj_" + i,
+		"zIndex": 0,
+		"layer": "layer_fight"
+	});
+
+	enemyObj.setVar("enemyId", enemyInfo["id"]);
+
+	enemyObj.setVar("enemyName", enemyInfo["name"]);
+
+	for (var infoStr in enemyInfo) {
+
+		if (infoStr != "id" && infoStr != "name") {
+
+			enemyObj.setVar(infoStr, enemyInfo[infoStr]);
+
+			if (enemyObj[infoStr].toString().indexOf("|") > 0) {
+
+				var propertyInfo = enemyObj[infoStr].toString().split("|");
+
+				enemyObj[infoStr] = Math.floor(propertyInfo[0] * Math.pow(propertyInfo[1], enemyArr[2] - 1));
+			}
+		}
+	}
+
+	enemyObj.vars_.currentHp = enemyObj.vars_.hp;
+
+	var bloodBg = qyengine.instance_create(0, 0, "bloodBg", {
+		"id": enemyObj.id + "bloodBg",
+		"zIndex": 0,
+		"layer": "layer_fight"
+	});
+
+	enemyObj.setVar("bloodBg", bloodBg);
+
+	bloodBg.setFollowObj(enemyObj.id, -bloodBg.width * 0.5, -enemyObj.height * 0.5 - bloodBg.height, 'both');
+
+	var bloodImg = qyengine.instance_create(0, 0, "bloodImg", {
+		"id": enemyObj.id + "bloodImg",
+		"zIndex": 0,
+		"layer": "layer_fight"
+	});
+
+	bloodImg.setFollowObj(enemyObj.id, -bloodImg.width * 0.5, -enemyObj.height * 0.5 - bloodImg.height, 'both');
+
+	enemyObj.setVar("bloodImg", bloodImg);
+
+	var objNameTxt = qyengine.instance_create(0, 0, "objNameTxt", {
+		"id": enemyObj.id + "objNameTxt",
+		"zIndex": 0,
+		"layer": "layer_fight"
+	});
+
+	objNameTxt.text = "Lv: " + enemyArr[2] + "  " + enemyObj.vars_.enemyName;
+
+	enemyObj.setVar("objNameTxt", objNameTxt);
+
+	objNameTxt.setFollowObj(enemyObj.id, -objNameTxt.width * 0.5, -enemyObj.height * 0.5 - objNameTxt.height - 20, 'both');
+
+	current_scene.vars_.enemyArr.push(enemyObj);
+
+	enemyObj.setVar("skillCd", 0);
+
+	enemyObj.setVar("dropType", type);
+
+	enemyObj.setVar("dropInfo", game.vars_.enemyInfo[i]);
+
+}
+
+
+
+//寻找最近的敌人
+var oneDistance = 0;
+
+var twoDistance = 0;
+
+self.vars_.currentAtkObj = null;
+
+for (var i = 0; i < current_scene.vars_.enemyArr.length; i++) {
+
+	oneDistance = self.distanceTo(current_scene.vars_.enemyArr[i].id);
+
+	if (twoDistance == 0) {
+
+		twoDistance = oneDistance;
+
+		self.vars_.currentAtkObj = current_scene.vars_.enemyArr[i];
+
+	} else {
+
+		if (oneDistance <= twoDistance) {
+
+			twoDistance = oneDistance;
+
+			self.vars_.currentAtkObj = current_scene.vars_.enemyArr[i];
+		}
+	}
+}
+
+
+
+random_range(qyengine.guardId("obj_player" + "bloodBg").width / 2., current_scene.width - qyengine.guardId("obj_player" + "bloodBg").width / 2)
+
+
+//----------对战记录的代码
+var recordData = JSON.parse(data[0][repeatTime]);
+if (recordData[0] == 0) {
+	if (recordData[1] == 0) {
+		qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['obj_attackFailedWord'].changeSprite("obj_attackFailedWord_default");
+	} else {
+		qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['obj_attackFailedWord'].changeSprite("obj_attackSuccessWord_default");
+	}
+} else {
+	if (recordData[1] == 0) {
+		qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['obj_attackFailedWord'].changeSprite("obj_defendFailedWord_default");
+	} else {
+		qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['obj_attackFailedWord'].changeSprite("obj_defendSuccessWord_default");
+	}
+}
+qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['txt_pkRankListPlayerName_FightRecordItems'].setText(recordData[2]);
+var lastTime = new Date(Number(recordData[3]));
+var nowTime = new Date(time());
+if (lastTime.getDate() == nowTime.getDate()) {
+	if (lastTime.getHours() == nowTime.getHours()) { //分钟前
+		qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['txt_pkFightRecordItemsTime'].setText(Math.abs(nowTime.getMinutes() - lastTime.getMinutes()) + "分钟前");
+	} else { //小时前
+		qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['txt_pkFightRecordItemsTime'].setText(Math.abs(nowTime.getHours() - lastTime.getHours()) + "小时前");
+	}
+} else {
+	qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['txt_pkFightRecordItemsTime'].setText(Math.abs(nowTime.getDate() - lastTime.getDate()) + "天前");
+}
+//善恶值 银子  经验 
+qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['txt_pkGoodAndBadNum_FightRecordItem'].setText(recordData[4]);
+qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['txt_pkRankListSettleReward_FightRecordItem'].setText(recordData[5]);
+qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['txt_pkFightRecordItem_ExpNum'].setText();
+if (Numnber(recordData[6]) == 1) {
+	qyengine.guardId('grou_pkFightRecordItem' + repeatTime).objects['obj_pkRecordEnemy'].show();
+}
+
+
+//杀戮榜的数据的填充
+qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['txt_pkRankListPlayerName'].setText(data[0][repeatTime][4]);
+qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['txt_pkRankListPlayerLevel'].setText("Lv." + data[0][repeatTime][5]);
+qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['txt_pkGoodAndBadNum_RankList'].setText(data[0][repeatTime][6]);
+qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['obj_pkRankListChallenge'].setVar("uuid", data[0][repeatTime][1]);
+qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['obj_pkRankListChallenge'].setVar("markId", data[0][repeatTime][0]);
+if (repeatTime <= 2) {
+	qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['obj_pkRankListRankingIcon'].changeSprite('obj_pkRankListRankingIcon_A' + repeatTime);
+} else {
+	qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['obj_pkRankListRankingIcon'].changeSprite('obj_pkRankListRankingIcon_A3');
+	qyengine.guardId('grou_pkRankListItem_' + repeatTime).objects['obj_pkRankListRankingIcon'].text = (repeatTime + 1) + "";
+}
+
+
+//在分辨率改为320*640后新的分辨率下图片的替换。
+grou_pkFailAndSuccess   (245,341)      //pk胜利或者失败界面  无需要添加
+grou_pkFightRecord      (179,293)      //有需要修改
+
+grou_pkFightRecordItem  (-100,-127)   //有需要修改
+
+
+grou_pkNearbyPlayerInfo   (177,318)   //有需要修改
+grou_pkRankList     (-265,258)      //有需要修改     
+
+grou_pkRankListItem   (-17,-117)    //无需要添加
+
+grou_packCapacityFrame  (79,69)      //无需要添加
+
+
+grou_pkBigBg(196,332)   已经有需要修改
+
+game.configs.UIConfig.grou_packCapacityFrame
+
+
+
+//超超改资源后的组合ui的位置的替换
+grou_packageBig   (111,260)     //存在需要修改位置
+grou_BigEquipSale   (-194,183)	//不存在
+grou_fusion          (133,230)	//不存在
+
+grou_packageFusionSelcet  (73,195)  //不存在
+
+grou_packCapacityFrame  (130,151)   //存在需要修改位置
+
+
+qyengine.guardId("grou_packageEquipItem_"+repeatTime).objects['obj_packageSmallFrame'].id
+
+
+
+
+
+
+//改变装备item  的外框的颜色，以及装备的icon
+qyengine.guardId('grou_fusionSelectItem'+repeatTime).objects["obj_packageSmallFrame"].changeSprite("obj_packageSmallFrame_A"+game.vars_.userInfo.packageInfo.packEquip[repeatTime].quality);
+qyengine.guardId("grou_packageEquipItem_"+repeatTime).objects['obj_equipImage'].changeSprite("obj_"+game.configs.equipment[game.vars_.userInfo.packageInfo.packEquip[repeatTime].id].icon)
+qyengine.guardId('grou_fusionSelectItem'+repeatTime).objects["obj_道具框_小框"].id.changeSprite("obj_"+game.configs.equipment[game.vars_.userInfo.packageInfo.packEquip[repeatTime].id].icon);
+
+//物品 god box的icon的切换
+qyengine.guardId('grou_packageGoodItem_box'+repeatTime).objects['obj_equipImage'].
+changeSprite("obj_"+game.configs.item[game.vars_.userInfo.packageInfo.packGood[repeatTime].id].icon+"_default");
+
+ qyengine.guardId("grou_packagePopUp_Box").objects['cont_packagePopUp_Box'].objects['obj_equipImage'].
+ changeSprite("obj_" + game.configs.equipment[current_scene['nowSaleButton'].vars_.allProperty.id].icon);
+
+
+ grou_pkFailAndSuccess  (389,734)   //
+grou_pkRankListItem   (199,104)    //需修改
+grou_pkRankList   (354,660)   //需修改
+
+
+grou_pkFightRecordItem(233,125)  //需修改
+grou_pkFightRecord   (354,667)   //需修改
+
+grou_packCapacityFrame_pksecret  (307,452)          //不需要添加
+
+
+
+
+//grou_packageEquipItem   (52,52)
+
+
+
+//pk中需要传的参数。
+["obj_8",[[7,6],[8,6],[9,6]],false,null,false,true]
+
+//帮派中的一些记录
+grou_factionSearch       (355,344)   (已叫王号修改)
+
+grou_factionListItem     (168,30)    (需修改)
+grou_factionDailyActivity  (358,377) 	(需修改)
+
+
+
+obj_popUI_bg       (359,640)
+grou_packageBig     (299,620) (需修改)
