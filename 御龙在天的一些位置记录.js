@@ -4449,435 +4449,55 @@ if (petData.growVal >= parseInt(cardinalityNum) && petData.level < 3) {
 
 
 /**
- * RefreshActiveItem
+ * createTotalTask
  */
 
-//game.vars_.CurryPetID  game.vars_.petData[petId]
+var panelArr = qyengine.getInstancesByType("taskTotalSuitPanel");
+if (panelArr == 0) {
+	var panel = qyengine.instance_create(150, -80, 'taskTotalSuitPanel',
+		{
+			"type": 'taskTotalSuitPanel',
+			"id": 'taskTotalSuitPanel',
+			"zIndex": 9,
+			"layer": "layer0",
+		});
+	var mode_image = getSuitIcon();
+	panel.objects['obj_UI_Active_interface_jueselihui_04'].changeSprite("obj_" + mode_image + "_default", null, true);
+	var superTaskMan = game.configs.activity[27],
+		timeStartInTable = superTaskMan.time_start.split("|"),
+		timeOverInTable = superTaskMan.time_over.split("|");
+	var timeStartDate = current_game.scripts["al_scr_" + "CaculateTimeByConfig"].call(this, undefined, this, timeStartInTable);
+	var timeOverDate = current_game.scripts["al_scr_" + "CaculateTimeByConfig"].call(this, undefined, this, timeOverInTable);
+	panel.objects['SevenDaysSuitTitleTex'].text = "活动时间：" + timeStartDate + "-" + timeOverDate;
 
-
-
-//PetMainPanel.vars_.addProperty=["grow","mood","food","intimacy"];
-//PetMainPanel.vars_.addPropertyIcon=["obj_fate_pet_bt_06","obj_fate_pet_bt_05","fate_pet_bt_07","fate_pet_bt_26","fate_pet_bt_27","fate_pet_bt_28"];
-//挑选出 当前活动 所加成的属性值  1 喂食 2 玩耍 3 探索 4 倾听 5猜灯谜 6送礼物
-function ChuckActiveAddPropertyHandle(index) {
-
-	var str = "";
-	//成长
-	var petMoneyObj = getConfig("pet_money", index);
-	if (petMoneyObj["grow"] != 0) {
-		str += "成长 +" + petMoneyObj.grow + "\n";
-	}
-	//心情
-	if (petMoneyObj["mood"] != 0) {
-		str += "心情 +" + petMoneyObj.mood + "\n";
-	}
-	//饱食度
-	if (petMoneyObj["food"] != 0) {
-		str += "饱食度 +" + petMoneyObj.food + "\n";
-	}
-	//亲密度
-	if (petMoneyObj["intimacy"] != 0) {
-		str += "亲密度 +" + petMoneyObj.intimacy + "\n";
-	}
-	return str;
-}
-
-
-//CD进行转换
-function formatSeconds(value) {
-	var theTime = parseInt(value);// 秒 
-	var theTime1 = 0;// 分 
-	var theTime2 = 0;// 小时 
-	// alert(theTime); 
-	if (theTime > 60) {
-		theTime1 = parseInt(theTime / 60);
-		theTime = parseInt(theTime % 60);
-		// alert(theTime1+"-"+theTime); 
-		if (theTime1 > 60) {
-			theTime2 = parseInt(theTime1 / 60);
-			theTime1 = parseInt(theTime1 % 60);
-		}
-	}
-	var result = "" + parseInt(theTime) + "秒";
-	if (theTime1 > 0) {
-		result = "" + parseInt(theTime1) + "分" + result;
-	}
-	if (theTime2 > 0) {
-		result = "" + parseInt(theTime2) + "小时" + result;
-	}
-	return result;
-}
-
-
-//设置Item的状态
-//item 需要设置的Item
-//petMoneyObj  宠物的 活动数据 pet_money表
-//isCd  是否在CD当中
-//当前刷新的活动Id
-function SetItemStateHandle(item, petMoneyObj, cd, activeID) {
-	if (cd > 0) {
-		//添加的属性
-		item.objects.petPlayAddPropertyText.hide();
-		//cd的时间
-		item.objects.petTextCdTime.show();
-		item.objects.obj_fate_pet_bt_jiasu_auto.show();
-		item.objects.petTextCdTime.text = formatSeconds(cd);
-		//设置灰度
-		var children = (item.currentSprite && item.currentSprite.children) || [];
-
-		for (var i = 0; i < children.length; i++) {
-			if (children[i] && children[i].qyobj && children[i] && children[i].qyobj.id == "obj_fate_pet_bt_jiasu_auto") {
-				continue;
-			}
-			children[i] && children[i].qyobj && children[i].qyobj.setHSL(0, -100, 0);
-		}
-		//设置消耗的钱数
-		item.objects.grouPetActionItemUseMoney.hide();
-	} else {
-		item.objects.petTextCdTime.hide();
-		item.objects.obj_fate_pet_bt_jiasu_auto.hide();
-		item.objects.petPlayAddPropertyText.show();
-		item.objects.petPlayAddPropertyText.text = ChuckActiveAddPropertyHandle(activeID);
-		//回复灰度
-		var children = (item.currentSprite && item.currentSprite.children) || [];
-
-		for (var i = 0; i < children.length; i++) {
-			children[i] && children[i].qyobj && children[i].qyobj.setHSL(0, 0, 0);
-		}
-		//设置消耗的钱数
-		item.objects.grouPetActionItemUseMoney.show();
-		var moneyArr = petMoneyObj.cost.split("|");
-		var moneyIcon = getConfig("prop", moneyArr[1], "smallIcon");
-		item.objects.grouPetActionItemUseMoney.objects.petPlayUseMoneyIcon.changeSprite("obj_" + moneyIcon + "_default", null, true);
-		item.grouPetActionItemUseMoney.objects.petPlayUseMoneyNumText.text = moneyArr[2];
-	}
-	if (petMoneyObj.viplevel != 0) {
-		//设置VIP等级
-		item.objects.VIPOpenCondition.show();
-		item.objects.obj_server_baioqian_2.show();
-		item.objects.VIPOpenCondition.text = "贵" + petMoneyObj.viplevel + "开启";
-	} else {
-		item.objects.VIPOpenCondition.hide();
-		item.objects.obj_server_baioqian_2.hide();
-	}
-
-	//设置按钮图片的Icon
-	item.objects.obj_fate_pet_bt_06.changeSprite("obj_" + PetMainPanel.vars_.addPropertyIcon[activeID] + "_default", null, true);
-}
-
-
-
-
-//刷新喂食的Item 
-function RefreshFeedItemHandle() {
-	//喂食的Item
-	var feedItem = qyengine.guardId("PetActionItem0");
-	var petMoneyObj = getConfig("pet_money", 1);
-	//from 好友
-	if (game.vars_.friendpet) {
-		feedItem = qyengine.guardId("PetActionItem_friend0");
-		var interaction_pet = game.configs.interaction_pet[3];
-		feedItem.objects['grouPetActionItemUseMoney'].hide();
-		feedItem.objects['petTextCdTime'].hide();
-		feedItem.objects['petText_no'].show();
-		feedItem.objects['petPlayAddPropertyText'].text = "" + CalPlus(3);
-		if (!game.vars_.friendpet || (game.vars_.friendpet && game.vars_.petData[game.vars_.CurryPetID].weisi == undefined)) {
-			feedItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_06_default", null, true);
-		}
-	} else {
-		SetItemStateHandle(feedItem, petMoneyObj, petData.feedTime, 1);
-	}
-}
-
-
-//刷新玩耍的Item
-function RefreshPlayItemHandle() {
-	//玩耍的Item
-	var playItem = qyengine.guardId("PetActionItem1");
-	var petMoneyObj = getConfig("pet_money", 2);
-	SetItemStateHandle(playItem, petMoneyObj, petData.playerTime, 2);
-}
-
-
-// 刷新 探索的
-function RefreshExploreItemHandle() {
-	//探索
-	var exploreItem = qyengine.guardId("PetActionItem2");
-	var petMoneyObj = getConfig("pet_money", 3);
-	SetItemStateHandle(exploreItem, petMoneyObj, petData.exploreCd, 3);
-}
-//计算 增减   好友进来
-function CalPlus(_typeId) {
-	var _typeData = game.configs.interaction_pet[_typeId];
-	var data_类别 = { 'grow': "成长值", 'mood': "心情值", 'food': "饱食度", 'intimacy': "亲密度" };
-	var data_key = Object.keys(data_类别)
-	var show_text = ""
-	var _index = 0;
-	for (var i = 0; i < data_key.length; i++) {
-		var _value = Number(_typeData[data_key[i]]);
-		if (_value) {
-			_value = _value > 0 ? ("+" + _value) : _value;
-			if (_index == 0) {
-				show_text += (data_类别[data_key[i]] + _value);
-			} else {
-				show_text += ("\n" + data_类别[data_key[i]] + _value);
-			}
-			_index++;
-		}
-	}
-	return show_text;
-}
-//刷新 倾听的
-function RefreshListenItemHandle() {
-	//倾听的
-	var listenItem = qyengine.guardId("PetActionItem0");
-	var petMoneyObj = getConfig("pet_money", 4);
-	if (game.vars_.friendpet) {
-		listenItem = qyengine.guardId("PetActionItem_friend0");
-		var interaction_pet = game.configs.interaction_pet[4];
-		listenItem.objects['grouPetActionItemUseMoney'].hide();
-		listenItem.objects['petTextCdTime'].hide();
-		listenItem.objects['petText_no'].show();
-		listenItem.objects['petPlayAddPropertyText'].text = "" + CalPlus(4);
-		if (!game.vars_.friendpet || (game.vars_.friendpet && game.vars_.petData[game.vars_.CurryPetID].qinting == undefined)) {
-			listenItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_26_default", null, true);
-		}
-	} else {
-		SetItemStateHandle(listenItem, petMoneyObj, petData.listenTime, 4);
-	}
-}
-//刷新 诱拐
-function RefreshstealItemHandle() {
-	var listenItem = qyengine.guardId("PetActionItem_friend1");
-	if (petData.level > 2) {
-		var dataPlace = 2;
-	} else {
-		var dataPlace = 1;
-	}
-	var interaction_pet = game.configs.interaction_pet[dataPlace];
-	listenItem.objects['grouPetActionItemUseMoney'].show();
-	listenItem.objects['grouPetActionItemUseMoney'].objects['petPlayUseMoneyNumText'].text = 10;
-	listenItem.objects['grouPetActionItemUseMoney'].objects['petPlayUseMoneyIcon'].changeSprite("obj_Icon_Diamonds_default", null, true);
-	listenItem.objects['petTextCdTime'].hide();
-	listenItem.objects['petText_no'].hide();
-	listenItem.objects['petPlayAddPropertyText'].text = "" + CalPlus(dataPlace);
-	if (!game.vars_.friendpet || (game.vars_.friendpet && game.vars_.petData[game.vars_.CurryPetID].youguai == undefined)) {
-		listenItem.objects['obj_fate_pet_bt_06'].changeSprite("obj_fate_pet_bt_Friend_06_default", null, true);
-	}
-}
-
-
-//刷新猜灯谜的
-function RefreshGuessLanternItemHandle() {
-	//猜灯谜的
-	var guessLantern = qyengine.guardId("PetActionItem1");
-	var petMoneyObj = getConfig("pet_money", 5);
-	SetItemStateHandle(guessLantern, petMoneyObj, petData.guessTime, 5);
-
-}
-
-
-//刷新送礼物的
-function RefreshSendGiftsItemHandle() {
-	//送礼物的
-	var sendGifts = qyengine.guardId("PetActionItem2");
-	var petMoneyObj = getConfig("pet_money", 6);
-	SetItemStateHandle(sendGifts, petMoneyObj, petData.giveGiftTime, 6);
-
-}
-
-
-
-
-//刷新人型的宠物的活动Item
-function RefreshHumanformActivityHandle() {
-	//刷新倾听
-	if (!game.vars_.friendpet || (game.vars_.friendpet && game.vars_.stealType == 0)) {
-		RefreshListenItemHandle();
-	}
-
-	if (game.vars_.friendpet == true) {
-		//诱拐
-		RefreshstealItemHandle();
-	} else {
-		//刷新猜灯谜
-		RefreshGuessLanternItemHandle();
-		//刷新送礼物
-		RefreshSendGiftsItemHandle();
-	}
-}
-
-
-//宠物形的活动Item
-function RefreshPetformActivityHandle() {
-	//刷新喂食
-	if (!game.vars_.friendpet || (game.vars_.friendpet && game.vars_.stealType == 0)) {
-		RefreshFeedItemHandle();
-	}
-	if (game.vars_.friendpet) {
-		RefreshstealItemHandle();
-	} else {
-		//刷新玩耍
-		RefreshPlayItemHandle();
-		//刷新探索
-		RefreshExploreItemHandle();
-	}
-}
-
-//正在探索当中 
-function ExploreIngHandle() {
-	grou_PetPlay.hide();
-	grou_AdoptionAward.show();
-	//刷新 物品
-	var awardDataArr = getConfig("pet_money", 3, "reward").split("#");
-	//qyengine.guardId("grou_AdoptionAward").objects.scro_petAdoptionReward.
-	for (var i = 0; i < awardDataArr.length; i++) {
-		var AdoptionRewardItem = qyengine.guardId("scroPetAdoptionRewardItem" + i);
-		if (AdoptionRewardItem == null || AdoptionRewardItem.destroyed_) {
-			qyengine.instance_create(0, 0, "scroPetAdoptionRewardItem", { "type": "scroPetAdoptionRewardItem", "id": 'scroPetAdoptionRewardItem' + i, "zIndex": 9 });
-			qyengine.guardId("scro_petAdoptionReward").appendChild("scroPetAdoptionRewardItem" + i, 0, 0, 0, i, false, true);
-		}
-		//刷新 Item
-		var itemUi = qyengine.guardId("scroPetAdoptionRewardItem" + i).objects;
-		var awardArr = awardDataArr[i].split("|");
-		var awardIcon;
-		if (awardArr[0] == 1) {
-			//物品
-			awardIcon = getConfig("prop", awardArr[1], "icon");
-
-		} else if (awardArr[0] == 2) {
-			//服装
-			awardIcon = getConfig("fashion", awardArr[1], "sicon");
-		} else {
-			//设计图 注 先不处理 策划表里没有配 小图标 字段
-			//awardIcon=getConfig("fashionPlan",awardArr[1],"reward");
-		}
-
-		itemUi.AdoptionAwardIcon.changeSprite("obj_" + awardIcon + "_default", null, true);
-		//设置数目
-		var num = parseInt(awardArr[2]);
-		if (game.vars_.petData[game.vars_.CurryPetID].moodVal < 80) {
-			itemUi.AdoptionAwardText.text = num / 2;
-
-		} else {
-			itemUi.AdoptionAwardText.text = num;
-		}
-
-
-
-	}
-
-
-	//正在探索当中
-	if (petData.exploreReward == 0) {
-		// 加速
-		grou_AdoptionAward.objects.petSpeedUpBtn.vars_.state = 1;
-		grou_AdoptionAward.objects.obj_fate_pet_bt_23.changeSprite("obj_fate_pet_bt_24_default", null, true);
-		grou_AdoptionAward.objects.ExploreTheTimeCdText.text = "探索中....." + formatSeconds(petData.exploreTime);
-
-
-	} else {
-		//探索已经完成 领取状态
-		grou_AdoptionAward.objects.petSpeedUpBtn.vars_.state = 0;
-		grou_AdoptionAward.objects.obj_fate_pet_bt_23.changeSprite("obj_fate_pet_bt_23_default", null, true);
-		grou_AdoptionAward.objects.ExploreTheTimeCdText.text = "探索完成";
-	}
-}
-
-
-
-
-//设置饱食度心情值
-function SetOvereatMoodOfHandle() {
-	qyengine.guardId("petChildhoodStateGrou").show();
-
-
-	//设置饱食度
-	if (petData.satietiy <= 0) {
-		qyengine.guardId("petOvereatBar").width = 360 * (0 / 100);
-		qyengine.guardId("petFeedNumText").text = 0 + "/" + 100;
-	} else {
-		qyengine.guardId("petOvereatBar").width = 360 * (petData.satietiy / 100);
-		qyengine.guardId("petFeedNumText").text = petData.satietiy + "/" + 100;
-	}
-
-	//设置心情
-	if (petData.satietiy <= 0) {
-		qyengine.guardId("petMoodOfBar").width = 0;
-		qyengine.guardId("petMoodNumText").text = 0 + "/" + 100;
-	} else {
-		qyengine.guardId("petMoodOfBar").width = 360 * (petData.moodVal / 100);
-		qyengine.guardId("petMoodNumText").text = petData.moodVal + "/" + 100;
-	}
-}
-
-
-
-
-//当前的宠物数据
-var petData = game.vars_.petData[game.vars_.CurryPetID];
-//先看宠物是不是死了 
-
-//检测当前的宠物是不是死了
-if (petData.satietiy <= 0 && petData.level <= 2) {
-	qyengine.guardId("grouAdopt").show();
-	qyengine.guardId("grou_AdoptionAward").hide();
-	qyengine.guardId("grou_PetPlay").hide();
-	var resurgenceMoneyData = getConfig("pet", game.vars_.CurryPetID, "revive").split(";")[petData.level - 1].split("|");
-	qyengine.guardId("petDeblockingUseMoneyText").text = resurgenceMoneyData[2];
-	qyengine.guardId("obj_fate_pet_13_1").changeSprite("obj_fate_pet_14_default", null, true);
-
-	qyengine.guardId("obj_petDeblockingIcon").changeSprite("obj_" + game.configs.prop[123].smallIcon + "_default", null, true);
-	qyengine.guardId("petDeblockingUseMoneyText").text = "1 (拥有：" + (game.vars_.playInfoJson.xumindan || 0) + ")";
-	qyengine.guardId("obj_petDeblockingIcon").x = 81;
-	qyengine.guardId("petDeblockingUseMoneyText").x = 116;
-	return;
-}
-
-var cardinalityNum;
-if (petData.level == 0) {
-	cardinalityNum = getConfig("pet", game.vars_.CurryPetID, "grow").split(";")[petData.level];
+	game.vars_.activeTaskTotalSuit = panel;
 } else {
-	cardinalityNum = getConfig("pet", game.vars_.CurryPetID, "grow").split(";")[petData.level - 1];
-	if (cardinalityNum == "-1") {
-		cardinalityNum = getConfig("pet", game.vars_.CurryPetID, "grow").split(";")[petData.level - 2];
+	panelArr[0].show();
+}
+
+initFashionIcon();
+function initFashionIcon() {
+	var task_table = game.configs.activity_dailyTask,
+		fashion_table = game.configs.fashion;
+	for (var i = 0; i <= 7; i++) {
+		var itemObj = panel.objects['SevenSuitItem_' + i],
+			dailyTaskItemData = task_table[i + 1];
+		if (!task_table[i + 1]) {
+			itemObj.hide();
+			break;
+		}
+		var fashionOneId = dailyTaskItemData.reward.split("|")[1];
+		itemObj.objects['SevenSuitNametext_' + i].text = fashion_table[fashionOneId].name;
+		itemObj.objects['SevenDaysSuitIcon_' + i].changeSprite("obj_" + fashion_table[fashionOneId].icon + "_default", null, true);
+		itemObj.objects['txt_taskNeedNum_' + i].text = "完成" + dailyTaskItemData.num + "个任务";
 	}
 }
-if (petData.growVal > parseInt(cardinalityNum)) {
-	//到达飞升状态
-	qyengine.guardId("grouAdopt").show();
-	qyengine.guardId("grou_AdoptionAward").hide();
-	qyengine.guardId("grou_PetPlay").hide();
-	var resurgenceMoneyData = getConfig("pet", game.vars_.CurryPetID, "up").split(";")[petData.level - 1].split("|");
-	qyengine.guardId("petDeblockingUseMoneyText").text = resurgenceMoneyData[2];
-	qyengine.guardId("obj_fate_pet_13_1").changeSprite("obj_fate_pet_15_default", null, true);
-
-	return;
-}
-
-
-
-//刷新 喂食 玩耍 XXX
-//首先判断当前的宠物是不是人型(临时写死~策划也不确定)
-if (petData.level > 2) {
-	grou_PetPlay.show();
-	grou_AdoptionAward.hide();
-	//人型  倾听  猜灯谜  送礼物  (好友宠物 倾听和诱拐)
-	RefreshHumanformActivityHandle();
-} else {
-	SetOvereatMoodOfHandle();
-	//特殊情况 在探索中的处理    exploreReward 探索奖励是1/否0领取 2可以领取
-	if (petData.exploreTime != undefined && (petData.exploreTime > 0 || petData.exploreReward == 2)) {
-		grou_PetPlay.hide();
-		ExploreIngHandle();
-
-	} else {
-		grou_PetPlay.show();
-		grou_AdoptionAward.hide();
-		//宠物形 喂食 玩耍 探索
-		RefreshPetformActivityHandle();
-	}
-
+function getSuitIcon() {
+	var suit_table = game.configs.suit
+	task_table = game.configs.activity_dailyTask;
+	var fashId = game.configs.activity_dailyTask[1].reward.split("|")[1];
+	var suitId = game.configs.fashion[fashId].suit;
+	return suit_table[5113].model;
 }
 
 
@@ -4885,30 +4505,9 @@ if (petData.level > 2) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/**
+ * judgeTotalTaskActivityShow
+ */
+if (game.vars_.activeTaskTotalSuit && game.vars_.activeTaskTotalSuit.isVisible) {
+	current_game.scripts['al_scr_' + "createTotalTask"].call(this, undefined, this);
+}
